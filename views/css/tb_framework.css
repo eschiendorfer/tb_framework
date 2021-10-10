@@ -1,0 +1,43 @@
+/* Demo Controller */
+#module-tb_framework-framework section {
+    margin-top: 30px;
+}
+
+/* Elements */
+
+/* Buttons */
+.tbfw_button {
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.tbfw_button_primary {
+    background-color: #f44336;
+}
+
+.tbfw_button_secondary {
+    background-color: #008CBA;
+}
+
+.tbfw_button_tertiary {
+    background-color: #555555;
+}
+
+.tbfw_button_cta {
+    background-color: blueviolet;
+}
+
+.tbfw_button_large {
+    padding: 15px 32px;
+    font-size: 18px;
+}
+
+.tbfw_button_small {
+    padding: 7px 15px;
+    font-size: 14px;
+}
