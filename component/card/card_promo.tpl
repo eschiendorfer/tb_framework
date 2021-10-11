@@ -1,6 +1,6 @@
 <div class="tbfw_card_promo">
 
-	<div style="background-image: url({$component.image.src});"></div>
+	<img src="{$component.image.src}">
 
 	<div>
 
