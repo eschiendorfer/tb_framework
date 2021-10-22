@@ -67,16 +67,13 @@ class FrameworkController extends FrontController {
 
     // Tabs
     // Dropdowns (Button/Menu)
-    // Card (Fomantic)
-    // Carousel
-    // Modals
-    // Something like lightbox
+
     // Pagination
     // Tooltips/Popover (see Bootstrap)
     // Accordion (UI KIT/Fomantic)
     // comments (UI Kit/Fomantic)
     // Check the use of section (UI Kit)
-    // Somehow having a login popup
+    // Somehow having a login popup (modal_login probably)
 
     // Supported CSS Elements
 
@@ -302,6 +299,10 @@ class FrameworkController extends FrontController {
             'component' => $this->smarty_vars
         ]);
 
+        if (isset($this->smarty_vars['id'])) {
+            Media::addJsDef(['id' => $this->smarty_vars['id']]);
+        }
+
         $component_tpl_file = self::getFilePathByComponent($this->component);
 
         return $this->context->smarty->fetch($component_tpl_file);
@@ -511,7 +512,7 @@ class FrameworkController extends FrontController {
             'show' => false, // Should the modal open on page load?
             'close_button' => true, // Should there be a close button on top right?
             'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
-            'id' => 'modal-unique-id', // Make sure that you chose-something unique
+            'id' => 'modal_unique_id', // Make sure that you chose-something unique
             'html' => $html,
         ];
 
