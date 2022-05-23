@@ -55,6 +55,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             FrameworkController::COMPONENT_CARD_PROMO,
             FrameworkController::COMPONENT_CARD_DEFAULT,
             FrameworkController::COMPONENT_CARD_SIMPLE,
+            FrameworkController::COMPONENT_CARD_PRODUCT,
         ];
 
         foreach ($components as $component) {

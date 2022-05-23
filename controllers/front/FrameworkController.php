@@ -52,6 +52,13 @@ class FrameworkController extends FrontController {
         'name' => 'card_simple',
     ];
 
+    const COMPONENT_CARD_PRODUCT = [
+        'type' => 'card',
+        'name' => 'card_product',
+    ];
+
+
+
     const COMPONENT_MODAL_DEFAULT = [
         'type' => 'modal',
         'name' => 'modal_default',
@@ -62,10 +69,15 @@ class FrameworkController extends FrontController {
         'name' => 'carousel_components',
     ];
 
+    const COMPONENT_TAB_COMPONENTS = [
+        'type' => 'tab',
+        'name' => 'tab_components',
+    ];
+
 
     // List: Submenu vertical
 
-    // Tabs
+
     // Dropdowns (Button/Menu)
 
     // Pagination
@@ -215,7 +227,7 @@ class FrameworkController extends FrontController {
         // Progress Bar
         // Ratings (Fomantic)
 
-
+    public static $alreadyCalled;
 
     public $component;
     public $smarty_vars;
@@ -296,12 +308,15 @@ class FrameworkController extends FrontController {
         $this->context->smarty->assign([
             // Todo: probably this css_selector should be in global front_controller
             'css_selector' => $this->getAllCssSelectorsForElements(), // This allows usage of sth like: {$css_selector.button_primary} -> it's for module or core devs. As the theme designer know the selectors anyway
-            'component' => $this->smarty_vars
+            'component' => $this->smarty_vars,
+            'first_call' => !isset(self::$alreadyCalled[$this->component['name']]),
         ]);
 
         if (isset($this->smarty_vars['id'])) {
             Media::addJsDef(['id' => $this->smarty_vars['id']]);
         }
+
+        self::$alreadyCalled[$this->component['name']] = true;
 
         $component_tpl_file = self::getFilePathByComponent($this->component);
 
@@ -452,6 +467,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
+    // Cards
     public function getDemoData_card_default() {
 
         $demo_data = [
@@ -488,8 +504,21 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-
     public function getDemoData_card_simple() {
+
+        $demo_data = [
+            'title' => 'Sozialer als alle sozialen Netzwerke',
+            'subtitle' => 'Familienspiele',
+            'image' => [
+                'src' => '/themes/genzo_theme/img/cover.png',
+            ],
+            'link' => '/card_simple/demo',
+        ];
+
+        return $demo_data;
+    }
+
+    public function getDemoData_card_product() {
 
         $demo_data = [
             'title' => 'Sozialer als alle sozialen Netzwerke',
