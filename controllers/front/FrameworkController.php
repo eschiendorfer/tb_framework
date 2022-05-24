@@ -74,6 +74,11 @@ class FrameworkController extends FrontController {
         'name' => 'tab_components',
     ];
 
+    const COMPONENT_MENU_VERTICAL = [
+        'type' => 'menu',
+        'name' => 'menu_vertical',
+    ];
+
 
     // List: Submenu vertical
 
