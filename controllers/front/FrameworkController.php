@@ -411,15 +411,36 @@ class FrameworkController extends FrontController {
         // Todo: how to know how many elements are showed? -> the theme needs to tell
         $manufacturers = Manufacturer::getManufacturers(false, $this->context->language->id, true, 1, 12);
 
-        $data = [];
+        $data = [
+            [
+                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
+                'title' => 'Boardgames',
+                'link' => ['url' => '#'],
+            ],
+            [
+                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
+                'title' => 'Card Games',
+                'link' => ['url' => '#'],
+            ],
+            [
+                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
+                'title' => 'Collectibles',
+                'link' => ['url' => '#'],
+            ],
+            [
+                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
+                'title' => 'Chess',
+                'link' => ['url' => '#'],
+            ],
+        ];
 
-        foreach ($manufacturers as $manufacturer) {
+        /*foreach ($manufacturers as $manufacturer) {
             $data[] = [
                 'src' => __PS_BASE_URI__ . 'img/m/' . (int) $manufacturer['id_manufacturer'] . '.jpg',
                 'title' => $manufacturer['name'],
                 'link' => ['url' => $this->context->link->getManufacturerLink($manufacturer['id_manufacturer'])],
             ];
-        }
+        }*/
 
 
         $demo_data = [
