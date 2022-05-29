@@ -29,6 +29,9 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         $this->context->smarty->assign(array(
             'meta_title' => 'TB FrontOffice Framework',
             'meta_description' => 'bla',
+            'site_title' => 'TB Framework',
+            'site_description' => 'Genzo is still workin on this.',
+            'site_image' => '',
             'framework_content' => $type ? $this->renderFrameworkContentByType($type, $component) : '',
         ));
 
@@ -39,34 +42,31 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
     private function renderFrameworkContentByType($type, $component = false) {
 
         if ($component) {
+
+            $reflectionClass = new ReflectionClass('FrameworkController');
+            $components = [];
+
+            foreach ($reflectionClass->getConstants() as $constant) {
+                if (is_array($constant) && isset($constant['type']) && ($type==$constant['type'])) {
+                    $frameworkComponent = new FrameworkController($constant, [], true);
+                    $components[] = [
+                        'name' => $constant['name'],
+                        'output' => $frameworkComponent->fetchElement(),
+                    ];
+                }
+            }
+
             $this->context->smarty->assign(array(
-                'components' => $this->{'render'.$type.'Components'}(),
+                'title' => ucwords($type),
+                'components' => $components,
             ));
         }
 
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/{$type}.tpl");
-    }
-
-    private function renderCardsComponents() {
-
-        $components_output = [];
-
-        $components = [
-            FrameworkController::COMPONENT_CARD_PROMO,
-            FrameworkController::COMPONENT_CARD_DEFAULT,
-            FrameworkController::COMPONENT_CARD_SIMPLE,
-            FrameworkController::COMPONENT_CARD_PRODUCT,
-        ];
-
-        foreach ($components as $component) {
-            $frameworkComponent = new FrameworkController($component, [], true);
-            $components_output[] = [
-                'name' => $component['name'],
-                'output' => $frameworkComponent->fetchElement(),
-            ];
+        if (file_exists(_PS_MODULE_DIR_."tb_framework/views/templates/helper/{$type}.tpl")) {
+            return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/{$type}.tpl");
         }
 
-        return $components_output;
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/components.tpl");
     }
 
 }

@@ -16,9 +16,9 @@ class FrameworkController extends FrontController {
         'name' => 'list_compact',
     ];
 
-    const COMPONENT_LIST_COMPONENTS = [
-        'type' => 'list',
-        'name' => 'list_components',
+    const COMPONENT_FLEXBOX_COMPONENTS = [
+        'type' => 'flexbox',
+        'name' => 'flexbox_components',
     ];
 
     const COMPONENT_IMAGECLOUD_DEFAULT = [
@@ -35,7 +35,6 @@ class FrameworkController extends FrontController {
         'type' => 'feature',
         'name' => 'feature_default',
     ];
-
 
     const COMPONENT_CARD_DEFAULT = [
         'type' => 'card',
@@ -67,6 +66,11 @@ class FrameworkController extends FrontController {
     const COMPONENT_CAROUSEL_COMPONENTS = [
         'type' => 'carousel',
         'name' => 'carousel_components',
+    ];
+
+    const COMPONENT_CAROUSEL_PROMO = [
+        'type' => 'carousel',
+        'name' => 'carousel_promo',
     ];
 
     const COMPONENT_TAB_COMPONENTS = [
@@ -343,7 +347,7 @@ class FrameworkController extends FrontController {
 
     }
 
-    public function getDemoData_List_Compact() {
+    public function getDemoData_List_compact() {
 
         $query = new \DbQuery();
         $query->select('p.*, pl.*, cl.name AS category, m.name AS manufacturer');
@@ -406,6 +410,7 @@ class FrameworkController extends FrontController {
 
     }
 
+    // Image Cloud
     public function getDemoData_imagecloud_default() {
 
         // Todo: how to know how many elements are showed? -> the theme needs to tell
@@ -456,7 +461,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-
+    // Header
     public function getDemoData_header_default() {
 
         $demo_data = [
@@ -468,6 +473,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
+    // Feature
     public function getDemoData_feature_default() {
 
         $demo_data = [
@@ -515,9 +521,9 @@ class FrameworkController extends FrontController {
     public function getDemoData_card_promo() {
 
         $demo_data = [
-            'title' => 'Sozialer als alle sozialen Netzwerke',
+            'title' => 'Sozialer als soziale Netzwerke',
             'subtitle' => 'Familienspiele',
-            'description' => 'Eltern können ihren Kindern nichts Schöneres schenken als gemeinsame Zeit. Brettspiele schweissen zusammen und man erlebt lustige Momente, an die man sich noch Jahre später erinnert. Für einen Spielnachmittag reichen ein paar Snacks, leckere Getränke und ein tolles Spiel aus.',
+            'description' => 'Eltern können ihren Kindern nichts Schöneres schenken als gemeinsame Zeit. Brettspiele schweissen zusammen und man erlebt lustige Momente, an die man sich noch Jahre später erinnert. Für einen Spielnachmittag reichen ein paar Snacks, leckere Getränke und ein tolles Spiel.',
             'image' => [
                 'src' => '/themes/genzo_theme/img/cover.png',
             ],
@@ -558,32 +564,129 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-
+    // Modal
     public function getDemoData_modal_default() {
 
-        $html = '<b>Genzo is King</b>';
+        $html = '<b>This is a custom modal</b>';
+
+        $frameworkController = new FrameworkController(FrameworkController::COMPONENT_HEADER_DEFAULT, [], true);
+        $html .= $frameworkController->fetchElement();
+
+        $frameworkController = new FrameworkController(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS, [], true);
+        $html .= $frameworkController->fetchElement();
 
         $demo_data = [
-            'show' => false, // Should the modal open on page load?
+            'show' => true, // Should the modal open on page load?
             'close_button' => true, // Should there be a close button on top right?
             'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
             'id' => 'modal_unique_id', // Make sure that you chose-something unique
+            'title' => 'Custom Modal',
             'html' => $html,
         ];
 
         return $demo_data;
     }
 
+    // Carousel
     public function getDemoData_carousel_components() {
 
+        $categories = [
+            ['id_category' => 12],
+            ['id_category' => 227],
+            ['id_category' => 235],
+        ];
+
+        $random_element = $categories[array_rand($categories)];
+        $random_element['display'] = true;
+
+
+        $products = Product::getProducts(1, 0, 10, 'id_product', 'ASC', $random_element['id_category'], true);
+        $productBoxes = [];
+
+        foreach ($products as &$product) {
+            $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+            $themeElement = new FrameworkController(FrameworkController::COMPONENT_CARD_PRODUCT, $product);
+            $productBoxes[] = $themeElement->fetchElement();
+        }
+
+        // Render the whole component
         $demo_data = [
-            'lists' => [], // Fill an array with components
+            'id' => 'products_slider'.rand(0,100),
+            'nbr_columns' => 3.5,
+            'slides' => $productBoxes
         ];
 
         return $demo_data;
     }
 
+    public function getDemoData_carousel_promo() {
+
+        $demo_data_carousel = $this->getDemoData_carousel_components();
+
+        $demo_data_carousel['nbr_columns'] = 2.5;
+        $demo_data_carousel['promo_position'] = 'left';
+
+        return $demo_data_carousel;
+    }
+
+    // Menus
+    public function getDemoData_menu_vertical() {
+        $data = [
+            ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '24', 'height' => '24']],
+            ['title' => 'Würfelspiele', 'icon' => ['class' => 'icon-academic-cap']],
+            ['title' => 'Kartenspiele', 'icon' => ['class' => 'icon-adjustments']],
+            ['title' => 'Kinderspiele', 'icon' => ['class' => 'icon-archive']],
+            ['title' => 'Spiel des Jahres', 'icon' => ['class' => 'icon-arrow-circle-down']],
+        ];
+
+        return $data;
+    }
+
+    // Flexbox
+    public function getDemoData_flexbox_components() {
+
+        // This can be seen as an example how a module would use components
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
+        $list_compact_1 = $themeElement->fetchElement();
+
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
+        $list_compact_2 = $themeElement->fetchElement();
+
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
+        $list_compact_3 = $themeElement->fetchElement();
 
 
+        // Render the whole component
+        $data = [
+            'nbr_columns' => 3,
+            'elements' => [$list_compact_1, $list_compact_2, $list_compact_3]
+        ];
+
+
+        return $data;
+    }
+
+    // Tabs
+
+    public function getDemoData_tab_components() {
+        $demo_data = [];
+
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS, [], true);
+        $carousel = $themeElement->fetchElement();
+
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_HEADER_DEFAULT, [], true);
+        $header = $themeElement->fetchElement();
+
+        $themeElement = new FrameworkController(FrameworkController::COMPONENT_IMAGECLOUD_DEFAULT, [], true);
+        $imagecloud = $themeElement->fetchElement();
+
+        $demo_data = [
+            ['title' => 'Carousel', 'content' => $carousel, 'display' => true],
+            ['title' => 'Header', 'content' => $header],
+            ['title' => 'Imagecloud', 'content' => $imagecloud],
+        ];
+
+        return $demo_data;
+    }
 
 }
