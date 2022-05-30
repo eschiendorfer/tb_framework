@@ -594,6 +594,8 @@ class FrameworkController extends FrontController {
             ['id_category' => 12],
             ['id_category' => 227],
             ['id_category' => 235],
+            ['id_category' => 422],
+            ['id_category' => 426],
         ];
 
         $random_element = $categories[array_rand($categories)];
@@ -625,6 +627,8 @@ class FrameworkController extends FrontController {
 
         $demo_data_carousel['nbr_columns'] = 2.5;
         $demo_data_carousel['promo_position'] = 'left';
+
+        // Todo: probably we should add a boolean value for "boxed". This could actually be true for all containers
 
         return $demo_data_carousel;
     }
