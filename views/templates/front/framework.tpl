@@ -18,7 +18,7 @@
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'tab', 'component'=>1])}">Tabs</a></li>
     </ul>
 
-    <div class="flex-shrink-1 max-w-full min-w-0 ml-8">
+    <div class="flex-shrink-1 w-full max-w-full min-w-0 ml-8">
         {$framework_content}
     </div>
 </div>

@@ -26,6 +26,11 @@ class FrameworkController extends FrontController {
         'name' => 'imagecloud_default',
     ];
 
+    const COMPONENT_IMAGECLOUD_PROMO = [
+        'type' => 'imagecloud',
+        'name' => 'imagecloud_promo',
+    ];
+
     const COMPONENT_HEADER_DEFAULT = [
         'type' => 'header',
         'name' => 'header_default',
@@ -461,6 +466,32 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
+    public function getDemoData_imagecloud_promo() {
+        $demo_data = [
+            'header' => [
+                'title' => 'Klassiker gehen immer oder nicht!?',
+                'subtitle' => 'Unsere Lieblingsstücke',
+            ],
+            'promo' => [
+                'position' => 'right',
+            ],
+            'data' => [
+                ['src' => 'https://www.genzo.ch/810-home_default/jenga.jpg'],
+                ['src' => 'https://www.genzo.ch/812-home_default/shut-the-box-4er-variante.jpg'],
+                ['src' => 'https://www.genzo.ch/4746-home_default/chinderjass-tschau-sepp.jpg'],
+                ['src' => 'https://www.genzo.ch/800-home_default/tiroler-roulette-octagon.jpg'],
+                ['src' => 'https://www.genzo.ch/801-home_default/rummy.jpg'],
+                ['src' => 'https://www.genzo.ch/802-home_default/kalaha.jpg'],
+            ],
+            'link' => [
+                'title' => 'Alle anzeigen',
+                'url' => '#',
+            ],
+        ];
+
+        return $demo_data;
+    }
+
     // Header
     public function getDemoData_header_default() {
 
@@ -629,6 +660,7 @@ class FrameworkController extends FrontController {
         $demo_data_carousel['promo_position'] = 'left';
 
         // Todo: probably we should add a boolean value for "boxed". This could actually be true for all containers
+        // Maybe we can fix it also, if components need to implement a header and a show_all variant.
 
         return $demo_data_carousel;
     }
