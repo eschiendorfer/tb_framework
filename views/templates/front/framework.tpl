@@ -1,5 +1,5 @@
 <div class="flex">
-    <ul class="flex-shrink-0 w-40 border-r-2">
+    <ul class="shrink-0 w-40 border-r-2">
         <li class="primary">Elements</li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'buttons'])}">Buttons</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'badges'])}">Badges</a></li>
@@ -18,7 +18,7 @@
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'tab', 'component'=>1])}">Tabs</a></li>
     </ul>
 
-    <div class="flex-shrink-1 w-full max-w-full min-w-0 ml-8">
+    <div class="shrink-1 w-full max-w-full min-w-0 ml-8">
         {$framework_content}
     </div>
 </div>
