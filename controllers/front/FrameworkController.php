@@ -622,8 +622,8 @@ class FrameworkController extends FrontController {
     public function getDemoData_card_product() {
 
         $demo_data = [
-            'title' => 'Sozialer als alle sozialen Netzwerke',
-            'subtitle' => 'Familienspiele',
+            'name' => 'Sozialer als alle sozialen Netzwerke',
+            'category' => 'Familienspiele',
             'image' => [
                 'src' => '/themes/genzo_theme/img/cover.png',
             ],
