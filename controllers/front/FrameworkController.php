@@ -106,13 +106,13 @@ class FrameworkController extends FrontController {
 
     // Basic Elements
     // Todo: Colors
-    const CSS_COLOR_PRIMARY = 'color_primary';
-    const CSS_COLOR_SECONDARY = 'color_secondary';
+    /* const CSS_COLOR_PRIMARY = 'color_primary';
+    /const CSS_COLOR_SECONDARY = 'color_secondary';
     const CSS_COLOR_TERTIARY = 'color_tertiary';
     const CSS_COLOR_GRAY = 'color_gray';
     const CSS_COLOR_GRAY_LIGHT = 'color_gray_light';
     const CSS_COLOR_GRAY_DARK = 'color_gray_dark';
-    const CSS_COLOR_BLACK = 'color_black'; // Often times a clean black is too hard...
+    const CSS_COLOR_BLACK = 'color_black';*/ // Often times a clean black is too hard...
 
     // Buttons
     const ELEMENT_BUTTON_PRIMARY = [
@@ -218,21 +218,57 @@ class FrameworkController extends FrontController {
     // Ecommerce Related Elements
 
     // Prices
-    const ELEMENT_PRICE_DEFAULT = 'price_default';
-    const ELEMENT_PRICE_REDUCED = 'price_reduced';
-    const ELEMENT_PRICE_ORIGINAL = 'price_original';
+    const ELEMENT_PRICE_DEFAULT = [
+        'name'  =>  'price_default',
+        'css_selector'  =>  'tbfw_price_default',
+    ];
 
-        const ELEMENT_PRICE_SIZE_LARGE = 'price_size_large';
-        const ELEMENT_PRICE_SIZE_SMALL = 'price_size_small';
+    const ELEMENT_PRICE_REDUCED = [
+        'name' => 'price_reduced',
+        'css_selector'=> 'tbfw_price_reduced',
+    ];
+
+    const ELEMENT_PRICE_ORIGINAL = [
+        'name' => 'price_original',
+        'css_selector' => 'tbfw_price_original',
+    ];
+
+        const ELEMENT_PRICE_SIZE_LARGE = [
+            'name' => 'price_size_large',
+            'css_selector' => 'tbfw_price_size_large',
+        ];
+
+        const ELEMENT_PRICE_SIZE_SMALL = [
+            'name' => 'price_size_small',
+            'css_selector' => 'tbfw_price_size_small',
+        ];
 
     // Stock Information
-    const ELEMENT_STOCK_AVAILABLE = 'stock_available';
-    const ELEMENT_STOCK_NOT_AVAILABLE = 'stock_not_available';
-    const ELEMENT_STOCK_PREORDER = 'stock_preorder';
+    const ELEMENT_STOCK_AVAILABLE = [
+        'name' => 'stock_available',
+        'css_selector' => 'tbfw_stock_available',
+    ];
+
+    const ELEMENT_STOCK_NOT_AVAILABLE = [
+        'name' => 'stock_not_available',
+        'css_selector' => 'tbfw_stock_not_available',
+    ];
+
+    const ELEMENT_STOCK_PREORDER = [
+        'name' => 'stock_preorder',
+        'css_selector' => 'tbfw_stock_preorder',
+    ];
 
     // Tags
-    const ELEMENT_TAG_ON_SALE = 'tag_on_sale';
-    const ELEMENT_TAG_NEW = 'tag_new';
+    const ELEMENT_TAG_ON_SALE = [
+        'name' => 'tag_on_sale',
+        'css_selector' => 'tbfw_tag_on_sale',
+    ];
+
+    const ELEMENT_TAG_NEW = [
+        'name' => 'tag_new',
+        'css_selector' => 'tbfw_tag_new',
+    ];
 
 
 
@@ -264,14 +300,16 @@ class FrameworkController extends FrontController {
 
         $selector_element = $selector_element_default['css_selector'];
 
-        $selector_size = $selector_size_default['css_selector'];
+        $selector_size = $selector_size_default['css_selector'] ?? '';
+
 
         foreach ($configObject->custom_css_selectors->custom_css_selector as $custom_css_selector) {
+
             if (($custom_css_selector['name']==$selector_element_default['name']) && $custom_css_selector['custom']) {
                 $selector_element = $custom_css_selector['custom'];
             }
 
-            if (($custom_css_selector['name']==$selector_size_default['name']) && $custom_css_selector['custom']) {
+            if ($selector_size_default && ($custom_css_selector['name']==$selector_size_default['name']) && $custom_css_selector['custom']) {
                 $selector_size = $custom_css_selector['custom'];
             }
         }
