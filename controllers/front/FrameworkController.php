@@ -145,6 +145,11 @@ class FrameworkController extends FrontController {
             'css_selector' => 'tbfw_button_small',
         ];
 
+    // Links
+    const ELEMENT_LINK_CTA = [
+        'name' => 'link_cta',
+        'css_selector' => 'tbfw_link_cta tbfw_link_cta',
+    ];
 
     // Badges
     const ELEMENT_BADGE_DEFAULT = [
@@ -261,8 +266,8 @@ class FrameworkController extends FrontController {
 
     // Tags
     const ELEMENT_TAG_ON_SALE = [
-        'name' => 'tag_on_sale',
-        'css_selector' => 'tbfw_tag_on_sale',
+        'name' => 'tag_sale',
+        'css_selector' => 'tbfw_tag_sale',
     ];
 
     const ELEMENT_TAG_NEW = [
@@ -706,11 +711,17 @@ class FrameworkController extends FrontController {
     // Menus
     public function getDemoData_menu_vertical() {
         $data = [
-            ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '24', 'height' => '24']],
-            ['title' => 'Würfelspiele', 'icon' => ['class' => 'icon-academic-cap']],
-            ['title' => 'Kartenspiele', 'icon' => ['class' => 'icon-adjustments']],
-            ['title' => 'Kinderspiele', 'icon' => ['class' => 'icon-archive']],
-            ['title' => 'Spiel des Jahres', 'icon' => ['class' => 'icon-arrow-circle-down']],
+            ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
+            ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
+            ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
+            ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
+            ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
+            ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
+            ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
+            ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
+            ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
+            ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
+            ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
         ];
 
         return $data;
@@ -741,7 +752,6 @@ class FrameworkController extends FrontController {
     }
 
     // Tabs
-
     public function getDemoData_tab_components() {
         $demo_data = [];
 
