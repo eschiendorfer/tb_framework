@@ -48,10 +48,9 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
 
             foreach ($reflectionClass->getConstants() as $constant) {
                 if (is_array($constant) && isset($constant['type']) && ($type==$constant['type'])) {
-                    $frameworkComponent = new FrameworkController($constant, [], true);
                     $components[] = [
                         'name' => $constant['name'],
-                        'output' => $frameworkComponent->fetchElement(),
+                        'output' => FrameworkController::fetchElementDemo($constant),
                     ];
                 }
             }

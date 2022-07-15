@@ -88,6 +88,11 @@ class FrameworkController extends FrontController {
         'name' => 'menu_vertical',
     ];
 
+    const COMPONENT_MENU_HORIZONTAL = [
+        'type' => 'menu',
+        'name' => 'menu_horizontal',
+    ];
+
 
     // List: Submenu vertical
 
@@ -294,7 +299,7 @@ class FrameworkController extends FrontController {
         $this->component = $component;
 
         // Set Smarty_Vars
-        $this->smarty_vars = $demo ? $this->getDemoData() : $smarty_vars;
+        $this->smarty_vars = $demo ? $this->getDemoData($component) : $smarty_vars;
 
     }
 
@@ -359,35 +364,124 @@ class FrameworkController extends FrontController {
 
 
     // Fetch Components
-    public function fetchElement() {
+    public static function fetchElement($component, $data = [], $columns_rewrite = [], $demo_mode = false) {
 
-        // Main component
-        $this->context->smarty->assign([
-            // Todo: probably this css_selector should be in global front_controller
-            'css_selector' => $this->getAllCssSelectorsForElements(), // This allows usage of sth like: {$css_selector.button_primary} -> it's for module or core devs. As the theme designer know the selectors anyway
-            'component' => $this->smarty_vars,
-            'first_call' => !isset(self::$alreadyCalled[$this->component['name']]),
-        ]);
+        $context = Context::getContext();
 
-        if (isset($this->smarty_vars['id'])) {
-            Media::addJsDef(['id' => $this->smarty_vars['id']]);
+        if (!empty($columns_rewrite)) {
+            $data = self::replaceColumns($data, $columns_rewrite);
         }
 
-        self::$alreadyCalled[$this->component['name']] = true;
+        // Main component
+        $context->smarty->assign([
+            'component' => $data,
+            'first_call' => !isset(self::$alreadyCalled[$component['name']]),
+        ]);
 
-        $component_tpl_file = self::getFilePathByComponent($this->component);
+        if (isset($data['id'])) {
+            Media::addJsDef(['id' => $data['id']]);
+        }
 
-        return $this->context->smarty->fetch($component_tpl_file);
+        self::$alreadyCalled[$component['name']] = true;
+
+        $component_tpl_file = self::getFilePathByComponent($component);
+
+        return $context->smarty->fetch($component_tpl_file);
+    }
+
+    public static function fetchElementDemo($component) {
+        $data = self::getDemoData($component);
+        return self::fetchElement($component, $data);
     }
 
 
-    // Demo
-    private function getDemoData() {
 
-        $method_name = 'getDemoData_'.$this->component['name'];
+    private static function replaceColumns($smarty_vars, $rewrite_columns) {
+
+        if (!is_array($smarty_vars) || !is_array($rewrite_columns) || empty($smarty_vars) || empty($rewrite_columns)) {
+            return false;
+        }
+
+        // This complex function allows to replace columns, which is helpful if you have a given dataset with "wrong" column names
+        foreach ($rewrite_columns as $key_input_structures => $key_needed_structures) {
+
+            // Getting input values
+            $key_input_structure = explode('.', $key_input_structures);
+            $key_input = $key_input_structure[array_key_last($key_input_structure)];
+            array_pop($key_input_structure);
+
+            // Getting needed values
+            $key_needed_structure = explode('.', $key_needed_structures);
+            $key_needed = $key_needed_structure[array_key_last($key_needed_structure)];
+            array_pop($key_needed_structure);
+
+
+            // At the moment we only support column change on maximal three layers
+            if (count($key_input_structure)>3 || count($key_needed_structure)>3) {
+                return false;
+            }
+
+            // This rewrite is so complex, that we implement all possibilities manually (max 3 layers)
+            if (!count($key_input_structure)) {
+                if (!count($key_needed_structure)) {
+                    $smarty_vars[$key_needed] = $smarty_vars[$key_input];
+                }
+                elseif (count($key_needed_structure)==1) {
+                    $smarty_vars[$key_needed_structure[0]][$key_needed] = $smarty_vars[$key_input];
+                }
+                elseif (count($key_needed_structure)==2) {
+                    $smarty_vars[$key_needed_structure[0]][$key_needed_structure[1]][$key_needed] = $smarty_vars[$key_input];
+                }
+            }
+            elseif (count($key_input_structure)===1) {
+                foreach ($smarty_vars[$key_input_structure[0]] as $key_layer_1 => $values) {
+                    if (!count($key_needed_structure)) {
+                        $smarty_vars[$key_needed] = $values[$key_input] ?? $key_input;
+                    }
+                    elseif (count($key_needed_structure)===1) {
+                        $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed] = $values[$key_input] ?? $key_input;
+                    }
+                    elseif (count($key_needed_structure)===2) {
+                        $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]][$key_needed] = $values[$key_input] ?? $key_input;
+                    }
+                }
+            }
+            elseif (count($key_input_structure)===2) {
+
+                // Todo: this wasn't tested yet, as its use case is super rare
+                foreach ($smarty_vars[$key_input_structure[0]] as $key_layer_1 => $layer) {
+
+                    foreach ($layer[$key_input_structure[1]] as $key_layer_2 => $values) {
+                        if (!count($key_needed_structure)) {
+                            $smarty_vars[$key_needed] = $values[$key_input];
+                        } elseif (count($key_needed_structure) === 1) {
+                            $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed] = $values[$key_input];
+                        } elseif (count($key_needed_structure) === 2) {
+                            $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]][$key_layer_2][$key_needed] = $values[$key_input];
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return $smarty_vars;
+    }
+
+    private static function replaceColumn() {
+
+    }
+
+
+
+
+    // Demo
+    private static function getDemoData($component) {
+
+        $method_name = 'getDemoData_'.$component['name'];
 
         if (method_exists(__CLASS__, $method_name)) {
-            return $this->{$method_name}();
+            return self::{$method_name}();
         }
         else {
             throw new PrestaShopException("Demo Data Function {$method_name} not found!");
@@ -397,12 +491,14 @@ class FrameworkController extends FrontController {
 
     public function getDemoData_List_compact() {
 
+        $context = Context::getContext();
+
         $query = new \DbQuery();
         $query->select('p.*, pl.*, cl.name AS category, m.name AS manufacturer');
         $query->from('product', 'p');
-        $query->innerJoin('product_shop', 'ps', 'ps.id_product=p.id_product AND ps.id_shop='.$this->context->shop->id);
+        $query->innerJoin('product_shop', 'ps', 'ps.id_product=p.id_product AND ps.id_shop='.$context->shop->id);
         $query->innerJoin('product_lang', 'pl', 'pl.id_product=p.id_product');
-        $query->innerJoin('category_lang', 'cl', 'cl.id_category=p.id_category_default AND cl.id_lang='.$this->context->language->id);
+        $query->innerJoin('category_lang', 'cl', 'cl.id_category=p.id_category_default AND cl.id_lang='.$context->language->id);
         $query->leftJoin('manufacturer', 'm', 'm.id_manufacturer=p.id_manufacturer AND m.active=1');
         $query->orderBy('p.active DESC, RAND()');
         $query->limit('5');
@@ -433,10 +529,10 @@ class FrameworkController extends FrontController {
 
             // Info: that is the correct structure of one row
             $data[] = [
-                'img' => $this->context->link->getImageLink($product['link_rewrite'], Product::getCover($product['id_product'])['id_image'], 'small_default'),
+                'img' => $context->link->getImageLink($product['link_rewrite'], Product::getCover($product['id_product'])['id_image'], 'small_default'),
                 'title' => $product['name'],
                 'subtitle' => $product['category'].$manufacturer,
-                'link' => ['url' => $this->context->link->getProductLink($product['id_product'])],
+                'link' => ['url' => $context->link->getProductLink($product['id_product'])],
                 'element_columns' => [
                 ]
             ];
@@ -462,7 +558,7 @@ class FrameworkController extends FrontController {
     public function getDemoData_imagecloud_default() {
 
         // Todo: how to know how many elements are showed? -> the theme needs to tell
-        $manufacturers = Manufacturer::getManufacturers(false, $this->context->language->id, true, 1, 12);
+        $manufacturers = Manufacturer::getManufacturers(false, 1, true, 1, 12);
 
         $data = [
             [
@@ -614,11 +710,12 @@ class FrameworkController extends FrontController {
 
         $demo_data = [
             'title' => 'Sozialer als alle sozialen Netzwerke',
-            'subtitle' => 'Familienspiele',
             'image' => [
                 'src' => '/themes/genzo_theme/img/cover.png',
             ],
-            'link' => '/card_simple/demo',
+            'link' => [
+                'url' => '/card_simple/demo'
+            ],
         ];
 
         return $demo_data;
@@ -626,16 +723,14 @@ class FrameworkController extends FrontController {
 
     public function getDemoData_card_product() {
 
-        $demo_data = [
-            'name' => 'Sozialer als alle sozialen Netzwerke',
-            'category' => 'Familienspiele',
-            'image' => [
-                'src' => '/themes/genzo_theme/img/cover.png',
-            ],
-            'link' => '/card_simple/demo',
-        ];
+        $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
+        $product = $products[0];
 
-        return $demo_data;
+        $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+
+        $product = Product::getProductProperties(1, $product);
+
+        return $product;
     }
 
     // Modal
@@ -643,11 +738,9 @@ class FrameworkController extends FrontController {
 
         $html = '<b>This is a custom modal</b>';
 
-        $frameworkController = new FrameworkController(FrameworkController::COMPONENT_HEADER_DEFAULT, [], true);
-        $html .= $frameworkController->fetchElement();
+        $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_HEADER_DEFAULT);
+        $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
 
-        $frameworkController = new FrameworkController(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS, [], true);
-        $html .= $frameworkController->fetchElement();
 
         $demo_data = [
             'show' => true, // Should the modal open on page load?
@@ -662,7 +755,7 @@ class FrameworkController extends FrontController {
     }
 
     // Carousel
-    public function getDemoData_carousel_components() {
+    public static function getDemoData_carousel_components() {
 
         $categories = [
             ['id_category' => 12],
@@ -681,8 +774,7 @@ class FrameworkController extends FrontController {
 
         foreach ($products as &$product) {
             $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
-            $themeElement = new FrameworkController(FrameworkController::COMPONENT_CARD_PRODUCT, $product);
-            $productBoxes[] = $themeElement->fetchElement();
+            $productBoxes[] = FrameworkController::fetchElement(FrameworkController::COMPONENT_CARD_PRODUCT, $product);
         }
 
         // Render the whole component
@@ -697,7 +789,7 @@ class FrameworkController extends FrontController {
 
     public function getDemoData_carousel_promo() {
 
-        $demo_data_carousel = $this->getDemoData_carousel_components();
+        $demo_data_carousel = self::getDemoData_carousel_components();
 
         $demo_data_carousel['nbr_columns'] = 2.5;
         $demo_data_carousel['promo_position'] = 'left';
@@ -711,17 +803,41 @@ class FrameworkController extends FrontController {
     // Menus
     public function getDemoData_menu_vertical() {
         $data = [
-            ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
-            ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
-            ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
-            ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
-            ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
-            ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
-            ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
-            ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
-            ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
-            ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
-            ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
+            'title' => 'Kategorien',
+            'items' => [
+                ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
+                ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
+                ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
+                ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
+                ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
+                ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
+                ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
+                ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
+                ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
+                ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
+                ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
+            ],
+        ];
+
+        return $data;
+    }
+
+    public function getDemoData_menu_horizontal() {
+        $data = [
+            'title' => 'Kategorien',
+            'items' => [
+                ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
+                ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
+                ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
+                ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
+                ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
+                ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
+                ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
+                ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
+                ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
+                ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
+                ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
+            ],
         ];
 
         return $data;
@@ -731,14 +847,9 @@ class FrameworkController extends FrontController {
     public function getDemoData_flexbox_components() {
 
         // This can be seen as an example how a module would use components
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
-        $list_compact_1 = $themeElement->fetchElement();
-
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
-        $list_compact_2 = $themeElement->fetchElement();
-
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_LIST_COMPACT, [], true);
-        $list_compact_3 = $themeElement->fetchElement();
+        $list_compact_1 = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_LIST_COMPACT);
+        $list_compact_2 = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_LIST_COMPACT);
+        $list_compact_3 = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_LIST_COMPACT);
 
 
         // Render the whole component
@@ -753,16 +864,10 @@ class FrameworkController extends FrontController {
 
     // Tabs
     public function getDemoData_tab_components() {
-        $demo_data = [];
 
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS, [], true);
-        $carousel = $themeElement->fetchElement();
-
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_HEADER_DEFAULT, [], true);
-        $header = $themeElement->fetchElement();
-
-        $themeElement = new FrameworkController(FrameworkController::COMPONENT_IMAGECLOUD_DEFAULT, [], true);
-        $imagecloud = $themeElement->fetchElement();
+        $carousel = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
+        $header = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_HEADER_DEFAULT);
+        $imagecloud = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_IMAGECLOUD_DEFAULT);
 
         $demo_data = [
             ['title' => 'Carousel', 'content' => $carousel, 'display' => true],
