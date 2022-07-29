@@ -85,11 +85,6 @@ class tb_framework extends Module
 
         // Make sure that the default styles are always available */
         $this->context->controller->addCSS($this->_path.'/views/css/tb_framework.css');
-
-        $this->context->smarty->assign([
-            'css_selector' => FrameworkController::getAllCssSelectorsForElements(), // This allows usage of sth like: {$css_selector.button_primary} -> it's for module or core devs. As the theme designer know the selectors anyway
-        ]);
-
 	}
 
 }

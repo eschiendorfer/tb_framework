@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Copyright (C) 2021 Emanuel Schiendorfer
+ * Copyright (C) 2022 Emanuel Schiendorfer
  *
  * @author    Emanuel Schiendorfer <https://github.com/eschiendorfer>
- * @copyright 2021 Emanuel Schiendorfer
+ * @copyright 2022 Emanuel Schiendorfer
  */
 
 
@@ -14,7 +14,7 @@ class FrameworkController extends FrontController {
     const COMPONENT_LIST_COMPACT = [
         'type' => 'list',
         'name' => 'list_compact',
-    ];
+    ]; // Todo: Are tables the same as lists?
 
     const COMPONENT_FLEXBOX_COMPONENTS = [
         'type' => 'flexbox',
@@ -61,8 +61,6 @@ class FrameworkController extends FrontController {
         'name' => 'card_product',
     ];
 
-
-
     const COMPONENT_MODAL_DEFAULT = [
         'type' => 'modal',
         'name' => 'modal_default',
@@ -93,18 +91,48 @@ class FrameworkController extends FrontController {
         'name' => 'menu_horizontal',
     ];
 
+    const COMPONENT_ACCORDION = [
+        'type' => 'accordion',
+        'name' => 'accordion_default',
+    ];
 
-    // List: Submenu vertical
+    // Progressbar
+    const COMPONENT_PROGRESSBAR = [
+        'type' => 'progressbar',
+        'name' => 'progressbar_default',
+    ];
 
+    // Reviews
+    const COMPONENT_REVIEW_GRADE = [
+        'type' => 'review',
+        'name' => 'review_grade',
+    ];
 
-    // Dropdowns (Button/Menu)
+    const COMPONENT_REVIEW = [
+        'type' => 'review',
+        'name' => 'review_default',
+    ];
+
+    const COMPONENT_REVIEW_STATS = [
+        'type' => 'review',
+        'name' => 'review_stats',
+    ];
+
+    const COMPONENT_REVIEW_SECTION = [
+        'type' => 'review',
+        'name' => 'review_section',
+    ];
+
+    // Dropdown / Popover / Tooltip
+    const COMPONENT_POPOVER = [
+        'type' => 'popover',
+        'name' => 'popover_default',
+    ];
 
     // Pagination
-    // Tooltips/Popover (see Bootstrap)
-    // Accordion (UI KIT/Fomantic)
-    // comments (UI Kit/Fomantic)
+    // Comments (UI Kit/Fomantic)
     // Check the use of section (UI Kit)
-    // Somehow having a login popup (modal_login probably)
+    // Creating Modal for login
 
     // Supported CSS Elements
 
@@ -118,6 +146,9 @@ class FrameworkController extends FrontController {
     const CSS_COLOR_GRAY_LIGHT = 'color_gray_light';
     const CSS_COLOR_GRAY_DARK = 'color_gray_dark';
     const CSS_COLOR_BLACK = 'color_black';*/ // Often times a clean black is too hard...
+
+    // Todo: Find a solution for boxes and margins / sections
+    // Todo: Same is true for icons. Keep in mind that size and color is important too
 
     // Buttons
     const ELEMENT_BUTTON_PRIMARY = [
@@ -209,20 +240,8 @@ class FrameworkController extends FrontController {
     // Spinners
     const ELEMENT_SPINNER_DEFAULT = [
         'name' => 'spinner_default',
-        'css_selector' => 'tbfw_spinner_default',
+        'css_selector' => 'tbfw_spinner_default', // 100% width & height of parent element, border can be set manually on div
     ];
-
-        // Spinner Sizes
-        const ELEMENT_SPINNER_SIZE_LARGE = [
-            'name' => 'spinner_large',
-            'css_selector' => 'tbfw_spinner_large',
-        ];
-        const ELEMENT_SPINNER_SIZE_SMALL = [
-            'name' => 'spinner_small',
-            'css_selector' => 'tbfw_spinner_small',
-        ];
-
-        // Todo: SIZE_FLEXIBLE -> To use this inside other elements (like a button)
 
 
     // Ecommerce Related Elements
@@ -280,14 +299,19 @@ class FrameworkController extends FrontController {
         'css_selector' => 'tbfw_tag_new',
     ];
 
+    // Forms
+    const ELEMENT_FORM_GROUP = [
+        'name' => 'form_group',
+        'css_selector' => 'tbfw_form_group',
+    ];
+
 
 
     // Some other elements to be considered:
         // Close Button
-        // Progress Bar
-        // Ratings (Fomantic)
 
-    public static $alreadyCalled;
+    public static $alreadyCalledType = [];
+    public static $alreadyCalledComponent = [];
 
     public $component;
     public $smarty_vars;
@@ -344,12 +368,17 @@ class FrameworkController extends FrontController {
         return $smarty_css_selectors;
     }
 
-    public static function getFilePathByComponent($component) {
+    public static function getFilePathByComponent($component, $style) {
 
         $type = $component['type'];
         $name = $component['name'];
 
-        $file_path_relative = 'component/'.$type.'/'.$name.'.tpl';
+        if ($style) {
+            $file_path_relative = 'component/'.$type.'/'.$name.'/'.$name.'_'.$style.'.tpl';
+        }
+        else {
+            $file_path_relative = 'component/'.$type.'/'.$name.'.tpl';
+        }
 
         if (file_exists(_PS_THEME_DIR_.$file_path_relative)) {
             return _PS_THEME_DIR_.$file_path_relative;
@@ -364,7 +393,7 @@ class FrameworkController extends FrontController {
 
 
     // Fetch Components
-    public static function fetchElement($component, $data = [], $columns_rewrite = [], $demo_mode = false) {
+    public static function fetchElement($component, $data = [], $columns_rewrite = [], $style = '') {
 
         $context = Context::getContext();
 
@@ -372,19 +401,33 @@ class FrameworkController extends FrontController {
             $data = self::replaceColumns($data, $columns_rewrite);
         }
 
+        // Validate Data
+        $method_name = 'validate_'.$component['name'];
+
+        if (method_exists(__CLASS__, $method_name)) {
+            self::{$method_name}($data);
+        }
+
         // Main component
         $context->smarty->assign([
             'component' => $data,
-            'first_call' => !isset(self::$alreadyCalled[$component['name']]),
+            'first_call' => !isset(self::$alreadyCalledComponent[$component['name'].$style]),
+            'first_call_type' => !isset(self::$alreadyCalledType[$component['type']]),
         ]);
+
+        // We only want to assign the css_selector once
+        if (!isset($context->smarty->tpl_vars['css_selector'])) {
+            $context->smarty->assign('css_selector', self::getAllCssSelectorsForElements()); // Usage: {$css_selector.button_primary} -> it's for module or core devs. As the theme designer know the selectors anyway
+        }
 
         if (isset($data['id'])) {
             Media::addJsDef(['id' => $data['id']]);
         }
 
-        self::$alreadyCalled[$component['name']] = true;
+        self::$alreadyCalledComponent[$component['name']] = true;
+        self::$alreadyCalledType[$component['type']] = true;
 
-        $component_tpl_file = self::getFilePathByComponent($component);
+        $component_tpl_file = self::getFilePathByComponent($component, $style);
 
         return $context->smarty->fetch($component_tpl_file);
     }
@@ -472,7 +515,14 @@ class FrameworkController extends FrontController {
 
     }
 
+    // Validate Functions
+    public static function validate_modal_default(&$data) {
+        if (!$data['id']) {
+            die('id is missing');
+        }
 
+        $data['id_unique'] = $data['id'].'_'.rand(0,100000000);
+    }
 
 
     // Demo
@@ -489,7 +539,7 @@ class FrameworkController extends FrontController {
 
     }
 
-    public function getDemoData_List_compact() {
+    public static function getDemoData_List_compact() {
 
         $context = Context::getContext();
 
@@ -555,7 +605,7 @@ class FrameworkController extends FrontController {
     }
 
     // Image Cloud
-    public function getDemoData_imagecloud_default() {
+    public static function getDemoData_imagecloud_default() {
 
         // Todo: how to know how many elements are showed? -> the theme needs to tell
         $manufacturers = Manufacturer::getManufacturers(false, 1, true, 1, 12);
@@ -605,7 +655,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public function getDemoData_imagecloud_promo() {
+    public static function getDemoData_imagecloud_promo() {
         $demo_data = [
             'header' => [
                 'title' => 'Klassiker gehen immer oder nicht!?',
@@ -632,7 +682,7 @@ class FrameworkController extends FrontController {
     }
 
     // Header
-    public function getDemoData_header_default() {
+    public static function getDemoData_header_default() {
 
         $demo_data = [
             'title' => 'Die Meisten sind richtig gut',
@@ -644,7 +694,7 @@ class FrameworkController extends FrontController {
     }
 
     // Feature
-    public function getDemoData_feature_default() {
+    public static function getDemoData_feature_default() {
 
         $demo_data = [
             'features' => [
@@ -670,7 +720,7 @@ class FrameworkController extends FrontController {
     }
 
     // Cards
-    public function getDemoData_card_default() {
+    public static function getDemoData_card_default() {
 
         $demo_data = [
             'title' => 'Sozialer als alle sozialen Netzwerke',
@@ -688,7 +738,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public function getDemoData_card_promo() {
+    public static function getDemoData_card_promo() {
 
         $demo_data = [
             'title' => 'Sozialer als soziale Netzwerke',
@@ -706,7 +756,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public function getDemoData_card_simple() {
+    public static function getDemoData_card_simple() {
 
         $demo_data = [
             'title' => 'Sozialer als alle sozialen Netzwerke',
@@ -721,7 +771,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public function getDemoData_card_product() {
+    public static function getDemoData_card_product() {
 
         $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
         $product = $products[0];
@@ -734,19 +784,20 @@ class FrameworkController extends FrontController {
     }
 
     // Modal
-    public function getDemoData_modal_default() {
+    public static function getDemoData_modal_default() {
 
-        $html = '<b>This is a custom modal</b>';
+        $html = '<br><br>This is a custom modal';
 
         $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_HEADER_DEFAULT);
         $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
 
-
         $demo_data = [
             'show' => true, // Should the modal open on page load?
+            'width' => 'big', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
+            'height' => 'big', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
             'close_button' => true, // Should there be a close button on top right?
             'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
-            'id' => 'modal_unique_id', // Make sure that you chose-something unique
+            'id' => 'demo_'.rand(1,1000), // Make sure that you chose-something unique
             'title' => 'Custom Modal',
             'html' => $html,
         ];
@@ -774,6 +825,7 @@ class FrameworkController extends FrontController {
 
         foreach ($products as &$product) {
             $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+            $product = Product::getProductProperties(1, $product);
             $productBoxes[] = FrameworkController::fetchElement(FrameworkController::COMPONENT_CARD_PRODUCT, $product);
         }
 
@@ -787,7 +839,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public function getDemoData_carousel_promo() {
+    public static function getDemoData_carousel_promo() {
 
         $demo_data_carousel = self::getDemoData_carousel_components();
 
@@ -801,7 +853,7 @@ class FrameworkController extends FrontController {
     }
 
     // Menus
-    public function getDemoData_menu_vertical() {
+    public static function getDemoData_menu_vertical() {
         $data = [
             'title' => 'Kategorien',
             'items' => [
@@ -822,7 +874,7 @@ class FrameworkController extends FrontController {
         return $data;
     }
 
-    public function getDemoData_menu_horizontal() {
+    public static function getDemoData_menu_horizontal() {
         $data = [
             'title' => 'Kategorien',
             'items' => [
@@ -844,7 +896,7 @@ class FrameworkController extends FrontController {
     }
 
     // Flexbox
-    public function getDemoData_flexbox_components() {
+    public static function getDemoData_flexbox_components() {
 
         // This can be seen as an example how a module would use components
         $list_compact_1 = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_LIST_COMPACT);
@@ -863,7 +915,7 @@ class FrameworkController extends FrontController {
     }
 
     // Tabs
-    public function getDemoData_tab_components() {
+    public static function getDemoData_tab_components() {
 
         $carousel = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
         $header = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_HEADER_DEFAULT);
@@ -878,4 +930,172 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
+    // Accordion
+    public static function getDemoData_accordion_default() {
+
+
+        $items = [
+            'sections' => [
+                [
+                    'title' => 'Puzzles',
+                    'items' => [
+                        [
+                            'title' => 'Können Einzelteile nachbestellt werden?',
+                            'content' => 'aksdjfkjsdkf',
+                        ],
+                    ]
+                ],
+                [
+                    'title' => 'Allgemein',
+                    'items' => [
+                        [
+                            'title' => 'Wie schnell ist der Versand?',
+                            'content' => 'aksdjfkjsdkf',
+                        ],
+                        [
+                            'title' => 'Kann ich auf Rechnung kaufen?',
+                            'content' => 'aksdjfkjsdkf',
+                        ],
+                    ]
+                ],
+            ],
+        ];
+
+        return $items;
+    }
+
+    // Popover
+    public static function getDemoData_popover_default() {
+
+        /* Possible positions:
+            'bottom_left', 'bottom_center', 'bottom_right',
+            'top_left', 'top_center', 'top_right',
+            'left_top', left_center', 'left_bottom',
+            'right_top', right_center', 'right_bottom',
+        */
+
+        $popover = [
+            'id' => 'popover_'.rand(0,100),
+            'item' => 'Hover me asdfsd <br>fsdfsdf<br> sdf sdf',
+            'popover_content' => FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CARD_PRODUCT),
+            'triggers_show' => ['click_item'], // Possible values: 'click_item', 'mouseenter_item'
+            'triggers_hide' => ['click_item', 'click_outside', 'open_other_item'], // Possible value 'click_item', 'mouseleave_item', 'click_outside', 'open_other_item'
+            'position' => 'right_bottom',
+            'zIndex' => 'default', // Possible values: default, high, max
+            'margin' => 10, // Possible values: default, high, max
+        ];
+
+        return $popover;
+    }
+
+    // Progressbar
+    public static function getDemoData_progressbar_default() {
+        $progessbar = [
+            'progress_percentage' => rand(5,100),
+        ];
+
+        return $progessbar;
+    }
+
+    // Reviews
+    public static function getDemoData_review_grade() {
+
+        $review_stats = [
+            'review_grade' => rand(1*10,5*10)/10,
+        ];
+
+        return $review_stats;
+    }
+
+    public static function getDemoData_review_default($key = null) {
+
+        $reviews_default[] = [
+            'customer' => [
+                'name' => 'Genzo Wakabayashi',
+                'image' => ['src' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
+                'link' => ['url'],
+            ],
+            'review_grade' => rand(1*10,5*10)/10,
+            'review_date' => date('d. F Y'),
+            'review_title' => 'Something',
+            'review_content' => '<p>Mauris non odio at est convallis rhoncus at vitae odio. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut sagittis, nibh sit amet porttitor efficitur, purus urna elementum dolor, in congue ipsum augue scelerisque ex.</p>',
+        ];
+
+        $reviews_default[] = [
+            'customer' => [
+                'name' => 'Martina Meyer',
+                'image' => ['src' => 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
+                'link' => ['url'],
+            ],
+            'review_grade' => rand(1*10,5*10)/10,
+            'review_date' => date('d. F Y', strtotime('-3 months -2 days')),
+            'review_title' => 'Something',
+            'review_content' => '<p>Nullam placerat luctus odio, sed tincidunt ex volutpat sed. Maecenas at magna nec mi vulputate egestas eget non nibh. </p>',
+        ];
+
+        $reviews_default[] = [
+            'customer' => [
+                'name' => 'Sadio Perreira',
+                'image' => ['src' => 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixqx=oilqXxSqey&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'],
+                'link' => ['url'],
+            ],
+            'review_grade' => rand(1*10,5*10)/10,
+            'review_date' => date('d. F Y', strtotime('-1 year -2 weeks')),
+            'review_title' => 'Something',
+            'review_content' => '<p>In hac habitasse platea dictumst. Nunc volutpat neque vitae nunc condimentum, placerat elementum ex gravida. In eu ligula sodales, egestas nunc id, porttitor lorem. Vestibulum pretium risus eu turpis bibendum vehicula. Morbi vestibulum tellus non tortor molestie, sit amet maximus leo mattis.</p><p>Morbi facilisis ipsum quis odio efficitur egestas sit amet ac quam. Fusce sodales ex sem. Nunc at sapien auctor, dapibus ipsum at, varius purus. Aenean egestas enim in lorem porttitor pulvinar. Quisque suscipit lobortis enim vitae rutrum. Quisque a neque dolor. Curabitur non sodales lectus.</p>',
+        ];
+
+        if (is_null($key)) {
+            $key = rand(1, count($reviews_default)) - 1;
+        }
+
+        return $reviews_default[$key];
+    }
+
+    public static function getDemoData_review_stats() {
+
+        $stats = [
+            5 => rand(0,100),
+            4 => rand(0,200),
+            3 => rand(0,50),
+            2 => rand(0,50),
+            1 => rand(0,100),
+        ];
+
+        $reviews_count_total = array_sum($stats);
+
+        $stars_total = 0;
+
+        foreach ($stats as $star => $count) {
+            $stars_total+= $star*$count;
+        }
+
+        $review_stats = [
+            'reviews_grade_aggregated' => round($stars_total/$reviews_count_total,2),
+            'reviews_total_count' => $reviews_count_total,
+            'stats' => $stats
+        ];
+
+        return $review_stats;
+    }
+
+    public static function getDemoData_review_section() {
+
+        $review_stats = self::getDemoData_review_stats();
+
+        $review_section = [
+            'reviews_grade_aggregated' => $review_stats['reviews_grade_aggregated'],
+            'reviews_total_count' => $review_stats['reviews_total_count'],
+            'stats' => $review_stats['stats'],
+            'write_button_content' => '',
+            'reviews' => [
+                self::getDemoData_review_default(0),
+                self::getDemoData_review_default(1),
+                self::getDemoData_review_default(2),
+            ],
+            'reviews_pagination_content' => '',
+        ];
+
+        return $review_section;
+    }
 }

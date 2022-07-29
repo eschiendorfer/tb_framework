@@ -1,15 +1,16 @@
 <h1>Spinners</h1>
+
 <section>
-    <b>Size: Small</b><br>
-    <div class="{$css_selector.spinner_default} {$css_selector.spinner_small}"></div>
+    <b>Example: small</b><br>
+    <div class="{$css_selector.spinner_default} w-10 h-10 b-2"></div>
 </section>
 
 <section>
-    <b>Size: Default</b><br>
-    <div class="{$css_selector.spinner_default}"></div>
+    <b>Example: medium</b><br>
+    <div class="{$css_selector.spinner_default} w-16 h-16 b-4"></div>
 </section>
 
 <section>
-    <b>Size: Large</b><br>
-    <div class="{$css_selector.spinner_default} {$css_selector.spinner_large}"></div>
+    <b>Example: big</b><br>
+    <div class="{$css_selector.spinner_default} w-32 h-32 b-8"></div>
 </section>

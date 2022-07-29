@@ -50,7 +50,6 @@
 
 		});
 
-
 		function openModal(id) {
 			document.getElementById(id).style.display = '';
 		}
@@ -58,7 +57,6 @@
 		function closeModal(id) {
 			document.getElementById(id).style.display = 'none';
 		}
-
 
 	</script>
 {/literal}
