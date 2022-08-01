@@ -85,6 +85,9 @@ class tb_framework extends Module
 
         // Make sure that the default styles are always available */
         $this->context->controller->addCSS($this->_path.'/views/css/tb_framework.css');
+
+        // Make components available by ajax
+        $this->context->controller->addJS($this->_path.'/views/js/tb_framework.js');
 	}
 
 }

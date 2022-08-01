@@ -66,6 +66,16 @@ class FrameworkController extends FrontController {
         'name' => 'modal_default',
     ];
 
+    const COMPONENT_MODAL_LOGIN = [
+        'type' => 'modal',
+        'name' => 'modal_login',
+    ];
+
+    const COMPONENT_MODAL_ADD_TO_CART = [
+        'type' => 'modal',
+        'name' => 'modal_add_to_cart',
+    ];
+
     const COMPONENT_CAROUSEL_COMPONENTS = [
         'type' => 'carousel',
         'name' => 'carousel_components',
@@ -368,6 +378,21 @@ class FrameworkController extends FrontController {
         return $smarty_css_selectors;
     }
 
+    public static function getComponentByComponentName($component_name) {
+        $reflectionClass = new ReflectionClass(__CLASS__);
+        $constants = $reflectionClass->getConstants();
+
+        foreach ($constants as $constant_name => $constant_value) {
+            if (strpos($constant_name, 'COMPONENT_')!==false && $constant_value['name']==$component_name) {
+                return $constant_value;
+            }
+        }
+
+        return false;
+    }
+
+    // Todo: consider adding components with subclasses / Interface -> validate function is very important
+
     public static function getFilePathByComponent($component, $style) {
 
         $type = $component['type'];
@@ -517,11 +542,45 @@ class FrameworkController extends FrontController {
 
     // Validate Functions
     public static function validate_modal_default(&$data) {
+
         if (!$data['id']) {
             die('id is missing');
         }
 
-        $data['id_unique'] = $data['id'].'_'.rand(0,100000000);
+        if (empty($data['id_unique'])) {
+            $data['id_unique'] = $data['id'].'_'.time().'_'.rand(0,1000000);
+        }
+
+        $data['show'] = isset($data['show']) ? (bool)$data['show'] : true;
+
+        if (empty($data['width'] = pSQL($data['width']))) {
+            $data['width'] = 'medium';
+        }
+
+        if (empty($data['height'] = pSQL($data['height']))) {
+            $data['height'] = 'auto';
+        }
+
+        $data['close_button'] = isset($data['close_button']) ? (bool)$data['close_button'] : true;
+
+        $data['close_background'] = isset($data['close_background']) ? (bool)$data['close_background'] : true;
+
+
+        // Todo: check how we can make this 100% save
+        /*if (!Validate::isCleanHtml($data['html'])) {
+            $data['html'] = 'No clean html ...';
+        }*/
+
+    }
+
+    public static function validate_modal_add_to_cart(&$data) {
+        $data['id'] = 'modal_add_to_cart';
+        self::validate_modal_default($data);
+    }
+
+    public static function validate_modal_login(&$data) {
+        $data['id'] = 'modal_login';
+        self::validate_modal_default($data);
     }
 
 
@@ -792,14 +851,55 @@ class FrameworkController extends FrontController {
         $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
 
         $demo_data = [
+            'id' => 'demo_modal_default', // Required
+            'html' => $html, // Required
+            'title' => 'Custom Modal',
             'show' => true, // Should the modal open on page load?
-            'width' => 'big', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
-            'height' => 'big', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
+            'width' => 'medium', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
+            'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
             'close_button' => true, // Should there be a close button on top right?
             'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
-            'id' => 'demo_'.rand(1,1000), // Make sure that you chose-something unique
+        ];
+
+        return $demo_data;
+    }
+
+    public static function getDemoData_modal_add_to_cart() {
+
+        // Random Product
+        $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
+        $product = $products[0];
+        $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+        $product = Product::getProductProperties(1, $product);
+
+        // Cart Summary
+        $cart_summary = [
+
+        ];
+
+        $demo_data = [
+            'product' => $product, // Required
+            'cart_summary' => $cart_summary,
             'title' => 'Custom Modal',
-            'html' => $html,
+            'show' => true, // Should the modal open on page load?
+            'width' => 'medium', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
+            'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
+            'close_button' => true, // Should there be a close button on top right?
+            'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
+        ];
+
+        return $demo_data;
+    }
+
+
+    public static function getDemoData_modal_login() {
+
+        $demo_data = [
+            'show' => true, // Should the modal open on page load?
+            'width' => 'small', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
+            'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
+            'close_button' => true, // Should there be a close button on top right?
+            'close_background' => false, // Should the modal close, when the user clicks on the background outside the modal?
         ];
 
         return $demo_data;
