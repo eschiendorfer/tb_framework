@@ -350,11 +350,11 @@ class FrameworkController extends FrontController {
         foreach ($configObject->custom_css_selectors->custom_css_selector as $custom_css_selector) {
 
             if (($custom_css_selector['name']==$selector_element_default['name']) && $custom_css_selector['custom']) {
-                $selector_element = $custom_css_selector['custom'];
+                $selector_element = (string)$custom_css_selector['custom'];
             }
 
             if ($selector_size_default && ($custom_css_selector['name']==$selector_size_default['name']) && $custom_css_selector['custom']) {
-                $selector_size = $custom_css_selector['custom'];
+                $selector_size = (string)$custom_css_selector['custom'];
             }
         }
 

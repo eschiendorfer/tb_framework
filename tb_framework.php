@@ -83,6 +83,10 @@ class tb_framework extends Module
 
 	public function hookDisplayHeader($params) {
 
+        Media::addJsDef(array(
+            'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
+        ));
+
         // Make sure that the default styles are always available */
         $this->context->controller->addCSS($this->_path.'/views/css/tb_framework.css');
 
