@@ -18,11 +18,6 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
 
         parent::initContent();
 
-        // Make Sure that CSS Selectors are available
-        $this->context->smarty->assign(array(
-            'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
-        ));
-
         $type = pSQL(Tools::getValue('type'));
         $component = (bool)(Tools::getValue('component'));
 

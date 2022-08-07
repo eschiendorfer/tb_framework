@@ -83,6 +83,11 @@ class tb_framework extends Module
 
 	public function hookDisplayHeader($params) {
 
+        // Make Sure that CSS Selectors are always available
+        $this->context->smarty->assign(array(
+            'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
+        ));
+
         Media::addJsDef(array(
             'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
         ));
