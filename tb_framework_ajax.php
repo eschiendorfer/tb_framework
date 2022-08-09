@@ -9,7 +9,7 @@ if (Tools::isSubmit('renderComponentWithAjax')) {
     $data = json_decode(Tools::getValue('data'), true);
     $style = Tools::getValue('style');
     $component = FrameworkController::fetchElement($component, $data, [], $style);
-    die(json_encode(['content' => $component]));
+    die(json_encode(['id' => FrameworkController::getLastGeneratedUniqueId(), 'content' => $component]));
 }
 
 die(false);

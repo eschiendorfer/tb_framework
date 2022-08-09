@@ -323,6 +323,8 @@ class FrameworkController extends FrontController {
     public static $alreadyCalledType = [];
     public static $alreadyCalledComponent = [];
 
+    public static $ids_unique = [];
+
     public $component;
     public $smarty_vars;
 
@@ -433,6 +435,9 @@ class FrameworkController extends FrontController {
             self::{$method_name}($data);
         }
 
+        self::setUniqueId($data, $component['name']);
+        $data['component_name'] = $component['name'];
+
         // Main component
         $context->smarty->assign([
             'component' => $data,
@@ -443,10 +448,6 @@ class FrameworkController extends FrontController {
         // We only want to assign the css_selector once
         if (!isset($context->smarty->tpl_vars['css_selector'])) {
             $context->smarty->assign('css_selector', self::getAllCssSelectorsForElements()); // Usage: {$css_selector.button_primary} -> it's for module or core devs. As the theme designer know the selectors anyway
-        }
-
-        if (isset($data['id'])) {
-            Media::addJsDef(['id' => $data['id']]);
         }
 
         self::$alreadyCalledComponent[$component['name']] = true;
@@ -541,17 +542,26 @@ class FrameworkController extends FrontController {
     }
 
     // Validate Functions
+    private static function setUniqueId(&$data, $component_name) {
+
+        if (!isset($data['id']) || !$data['id']) {
+            do {
+                // Having a combo and random makes it impossible to have two identical values even when ajax is used
+                $unique_id = $component_name.'_'.time().'_'.rand(10000,99999);
+            } while (in_array($unique_id, self::$ids_unique));
+
+            $data['id'] = $unique_id;
+        }
+
+        // Adding unique id to global array
+        self::$ids_unique[] = $data['id'];
+    }
+
+    public static function getLastGeneratedUniqueId() {
+        return self::$ids_unique[array_key_last(self::$ids_unique)];
+    }
+
     public static function validate_modal_default(&$data) {
-
-        if (!$data['id']) {
-            die('id is missing');
-        }
-
-        if (empty($data['id_unique'])) {
-            $data['id_unique'] = $data['id'].'_'.time().'_'.rand(0,1000000);
-        }
-
-        $data['show'] = isset($data['show']) ? (bool)$data['show'] : true;
 
         if (empty($data['width'] = pSQL($data['width']))) {
             $data['width'] = 'medium';
@@ -561,9 +571,13 @@ class FrameworkController extends FrontController {
             $data['height'] = 'auto';
         }
 
-        $data['close_button'] = isset($data['close_button']) ? (bool)$data['close_button'] : true;
+        if (empty($data['triggers_show']) || !is_array($data['triggers_show'])) {
+            $data['triggers_show'] = ['auto_show', 'click_item'];
+        }
 
-        $data['close_background'] = isset($data['close_background']) ? (bool)$data['close_background'] : true;
+        if (empty($data['triggers_close']) || !is_array($data['triggers_close'])) {
+            $data['triggers_close'] = ['click_close_button', 'click_item', 'click_outside'];
+        }
 
 
         // Todo: check how we can make this 100% save
@@ -574,12 +588,10 @@ class FrameworkController extends FrontController {
     }
 
     public static function validate_modal_add_to_cart(&$data) {
-        $data['id'] = 'modal_add_to_cart';
         self::validate_modal_default($data);
     }
 
     public static function validate_modal_login(&$data) {
-        $data['id'] = 'modal_login';
         self::validate_modal_default($data);
     }
 
@@ -851,14 +863,13 @@ class FrameworkController extends FrontController {
         $html .= FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CAROUSEL_COMPONENTS);
 
         $demo_data = [
-            'id' => 'demo_modal_default', // Required
             'html' => $html, // Required
             'title' => 'Custom Modal',
-            'show' => true, // Should the modal open on page load?
             'width' => 'medium', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
             'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
-            'close_button' => true, // Should there be a close button on top right?
-            'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
+            'item' => '',
+            'triggers_show' => ['auto_show', 'click_item'], // Possible values: 'auto_show', 'click_item'
+            'triggers_close' => ['click_close_button', 'click_item', 'click_outside'], // Possible value 'click_close_button', 'click_item', 'click_outside'
         ];
 
         return $demo_data;
@@ -881,11 +892,8 @@ class FrameworkController extends FrontController {
             'product' => $product, // Required
             'cart_summary' => $cart_summary,
             'title' => 'Custom Modal',
-            'show' => true, // Should the modal open on page load?
             'width' => 'medium', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
             'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
-            'close_button' => true, // Should there be a close button on top right?
-            'close_background' => true, // Should the modal close, when the user clicks on the background outside the modal?
         ];
 
         return $demo_data;
@@ -895,11 +903,8 @@ class FrameworkController extends FrontController {
     public static function getDemoData_modal_login() {
 
         $demo_data = [
-            'show' => true, // Should the modal open on page load?
             'width' => 'small', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
             'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
-            'close_button' => true, // Should there be a close button on top right?
-            'close_background' => false, // Should the modal close, when the user clicks on the background outside the modal?
         ];
 
         return $demo_data;
@@ -931,7 +936,6 @@ class FrameworkController extends FrontController {
 
         // Render the whole component
         $demo_data = [
-            'id' => 'products_slider'.rand(0,100),
             'nbr_columns' => 3.5,
             'slides' => $productBoxes
         ];
@@ -1022,9 +1026,11 @@ class FrameworkController extends FrontController {
         $imagecloud = FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_IMAGECLOUD_DEFAULT);
 
         $demo_data = [
-            ['title' => 'Carousel', 'content' => $carousel, 'display' => true],
-            ['title' => 'Header', 'content' => $header],
-            ['title' => 'Imagecloud', 'content' => $imagecloud],
+            'tabs' => [
+                ['title' => 'Carousel', 'content' => $carousel, 'display' => true],
+                ['title' => 'Header', 'content' => $header],
+                ['title' => 'Imagecloud', 'content' => $imagecloud],
+            ]
         ];
 
         return $demo_data;
@@ -1075,7 +1081,6 @@ class FrameworkController extends FrontController {
         */
 
         $popover = [
-            'id' => 'popover_'.rand(0,100),
             'item' => 'Hover me asdfsd <br>fsdfsdf<br> sdf sdf',
             'popover_content' => FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CARD_PRODUCT),
             'triggers_show' => ['click_item'], // Possible values: 'click_item', 'mouseenter_item'
