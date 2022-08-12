@@ -12,15 +12,11 @@ function getComponent(component_name, id) {
 
 function addComponent(component_name, object) {
 
-    console.log('addComponent()');
-
     if (!window.tb_framework[component_name]) {
         window.tb_framework[component_name] = {};
     }
 
     window.tb_framework[component_name][object.id] = object;
-
-    console.log(window.tb_framework);
 }
 
 function renderComponentWithAjax(

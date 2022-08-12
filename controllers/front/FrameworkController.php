@@ -139,7 +139,7 @@ class FrameworkController extends FrontController {
         'name' => 'popover_default',
     ];
 
-    // Pagination
+    // Pagination / showMore, showBefore
     // Comments (UI Kit/Fomantic)
     // Check the use of section (UI Kit)
     // Creating Modal for login
@@ -561,7 +561,7 @@ class FrameworkController extends FrontController {
         return self::$ids_unique[array_key_last(self::$ids_unique)];
     }
 
-    public static function validate_modal_default(&$data) {
+    private static function validate_modal_default(&$data) {
 
         if (empty($data['width'] = pSQL($data['width']))) {
             $data['width'] = 'medium';
@@ -587,12 +587,43 @@ class FrameworkController extends FrontController {
 
     }
 
-    public static function validate_modal_add_to_cart(&$data) {
+    private static function validate_modal_add_to_cart(&$data) {
         self::validate_modal_default($data);
     }
 
-    public static function validate_modal_login(&$data) {
+    private static function validate_modal_login(&$data) {
         self::validate_modal_default($data);
+    }
+
+    private static function validate_popover_default(&$data) {
+
+        if (empty($data['item'])) {
+            die('popover item is empty');
+        }
+
+        if (empty($data['popover_content'])) {
+            die('popover content is empty');
+        }
+
+        if (empty($data['triggers_show']) || !is_array($data['triggers_show'])) {
+            $data['triggers_show'] = ['click_item'];
+        }
+
+        if (empty($data['triggers_close']) || !is_array($data['triggers_close'])) {
+            $data['triggers_close'] = ['click_item', 'click_outside', 'open_other_item'];
+        }
+
+        if (empty($data['position'])) {
+            $data['position'] = 'bottom_center';
+        }
+
+        if (empty($data['zIndex'])) {
+            $data['zIndex'] = 'default';
+        }
+
+        if (empty($data['margin'])) {
+            $data['margin'] = 'default';
+        }
     }
 
 
@@ -1081,11 +1112,11 @@ class FrameworkController extends FrontController {
         */
 
         $popover = [
-            'item' => 'Hover me asdfsd <br>fsdfsdf<br> sdf sdf',
-            'popover_content' => FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CARD_PRODUCT),
+            'item' => 'Hover me', // required
+            'popover_content' => FrameworkController::fetchElementDemo(FrameworkController::COMPONENT_CARD_PRODUCT), // required
             'triggers_show' => ['click_item'], // Possible values: 'click_item', 'mouseenter_item'
-            'triggers_hide' => ['click_item', 'click_outside', 'open_other_item'], // Possible value 'click_item', 'mouseleave_item', 'click_outside', 'open_other_item'
-            'position' => 'right_bottom',
+            'triggers_close' => ['click_item', 'click_outside', 'open_other_item'], // Possible value 'click_item', 'mouseleave_item', 'click_outside', 'open_other_item'
+            'position' => 'bottom_center',
             'zIndex' => 'default', // Possible values: default, high, max
             'margin' => 10, // Possible values: default, high, max
         ];
