@@ -124,8 +124,6 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
         relative_element.appendChild(component);
     }
 
-    // Todo: it's not clear, but maybe we need to check if an external file was already loaded. Probably a browser does anyways use cache.
-
     css_files.forEach(function (href) {
         var link = document.createElement('link');
         link.rel = 'stylesheet';
