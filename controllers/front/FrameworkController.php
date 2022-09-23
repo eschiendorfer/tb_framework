@@ -458,10 +458,25 @@ class FrameworkController extends FrontController {
         return $context->smarty->fetch($component_tpl_file);
     }
 
+    public static function fetchElementsAsArray($component, $datas = [], $columns_rewrite = [], $style = '') {
+
+        // This function is very helpful when building complex components like tabs, sliders and so on
+        // It will return the content as an array, which can be put into another component afterwards
+        $return_array = [];
+
+        foreach ($datas as $data) {
+            $return_array[] = self::fetchElement($component, $data, $columns_rewrite, $style);
+        }
+
+        return $return_array;
+    }
+
     public static function fetchElementDemo($component) {
         $data = self::getDemoData($component);
         return self::fetchElement($component, $data);
     }
+
+
 
 
 
@@ -623,6 +638,34 @@ class FrameworkController extends FrontController {
 
         if (empty($data['margin'])) {
             $data['margin'] = 'default';
+        }
+    }
+
+    private static function validate_carousel_components(&$data) {
+        if ($data['nbr_columns'] > count($data['slides'])) {
+            $data['nbr_columns'] = count($data['slides']);
+        }
+    }
+
+    private static function validate_tab_components(&$data) {
+
+        // Todo: this is just a quick usage for product page. A clean implementation with just one hook, would be nice
+        if (!empty($data['hook'])) {
+            $displayProductTabs = Hook::exec('displayProductTab', [], null, true);
+            $displayProductsTabContents = Hook::exec('displayProductTabContent', [], null, true);
+
+            foreach ($displayProductTabs as $module => $displayProductTab) {
+                $data['tabs'][] = [
+                    'title' => $displayProductTab,
+                    'content' => $displayProductsTabContents[$module],
+                ];
+            }
+        }
+
+        foreach ($data['tabs'] as $key => $tab) {
+            if (empty($tab['title']) || empty($tab['content'])) {
+                unset($data['tabs'][$key]);
+            }
         }
     }
 
