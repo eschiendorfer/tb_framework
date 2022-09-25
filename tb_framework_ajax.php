@@ -5,6 +5,7 @@ include_once(dirname(__FILE__).'/../../init.php');
 
 // Global Stuff
 if (Tools::isSubmit('renderComponentWithAjax')) {
+
     $component = FrameworkController::getComponentByComponentName(Tools::getValue('component_name'));
     $data = json_decode(Tools::getValue('data'), true);
     $style = Tools::getValue('style');

@@ -888,7 +888,7 @@ class FrameworkController extends FrontController {
         $demo_data = [
             'title' => 'Sozialer als soziale Netzwerke',
             'subtitle' => 'Familienspiele',
-            'description' => 'Eltern können ihren Kindern nichts Schöneres schenken als gemeinsame Zeit. Brettspiele schweissen zusammen und man erlebt lustige Momente, an die man sich noch Jahre später erinnert. Für einen Spielnachmittag reichen ein paar Snacks, leckere Getränke und ein tolles Spiel.',
+            'description' => 'Eltern können Kindern nichts Schöneres schenken als gemeinsame Zeit. Mit Brettspielen erlebt man lustige Momente, an die man sich noch Jahre später erinnert. Für einen Spielnachmittag reichen ein paar Snacks, leckere Getränke und ein tolles Spiel.',
             'image' => [
                 'src' => '/themes/genzo_theme/img/cover.png',
             ],

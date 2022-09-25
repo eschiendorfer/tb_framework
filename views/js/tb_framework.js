@@ -115,7 +115,9 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
     var component_helper = document.createElement('div');
     component_helper.innerHTML = template.innerHTML.trim(); // Never return a text node of whitespace as the result
 
-    var component = component_helper.firstElementChild;
+    // Todo: before we had component_helper.firstElementChild -> this made problems for modal_default, as there are two elements
+    // Todo:  Check If it works now correctly for all elements
+    var component = component_helper;
 
     // Note: insertAdjacentHTML has the drawback, that the callback element is not usable
     if (relative_position === 'prepend') {
@@ -138,7 +140,6 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
         style_inner.innerHTML = css_code;
         document.body.appendChild(style_inner);
     });
-
 
     // Now we read the script and link tags, so that they are executed.
     if (js_files.length) {
