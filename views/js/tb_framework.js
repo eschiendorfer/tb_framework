@@ -1,22 +1,53 @@
-window.tb_framework = {};
-window.tb_framework.modals_open = 0;
+window.tb_framework = {
+    'modal_default' : {
+        'components' : {},
+        'open' : 0
+    }
+};
+
+addEventListener('DOMContentLoaded', (event) => {
+
+    Object.entries(window.tb_framework).forEach(component_names => {
+
+        const [component_name, componentsObject] = component_names;
+
+        Object.entries(componentsObject.components).forEach(components => {
+            const [id_component, component] = components;
+            initComponent(component_name, component);
+        });
+
+    });
+});
 
 function getComponent(component_name, id) {
 
-    if (window.tb_framework[component_name][id]) {
-        return window.tb_framework[component_name][id];
+    if (window.tb_framework[component_name]['components'][id]) {
+        return window.tb_framework[component_name]['components'][id];
     }
 
     return false;
 }
 
-function addComponent(component_name, object) {
+function addComponent(component_name, component) {
 
     if (!window.tb_framework[component_name]) {
-        window.tb_framework[component_name] = {};
+        window.tb_framework[component_name] = {
+            'components' : {}
+        };
     }
 
-    window.tb_framework[component_name][object.id] = object;
+    window.tb_framework[component_name]['components'][component.id] = component;
+}
+
+function initComponent(component_name, component) {
+
+    // Check if the component contains the init function -> if yes trigger it
+    if (typeof component.init === 'function') {
+        component.init();
+    }
+
+    console.log(tb_framework);
+
 }
 
 function renderComponentWithAjax(
@@ -43,8 +74,11 @@ function renderComponentWithAjax(
             var response = JSON.parse(this.response);
             if (response.content) {
                 initAjaxComponent(response.content, relative_element, relative_position);
+
+                var component = getComponent(component_name, response.id);
+                initComponent(component_name, component);
+
                 if (typeof callback_function == "function") {
-                    var component = getComponent(component_name, response.id);
                     if (component) {
                         callback_function(component);
                     }
@@ -125,6 +159,9 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
     } else if (relative_position === 'append') {
         relative_element.appendChild(component);
     }
+    else if (relative_position === 'replace') {
+        relative_element.outerHTML = component.outerHTML;
+    }
 
     css_files.forEach(function (href) {
         var link = document.createElement('link');
@@ -165,6 +202,8 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
     else {
         loadJsBlocks(js_blocks);
     }
+
+    document.dispatchEvent(new Event('TbFrameworkInitComponents'));
 
     // Return clean javascript element
     return component;
@@ -207,7 +246,7 @@ function hasSomeParentTheClass(element, classname) {
 // Buy_Block
 function updateQtyInput(value) {
 
-    // Todo: make this work with max quantites
+    // Todo: make this work with max quantities
 
     var buy_block_visible = getVisibleBuyBlock();
 

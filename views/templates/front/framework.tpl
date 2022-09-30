@@ -16,6 +16,7 @@
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'review', 'component'=>1])}">Reviews</a></li>
         <li class="primary">Containers</li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'flexbox', 'component'=>1])}">Flexbox</a></li>
+        <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'toast', 'component'=>1])}">Toats</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'carousel', 'component'=>1])}">Carousels</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'modal', 'component'=>1])}">Modals</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'tab', 'component'=>1])}">Tabs</a></li>

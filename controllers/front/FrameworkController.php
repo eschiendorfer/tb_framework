@@ -139,10 +139,15 @@ class FrameworkController extends FrontController {
         'name' => 'popover_default',
     ];
 
+    // Toast
+    const COMPONENT_TOAST = [
+        'type' => 'toast',
+        'name' => 'toast',
+    ];
+
     // Pagination / showMore, showBefore
     // Comments (UI Kit/Fomantic)
     // Check the use of section (UI Kit)
-    // Creating Modal for login
 
     // Supported CSS Elements
 
@@ -420,7 +425,7 @@ class FrameworkController extends FrontController {
 
 
     // Fetch Components
-    public static function fetchElement($component, $data = [], $columns_rewrite = [], $style = '') {
+    public static function fetchElement($component, $data = [], $columns_rewrite = [], $style = '', $ajax = false) {
 
         $context = Context::getContext();
 
@@ -455,7 +460,17 @@ class FrameworkController extends FrontController {
 
         $component_tpl_file = self::getFilePathByComponent($component, $style);
 
-        return $context->smarty->fetch($component_tpl_file);
+        $htmlElement = $context->smarty->fetch($component_tpl_file);
+
+        if ($ajax) {
+            return [
+                'id' => $data['id'],
+                'htmlElement' => $htmlElement,
+            ];
+        }
+
+
+        return $htmlElement;
     }
 
     public static function fetchElementsAsArray($component, $datas = [], $columns_rewrite = [], $style = '') {
@@ -578,13 +593,10 @@ class FrameworkController extends FrontController {
 
     private static function validate_modal_default(&$data) {
 
-        if (empty($data['width'] = pSQL($data['width']))) {
-            $data['width'] = 'medium';
-        }
+        $data['width'] = empty($data['width']) ? 'medium' : pSQL($data['width']);
+        $data['height'] = empty($data['height']) ? 'auto' : pSQL($data['height']);
 
-        if (empty($data['height'] = pSQL($data['height']))) {
-            $data['height'] = 'auto';
-        }
+
 
         if (empty($data['triggers_show']) || !is_array($data['triggers_show'])) {
             $data['triggers_show'] = ['auto_show', 'click_item'];
@@ -1165,6 +1177,17 @@ class FrameworkController extends FrontController {
         ];
 
         return $popover;
+    }
+
+    // Toast
+    public static function getDemoData_toast() {
+
+        $toast = [
+            'html' => '<div>Ich bin ein Toast</div>', // required
+            'hide_after' => 5000, // in ms
+        ];
+
+        return $toast;
     }
 
     // Progressbar
