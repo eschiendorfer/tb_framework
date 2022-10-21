@@ -661,6 +661,9 @@ class FrameworkController extends FrontController {
 
     private static function validate_tab_components(&$data) {
 
+        return 'bla';
+
+        // Todo: be carefull -> the following breaks the core ProductTabContent stuff (genzo_questions for example)
         // Todo: this is just a quick usage for product page. A clean implementation with just one hook, would be nice
         if (!empty($data['hook'])) {
             $displayProductTabs = Hook::exec('displayProductTab', [], null, true);
@@ -813,22 +816,41 @@ class FrameworkController extends FrontController {
     }
 
     public static function getDemoData_imagecloud_promo() {
+
+        $query = new DbQuery();
+        $query->select('id_product');
+        $query->from('product');
+        $query->orderby('RAND()');
+        $query->where('active=1');
+        $query->limit(6);
+        $ids_product = array_column(\Db::getInstance()->ExecuteS($query), 'id_product');
+
+        $product_data = [];
+
+        foreach ($ids_product as $id_product) {
+
+            $product = new \Product($id_product, false, 1);
+            $link = new \Link();
+
+            $product_data[] = [
+                'src' => 'https://'.$link->getImageLink($product->link_rewrite, $product->getCoverWs(), 'home_default'),
+                'link' => [
+                    'url' => $product->getLink(),
+                    'title' => $product->name,
+                ],
+            ];
+        }
+
         $demo_data = [
             'header' => [
                 'title' => 'Klassiker gehen immer oder nicht!?',
                 'subtitle' => 'Unsere Lieblingsstücke',
             ],
             'promo' => [
+                'src' => 'https://www.spielezar.ch/img/cms/cms/mitarbeiter/team-chesspoint.jpg',
                 'position' => 'right',
             ],
-            'data' => [
-                ['src' => 'https://www.genzo.ch/810-home_default/jenga.jpg'],
-                ['src' => 'https://www.genzo.ch/812-home_default/shut-the-box-4er-variante.jpg'],
-                ['src' => 'https://www.genzo.ch/4746-home_default/chinderjass-tschau-sepp.jpg'],
-                ['src' => 'https://www.genzo.ch/800-home_default/tiroler-roulette-octagon.jpg'],
-                ['src' => 'https://www.genzo.ch/801-home_default/rummy.jpg'],
-                ['src' => 'https://www.genzo.ch/802-home_default/kalaha.jpg'],
-            ],
+            'data' => $product_data,
             'link' => [
                 'title' => 'Alle anzeigen',
                 'url' => '#',
@@ -881,7 +903,10 @@ class FrameworkController extends FrontController {
 
         $demo_data = [
             'title' => 'Sozialer als alle sozialen Netzwerke',
-            'section' => 'Familienspiele',
+            'section' => [
+                'title' => 'Familienspiele',
+                'url' => '#'
+            ],
             'description' => 'Eltern können ihren Kindern nichts Schöneres schenken als gemeinsame Zeit. Brettspiele schweissen zusammen und man erlebt lustige Momente, an die man sich noch Jahre später erinnert.',
             'image' => [
                 'src' => '/themes/genzo_theme/img/cover.png',
@@ -889,7 +914,7 @@ class FrameworkController extends FrontController {
             'link' => [
                 'url' => '/blog/something',
             ],
-            'footer' => true, // Todo: implement this cleaner -> probably should have some kind of helper components
+            'html' => '', // Flexible possibility to add some html
         ];
 
         return $demo_data;
