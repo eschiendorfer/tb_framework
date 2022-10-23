@@ -654,7 +654,7 @@ class FrameworkController extends FrontController {
     }
 
     private static function validate_carousel_components(&$data) {
-        if ($data['nbr_columns'] > count($data['slides'])) {
+        if (!isset($data['nbr_columns']) || ($data['nbr_columns'] > count($data['slides']))) {
             $data['nbr_columns'] = count($data['slides']);
         }
     }
