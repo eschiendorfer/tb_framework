@@ -14,7 +14,12 @@ class FrameworkController extends FrontController {
     const COMPONENT_LIST_COMPACT = [
         'type' => 'list',
         'name' => 'list_compact',
-    ]; // Todo: Are tables the same as lists?
+    ];
+
+    const COMPONENT_TABLE_DEFAULT = [
+        'type' => 'table',
+        'name' => 'table_default',
+    ];
 
     const COMPONENT_FLEXBOX_COMPONENTS = [
         'type' => 'flexbox',
@@ -162,7 +167,7 @@ class FrameworkController extends FrontController {
     const CSS_COLOR_GRAY_DARK = 'color_gray_dark';
     const CSS_COLOR_BLACK = 'color_black';*/ // Often times a clean black is too hard...
 
-    // Todo: Find a solution for boxes and margins / sections
+    // Todo: Find a solution for boxes and margins / sections -> maybe introducing a selector boxed like for buttons
     // Todo: Same is true for icons. Keep in mind that size and color is important too
 
     // Buttons
@@ -597,12 +602,13 @@ class FrameworkController extends FrontController {
         $data['height'] = empty($data['height']) ? 'auto' : pSQL($data['height']);
 
 
-
-        if (empty($data['triggers_show']) || !is_array($data['triggers_show'])) {
+        // Note: modules can be interested to use no default trigger at all -> we allow empty array
+        if (!isset($data['triggers_show']) || !is_array($data['triggers_show'])) {
             $data['triggers_show'] = ['auto_show', 'click_item'];
         }
 
-        if (empty($data['triggers_close']) || !is_array($data['triggers_close'])) {
+        // Note: modules can be interseted to use no default trigger at all -> we allow empty array
+        if (!isset($data['triggers_close']) || !is_array($data['triggers_close'])) {
             $data['triggers_close'] = ['click_close_button', 'click_item', 'click_outside'];
         }
 
@@ -661,11 +667,7 @@ class FrameworkController extends FrontController {
 
     private static function validate_tab_components(&$data) {
 
-        return 'bla';
-
-        // Todo: be carefull -> the following breaks the core ProductTabContent stuff (genzo_questions for example)
-        // Todo: this is just a quick usage for product page. A clean implementation with just one hook, would be nice
-        if (!empty($data['hook'])) {
+        if (isset($data['displayProductTab']) && $data['displayProductTab']) {
             $displayProductTabs = Hook::exec('displayProductTab', [], null, true);
             $displayProductsTabContents = Hook::exec('displayProductTabContent', [], null, true);
 
@@ -677,10 +679,24 @@ class FrameworkController extends FrontController {
             }
         }
 
-        foreach ($data['tabs'] as $key => $tab) {
-            if (empty($tab['title']) || empty($tab['content'])) {
+        $display_set = false;
+
+        foreach ($data['tabs'] as $key => &$tab) {
+
+            // Remove empty tabs
+            if (empty(trim($tab['title'])) || empty(trim($tab['content']))) {
                 unset($data['tabs'][$key]);
+                continue;
             }
+
+            if (isset($tab['display']) && $tab['display']) {
+                !$display_set ? $display_set = true : $tab['display'] = false; // Note: only one tab should be displayed
+            }
+        }
+
+        if (!$display_set) {
+            $firstKey = array_key_first($data['tabs']);
+            $data['tabs'][$firstKey]['display'] = true;
         }
     }
 
@@ -699,7 +715,7 @@ class FrameworkController extends FrontController {
 
     }
 
-    public static function getDemoData_List_compact() {
+    public static function getDemoData_list_compact() {
 
         $context = Context::getContext();
 
@@ -757,6 +773,23 @@ class FrameworkController extends FrontController {
                 'title' => 'View All',
                 'link'  => ['url' => 'https://www.blick.ch'],
                 'style' => 'width: 100%;',
+            ],
+        ];
+
+        return $demo_data;
+
+    }
+
+    public static function getDemoData_table_default() {
+
+        $demo_data = [
+            'thead' => [
+                ['Name', 'Surname', 'Street', 'City', 'Rating']
+            ],
+            'tbody' => [
+                ['Dan', 'Quinn', 'Down Hill 12', 'Dallas', '4.8'],
+                ['Kevin', 'Stefanski', '', 'Cleveland', '5.0'],
+                ['Sam Francisco', 'Rodriguez Perez', '', 'Cleveland', '5.0'],
             ],
         ];
 
@@ -1069,21 +1102,41 @@ class FrameworkController extends FrontController {
 
     // Menus
     public static function getDemoData_menu_vertical() {
+
+        $items = [
+            [
+                'title' => 'Brettspiele',
+                'link' => ['url' => '/test'],
+                'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']
+            ],
+            [
+                'title' => 'Puzzle',
+                'link' => ['url' => '#'],
+                'icon' => ['class' => 'icon-puzzle', 'width' => '20', 'height' => '20']
+            ],
+            [
+                'title' => 'Sammelkarten',
+                'link' => ['url' => '#'],
+                'icon' => ['class' => 'icon-tcg', 'width' => '20', 'height' => '20']
+            ],
+            [
+                'title' => 'Actionfiguren',
+                'link' => ['url' => '#'],
+                'icon' => ['class' => 'icon-actionfigure', 'width' => '20', 'height' => '20']
+            ],
+
+            /*['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
+            ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
+            ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
+            ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
+            ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
+            ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
+            ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],*/
+        ];
+
         $data = [
             'title' => 'Kategorien',
-            'items' => [
-                ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
-                ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
-                ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
-                ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
-                ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
-                ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
-                ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
-                ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
-                ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
-                ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
-                ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
-            ],
+            'items' => $items,
         ];
 
         return $data;
@@ -1140,7 +1193,7 @@ class FrameworkController extends FrontController {
             'tabs' => [
                 ['title' => 'Carousel', 'content' => $carousel, 'display' => true],
                 ['title' => 'Header', 'content' => $header],
-                ['title' => 'Imagecloud', 'content' => $imagecloud],
+                ['title' => 'Imagecloud', 'content' => $imagecloud, 'boxed' => false],
             ]
         ];
 

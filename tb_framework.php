@@ -9,6 +9,7 @@ class tb_framework extends Module
 {
 
 	public $errors;
+    private $tabs;
 
 	function __construct() {
 		$this->name = 'tb_framework';
@@ -32,7 +33,8 @@ class tb_framework extends Module
 	public function install() {
 		if (!parent::install() OR
 			!$this->registerHook('moduleRoutes') OR
-			!$this->registerHook('displayHeader')
+			!$this->registerHook('displayHeader') OR
+			!$this->registerHook('displayBottomColumn')
         ) {
             return false;
         }
@@ -97,6 +99,29 @@ class tb_framework extends Module
 
         // Make components available by ajax
         $this->context->controller->addJS($this->_path.'/views/js/tb_framework.js');
+
+
+        // Tabs Hooks
+        $tabs = Hook::exec('displayTabContent', [], '', true);
+
+        foreach ($tabs as $module => $hooks) {
+            foreach ($hooks as $hook => $tabs) {
+
+                // Todo: Do a validation before and make a clean structure
+                foreach ($tabs as $tab) {
+                    $this->tabs[$hook]['tabs'][] = $tab;
+                }
+            }
+        }
+
 	}
 
+    // Display Hooks that support tabs functionality
+    public function hookDisplayBottomColumn($params) {
+
+        if (!empty($this->tabs['displayBottomColumn'])) {
+            return FrameworkController::fetchElement(FrameworkController::COMPONENT_TAB_COMPONENTS, $this->tabs['displayBottomColumn']);
+        }
+
+    }
 }

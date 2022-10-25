@@ -63,6 +63,7 @@ function renderComponentWithAjax(
     var request = new XMLHttpRequest();
     request.open('POST', '/modules/tb_framework/tb_framework_ajax.php?renderComponentWithAjax', true);
     request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("ACCEPT", "image/webp"); // Important that tb returns webp images
     request.send(
         'component_name=' + component_name +
         '&data=' + encodeURIComponent(JSON.stringify(data)) +
@@ -285,6 +286,29 @@ function updateBuyBlock() {
         // Update product price
         updateProductPrice(id_product, true, id_product_attribute, qty, true, buy_block_visible.querySelector('#our_price_display'));
     }
+
+    toggleAttributeRelatedData(id_product_attribute);
+
+}
+
+function toggleAttributeRelatedData(id_product_attribute) {
+
+    // Display and hide all elements with 'data-id-product-attribute-related' depending on selected attribute
+    id_product_attribute = parseInt(id_product_attribute);
+    var data = document.querySelectorAll('[data-id-product-attribute-related]');
+
+    data.forEach(function (row) {
+
+        var row_id_product_attribute = parseInt(row.getAttribute('data-id-product-attribute-related'));
+
+        if ((id_product_attribute) > 0 && (row_id_product_attribute > 0)) {
+            row.style.display = id_product_attribute===row_id_product_attribute ? '' : 'none';
+        }
+        else {
+            row.style.display = ''; // If none is selected we display all values
+        }
+
+    });
 
 }
 
