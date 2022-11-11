@@ -506,6 +506,7 @@ class FrameworkController extends FrontController {
             return false;
         }
 
+
         // This complex function allows to replace columns, which is helpful if you have a given dataset with "wrong" column names
         foreach ($rewrite_columns as $key_input_structures => $key_needed_structures) {
 
@@ -516,9 +517,9 @@ class FrameworkController extends FrontController {
 
             // Getting needed values
             $key_needed_structure = explode('.', $key_needed_structures);
+
             $key_needed = $key_needed_structure[array_key_last($key_needed_structure)];
             array_pop($key_needed_structure);
-
 
             // At the moment we only support column change on maximal three layers
             if (count($key_input_structure)>3 || count($key_needed_structure)>3) {
@@ -527,6 +528,7 @@ class FrameworkController extends FrontController {
 
             // This rewrite is so complex, that we implement all possibilities manually (max 3 layers)
             if (!count($key_input_structure)) {
+
                 if (!count($key_needed_structure)) {
                     $smarty_vars[$key_needed] = $smarty_vars[$key_input];
                 }
@@ -538,7 +540,9 @@ class FrameworkController extends FrontController {
                 }
             }
             elseif (count($key_input_structure)===1) {
+
                 foreach ($smarty_vars[$key_input_structure[0]] as $key_layer_1 => $values) {
+
                     if (!count($key_needed_structure)) {
                         $smarty_vars[$key_needed] = $values[$key_input] ?? $key_input;
                     }
@@ -546,7 +550,15 @@ class FrameworkController extends FrontController {
                         $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed] = $values[$key_input] ?? $key_input;
                     }
                     elseif (count($key_needed_structure)===2) {
+
+                        // There are some strange egdecases where same names with different structure are involved
+                        // Example blockcategories.tpl (items.link -> items.link.url) -> which means that link was a string and needs to become an array
+                        if (isset($smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]]) && !is_array(isset($smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]]))) {
+                            $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]] = [];
+                        }
+
                         $smarty_vars[$key_needed_structure[0]][$key_layer_1][$key_needed_structure[1]][$key_needed] = $values[$key_input] ?? $key_input;
+
                     }
                 }
             }
@@ -601,13 +613,12 @@ class FrameworkController extends FrontController {
         $data['width'] = empty($data['width']) ? 'medium' : pSQL($data['width']);
         $data['height'] = empty($data['height']) ? 'auto' : pSQL($data['height']);
 
-
         // Note: modules can be interested to use no default trigger at all -> we allow empty array
         if (!isset($data['triggers_show']) || !is_array($data['triggers_show'])) {
             $data['triggers_show'] = ['auto_show', 'click_item'];
         }
 
-        // Note: modules can be interseted to use no default trigger at all -> we allow empty array
+        // Note: modules can be interested to use no default trigger at all -> we allow empty array
         if (!isset($data['triggers_close']) || !is_array($data['triggers_close'])) {
             $data['triggers_close'] = ['click_close_button', 'click_item', 'click_outside'];
         }
@@ -625,6 +636,10 @@ class FrameworkController extends FrontController {
     }
 
     private static function validate_modal_login(&$data) {
+
+        // Make sure we have always the id 'modal_login' (we only want to render this once)
+        $data['id'] = 'modal_login';
+
         self::validate_modal_default($data);
     }
 
@@ -1049,6 +1064,7 @@ class FrameworkController extends FrontController {
         $demo_data = [
             'width' => 'small', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
             'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
+            'back' => '' // Url if there, should be a redirect after login
         ];
 
         return $demo_data;

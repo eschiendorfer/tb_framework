@@ -19,6 +19,17 @@ addEventListener('DOMContentLoaded', (event) => {
     });
 });
 
+addEventListener('click', function(e){
+    var clicked_element = e.target;
+    if (clicked_element.classList.contains('prevent-double-click')) {
+        if (clicked_element.getAttribute('data-last-click') && (+new Date() - clicked_element.getAttribute('data-last-click')) < 1000) {
+            e.preventDefault(); // Don't follow the link if 1000 ms weren't gone from the last click
+        }
+        clicked_element.setAttribute('data-last-click', +new Date());
+        e.preventDefault();
+    }
+});
+
 function getComponent(component_name, id) {
 
     if (window.tb_framework[component_name]['components'][id]) {

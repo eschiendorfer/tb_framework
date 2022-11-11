@@ -105,11 +105,13 @@ class tb_framework extends Module
         $tabs = Hook::exec('displayTabContent', [], '', true);
 
         foreach ($tabs as $module => $hooks) {
-            foreach ($hooks as $hook => $tabs) {
+            if (is_array($hooks) && !empty($hooks)) {
+                foreach ($hooks as $hook => $tabs) {
 
-                // Todo: Do a validation before and make a clean structure
-                foreach ($tabs as $tab) {
-                    $this->tabs[$hook]['tabs'][] = $tab;
+                    // Todo: Do a validation before and make a clean structure
+                    foreach ($tabs as $tab) {
+                        $this->tabs[$hook]['tabs'][] = $tab;
+                    }
                 }
             }
         }
