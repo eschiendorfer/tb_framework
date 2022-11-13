@@ -26,7 +26,6 @@ addEventListener('click', function(e){
             e.preventDefault(); // Don't follow the link if 1000 ms weren't gone from the last click
         }
         clicked_element.setAttribute('data-last-click', +new Date());
-        e.preventDefault();
     }
 });
 
@@ -342,7 +341,6 @@ function findCombination() {
         return 0;
     }
 
-
     var id_product_attribute = null;
 
     var buy_block_visible = getVisibleBuyBlock();
@@ -374,8 +372,6 @@ function findCombination() {
 
     // Update attribute relevant information
     if (id_product_attribute) {
-        console.log(combinations[id_product_attribute]);
-        console.log(combinationsFromController[id_product_attribute]);
 
         // Remove disabled from qty_select and add_to_cart_button
         add_to_cart_button.disabled = false;
@@ -412,70 +408,6 @@ function findCombination() {
     }
 
     return id_product_attribute;
-
-
-    if (id_product_attribute) {
-
-
-
-        return;
-
-        if (combinations[combination]['minimal_quantity'] > 1)
-        {
-            $('#minimal_quantity_label').html(combinations[combination]['minimal_quantity']);
-            $('#minimal_quantity_wanted_p').fadeIn();
-            $('#quantity_wanted').val(combinations[combination]['minimal_quantity']);
-            $('#quantity_wanted').bind('keyup', function() {checkMinimalQuantity(combinations[combination]['minimal_quantity']);});
-        }
-
-        //combination of the user has been found in our specifications of combinations (created in back office)
-        selectedCombination['unavailable'] = false;
-
-        //get the data of product with these attributes
-        quantityAvailable = combinations[combination]['quantity'];
-        selectedCombination['price'] = combinations[combination]['price'];
-        selectedCombination['unit_price'] = combinations[combination]['unit_price'];
-        selectedCombination['specific_price'] = combinations[combination]['specific_price'];
-
-        /*if (combinations[combination]['ecotax'])
-            selectedCombination['ecotax'] = combinations[combination]['ecotax'];
-        else
-            selectedCombination['ecotax'] = default_eco_tax;*/
-
-        //show the large image in relation to the selected combination
-        if (combinations[combination]['image'] && combinations[combination]['image'] != -1) {
-            displayImage($('#thumb_' + combinations[combination]['image']).parent());
-        }
-
-        //show discounts values according to the selected combination
-        if (combinations[combination]['idCombination'] && combinations[combination]['idCombination'] > 0) {
-            displayDiscounts(combinations[combination]['idCombination']);
-        }
-
-
-        //get available_date for combination product
-        selectedCombination['available_date'] = combinations[combination]['available_date'];
-
-        // update the display
-        // updateDisplay();
-
-        if (typeof(firstTime) != 'undefined') {
-            // refreshProductImages(0);
-        }
-        else {
-            // refreshProductImages(combinations[combination]['idCombination']);
-        }
-        //leave the function because combination has been found
-        return;
-    }
-
-
-    //this combination doesn't exist (not created in back office)
-    selectedCombination['unavailable'] = true;
-    if (typeof(selectedCombination['available_date']) != 'undefined')
-        delete selectedCombination['available_date'];
-
-    // updateDisplay();
 }
 
 function updateProductPrice(id_product, use_tax = true, id_product_attribute = 0, qty = 1, format_price = false, element_replace = null) {
@@ -496,7 +428,6 @@ function updateProductPrice(id_product, use_tax = true, id_product_attribute = 0
         }
     }
 }
-
 
 // Some copied stuff from tools.js
 /*
