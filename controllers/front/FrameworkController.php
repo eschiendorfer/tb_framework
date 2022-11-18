@@ -173,7 +173,6 @@ class FrameworkController extends FrontController {
     const CSS_COLOR_GRAY_DARK = 'color_gray_dark';
     const CSS_COLOR_BLACK = 'color_black';*/ // Often times a clean black is too hard...
 
-    // Todo: Find a solution for boxes and margins / sections -> maybe introducing a selector boxed like for buttons
     // Todo: Same is true for icons. Keep in mind that size and color is important too
 
     // Buttons
@@ -473,14 +472,16 @@ class FrameworkController extends FrontController {
 
         $htmlElement = $context->smarty->fetch($component_tpl_file);
 
-        // Render the container
-        $context->smarty->assign([
-            'component' => $htmlElement,
-            'boxed' => $data['boxed'] ?? false, // Todo: work with default values
-            'margin' => $data['margin'] ?? false, // Todo: work with default values
-        ]);
+        if (!empty($data['container'])) {
+            // Render the container
+            $context->smarty->assign([
+                'component' => $htmlElement,
+                'boxed' => $data['container']['boxed'] ?? false, // Todo: work with default values
+                'margin' => $data['container']['margin'] ?? false, // Todo: work with default values
+            ]);
 
-        $htmlElement = $context->smarty->fetch(_PS_THEME_DIR_.'component/component_container.tpl');
+            $htmlElement = $context->smarty->fetch(_PS_THEME_DIR_ . 'component/component_container.tpl');
+        }
 
         if ($ajax) {
             return [
@@ -1195,7 +1196,6 @@ class FrameworkController extends FrontController {
         $demo_data_carousel['nbr_columns'] = 2.5;
         $demo_data_carousel['promo_position'] = 'left';
 
-        // Todo: probably we should add a boolean value for "boxed". This could actually be true for all containers
         // Maybe we can fix it also, if components need to implement a header and a show_all variant.
 
         return $demo_data_carousel;
@@ -1511,9 +1511,10 @@ class FrameworkController extends FrontController {
                     'buttons' => ''
                 ]
             ],
-            'boxed' => true,
-            'margin' => true
-
+            'container' => [
+                'boxed' => true,
+                'margin' => true,
+            ]
         ];
 
         return $message_thread;
