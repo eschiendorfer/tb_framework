@@ -150,6 +150,12 @@ class FrameworkController extends FrontController {
         'name' => 'toast',
     ];
 
+    // Message
+    const COMPONENT_MESSAGE_THREAD = [
+        'type' => 'message',
+        'name' => 'message_thread',
+    ];
+
     // Pagination / showMore, showBefore
     // Comments (UI Kit/Fomantic)
     // Check the use of section (UI Kit)
@@ -467,6 +473,15 @@ class FrameworkController extends FrontController {
 
         $htmlElement = $context->smarty->fetch($component_tpl_file);
 
+        // Render the container
+        $context->smarty->assign([
+            'component' => $htmlElement,
+            'boxed' => $data['boxed'] ?? false, // Todo: work with default values
+            'margin' => $data['margin'] ?? false, // Todo: work with default values
+        ]);
+
+        $htmlElement = $context->smarty->fetch(_PS_THEME_DIR_.'component/component_container.tpl');
+
         if ($ajax) {
             return [
                 'id' => $data['id'],
@@ -715,6 +730,72 @@ class FrameworkController extends FrontController {
         }
     }
 
+    private static function validate_table_default(&$data) {
+
+        // Rewrite the tbody depending on specific keys and display values
+
+        $columns = [];
+        $new_data = [];
+
+        foreach ($data['thead'] as $original_key => $column) {
+
+            $key = empty($column['key']) ? $original_key : $column['key'];
+            $display = empty($column['display']) ? '' : $column['display'];
+            $align = empty($column['align']) ? 'left' : $column['align'];
+
+            $columns[] = [
+                'key' => $key,
+                'display' => $display,
+                'align' => $align,
+            ];
+
+            if ($column['align']==='right') {
+                $data['thead'][$original_key]['title'] = '<div style="text-align: right;">'.$column['title'].'</div>';
+            }
+            else if ($column['align']==='center') {
+                $data['thead'][$original_key]['title'] = '<div style="text-align: center;">'.$column['title'].'</div>';
+            }
+            else {
+                $data['thead'][$original_key]['title'] = '<div style="text-align: left;">'.$column['title'].'</div>';
+            }
+
+        }
+
+
+        foreach ($data['tbody'] as $key_row => $row) {
+            foreach ($columns as $column) {
+
+                $key = $column['key'];
+                $display = $column['display'];
+
+                if ($display==='date') {
+                    $value = Tools::displayDate($row[$key]);
+                }
+                else if ($display==='price') {
+                    $value = Tools::displayPrice($row[$key]);
+                }
+                else {
+                    $value = $row[$key];
+                }
+
+                if ($column['align']==='right') {
+                    $value = '<div style="text-align: right;">'.$value.'</div>';
+                }
+                else if ($column['align']==='center') {
+                    $value = '<div style="text-align: center;">'.$value.'</div>';
+                }
+                else {
+                    $value = '<div style="text-align: left;">'.$value.'</div>';
+                }
+
+                $new_data[$key_row][$key] = $value;
+
+            }
+        }
+
+        $data['tbody'] = $new_data;
+    }
+
 
     // Demo
     private static function getDemoData($component) {
@@ -799,7 +880,11 @@ class FrameworkController extends FrontController {
 
         $demo_data = [
             'thead' => [
-                ['Name', 'Surname', 'Street', 'City', 'Rating']
+                ['key' => '', 'title' => 'Name', 'display' => ''],
+                ['key' => '', 'title' => 'Surname', 'display' => ''],
+                ['key' => '', 'title' => 'Street', 'display' => ''],
+                ['key' => '', 'title' => 'Date', 'display' => 'date'],
+                ['key' => '', 'title' => 'Price', 'display' => 'price', 'align' => 'right'],
             ],
             'tbody' => [
                 ['Dan', 'Quinn', 'Down Hill 12', 'Dallas', '4.8'],
@@ -1393,5 +1478,44 @@ class FrameworkController extends FrontController {
         ];
 
         return $review_section;
+    }
+
+    public static function getDemoData_message_thread() {
+
+        // Todo: add functionality that transform date into '3 weeks ago'
+
+        $message_thread = [
+            'messages' => [
+                [
+                    'alias'  => 'Frank',
+                    'date'   => '2022-10-18 21:12:32',
+                    'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'answer' => false,
+                    'message' => 'Hello guys, how are you doing?',
+                    'buttons' => ''
+                ],
+                [
+                    'alias'  => 'Melissa G.',
+                    'date'   => '2022-10-19 05:06:51',
+                    'avatar' => 'https://images.unsplash.com/photo-1581624657276-5807462d0a3a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'answer' => true,
+                    'message' => 'Doing great, thank you',
+                    'buttons' => ''
+                ],
+                [
+                    'alias'  => 'King Arthur',
+                    'date'   => '2022-10-19 09:14:01',
+                    'avatar' => 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'answer' => true,
+                    'message' => 'It\'s monday. What a stupid question...',
+                    'buttons' => ''
+                ]
+            ],
+            'boxed' => true,
+            'margin' => true
+
+        ];
+
+        return $message_thread;
     }
 }
