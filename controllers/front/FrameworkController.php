@@ -151,14 +151,18 @@ class FrameworkController extends FrontController {
     ];
 
     // Message
+    const COMPONENT_MESSAGE_CHAT = [
+        'type' => 'message',
+        'name' => 'message_chat', // Only two people are involved
+    ];
+
     const COMPONENT_MESSAGE_THREAD = [
         'type' => 'message',
-        'name' => 'message_thread',
+        'name' => 'message_thread', // Many people could be involved
     ];
 
     // Pagination / showMore, showBefore
     // Comments (UI Kit/Fomantic)
-    // Check the use of section (UI Kit)
 
     // Supported CSS Elements
 
@@ -1478,6 +1482,44 @@ class FrameworkController extends FrontController {
         ];
 
         return $review_section;
+    }
+
+
+    // Messages
+    public static function getDemoData_message_chat() {
+
+        // Todo: add functionality that transform date into '3 weeks ago'
+
+        $message_thread = [
+            'alias' => 'Frank the tank',
+            'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+            'messages' => [
+                [
+                    'date'   => '2022-10-18 21:12:32',
+                    'own_message' => false,
+                    'message' => 'Hello guys, how are you doing?',
+                    'buttons' => ''
+                ],
+                [
+                    'date'   => '2022-10-18 21:12:32',
+                    'own_message' => true,
+                    'message' => 'Doing great, thank you',
+                    'buttons' => ''
+                ],
+                [
+                    'date'   => '2022-10-18 21:12:32',
+                    'own_message' => true,
+                    'message' => 'What about you?',
+                    'buttons' => ''
+                ],
+            ],
+            'container' => [
+                'boxed' => true,
+                'margin' => true,
+            ]
+        ];
+
+        return $message_thread;
     }
 
     public static function getDemoData_message_thread() {
