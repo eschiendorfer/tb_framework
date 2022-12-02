@@ -657,8 +657,14 @@ class FrameworkController extends FrontController {
 
     private static function validate_modal_login(&$data) {
 
+        // Todo: we need to have hooks or something, that allows to assigns additional values from (core controllers)
+        // Note this can be very useful, if a theme designers wants to extend the data of a component
+        $authController = new AuthController();
+        $authController->initContent();
+
         // Make sure we have always the id 'modal_login' (we only want to render this once)
         $data['id'] = 'modal_login';
+        $data['triggers_close'] = ['click_close_button'];
 
         self::validate_modal_default($data);
     }
