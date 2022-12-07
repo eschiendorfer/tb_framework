@@ -9,7 +9,10 @@ if (Tools::isSubmit('renderComponentWithAjax')) {
     $component = FrameworkController::getComponentByComponentName(Tools::getValue('component_name'));
     $data = json_decode(Tools::getValue('data'), true);
     $style = Tools::getValue('style');
-    $component = FrameworkController::fetchElement($component, $data, [], $style);
+    $component = FrameworkController::fetchElement($component, $data, [], $style, true);
+
+    die(json_encode($component));
+
     die(json_encode(['id' => FrameworkController::getLastGeneratedUniqueId(), 'content' => $component]));
 }
 

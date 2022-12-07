@@ -1,22 +1,18 @@
-window.tb_framework = {
-    'modal_default' : {
-        'components' : {},
-        'open' : 0
-    }
-};
+window.tb_framework = {};
 
 addEventListener('DOMContentLoaded', (event) => {
 
     Object.entries(window.tb_framework).forEach(component_names => {
 
-        const [component_name, componentsObject] = component_names;
+        const [component_name, components] = component_names;
 
-        Object.entries(componentsObject.components).forEach(components => {
-            const [id_component, component] = components;
-            initComponent(component_name, component);
+        components.forEach(function (component) {
+            initComponent(component);
         });
 
     });
+
+
 });
 
 addEventListener('click', function(e){
@@ -29,34 +25,39 @@ addEventListener('click', function(e){
     }
 });
 
-function getComponent(component_name, id) {
+function getJsComponentByUniqueId(id) {
 
-    if (window.tb_framework[component_name]['components'][id]) {
-        return window.tb_framework[component_name]['components'][id];
-    }
+    var componentFound = false;
 
-    return false;
+    Object.keys(window.tb_framework).forEach(key => {
+        window.tb_framework[key].forEach(function (component) {
+            if (component.id===id) {
+                componentFound = component;
+            }
+        });
+    });
+
+    return componentFound;
 }
 
-function addComponent(component_name, component) {
+function addComponent(js_component) {
 
-    if (!window.tb_framework[component_name]) {
-        window.tb_framework[component_name] = {
-            'components' : {}
-        };
+    if (!window.tb_framework[js_component.name]) {
+        window.tb_framework[js_component.name] = [];
     }
 
-    window.tb_framework[component_name]['components'][component.id] = component;
+    window.tb_framework[js_component.name].push(js_component);
 }
 
-function initComponent(component_name, component) {
+function initComponent(js_component) {
 
     // Check if the component contains the init function -> if yes trigger it
-    if (typeof component.init === 'function') {
-        component.init();
+    if (typeof js_component.init === 'function') {
+        js_component.init();
     }
 
 }
+
 
 function renderComponentWithAjax(
     component_name,
@@ -81,15 +82,11 @@ function renderComponentWithAjax(
     request.onload = function () {
         if (this.status >= 200 && this.status < 400) {
             var response = JSON.parse(this.response);
-            if (response.content) {
-                initAjaxComponent(response.content, relative_element, relative_position);
-
-                var component = getComponent(component_name, response.id);
-                initComponent(component_name, component);
-
+            if (response) {
+                var js_component = initAjaxComponent(response, relative_element, relative_position);
                 if (typeof callback_function == "function") {
-                    if (component) {
-                        callback_function(component);
+                    if (js_component) {
+                        callback_function(js_component);
                     }
                 }
             }
@@ -98,9 +95,18 @@ function renderComponentWithAjax(
 
 }
 
+function initAjaxComponent(component, relative_element = document.body, relative_position = 'append') {
+    initHtmlContent(component.htmlElement, relative_element, relative_position);
+    var js_component = window[component.id];
+    // Note: there is no need to use addComponent() as this is already executed in the tpl file
+    initComponent(js_component);
+
+    return js_component;
+}
+
 // Note: when you load html by ajax, the script tags and external files aren't executed/loaded by just adding the html div
 // This function does handle this "problem".
-function initAjaxComponent(content, relative_element = document.body, relative_position = 'append') {
+function initHtmlContent(content, relative_element = document.body, relative_position = 'append') {
 
     // First we need create an element that is readable
     var template = document.createElement('template');
@@ -210,9 +216,7 @@ function initAjaxComponent(content, relative_element = document.body, relative_p
         loadJsBlocks(js_blocks);
     }
 
-    document.dispatchEvent(new Event('TbFrameworkInitComponents'));
-
-    // Return clean javascript element
+    // Return clean htmlElement
     return component;
 }
 
@@ -248,6 +252,46 @@ function hasSomeParentTheId(element, id) {
 function hasSomeParentTheClass(element, classname) {
     if (element.className && typeof element.className==='string' && element.className.split(' ').indexOf(classname)>=0) return element;
     return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
+}
+
+function checkIfAnyModalIsOpen() {
+
+    var anyModalOpen = false;
+
+    if (window.tb_framework.modal_default) {
+        window.tb_framework.modal_default.forEach(function (modal_default) {
+            if (modal_default.isOpen) {
+                anyModalOpen = true;
+            }
+        });
+    }
+
+    if (!anyModalOpen && window.tb_framework.modal_login) {
+        window.tb_framework.modal_default.forEach(function (modal_default) {
+            if (modal_default.isOpen) {
+                anyModalOpen = true;
+            }
+        });
+    }
+
+    if (!anyModalOpen && window.tb_framework.modal_add_to_cart) {
+        window.tb_framework.modal_default.forEach(function (modal_default) {
+            if (modal_default.isOpen) {
+                anyModalOpen = true;
+            }
+        });
+    }
+
+    return anyModalOpen;
+}
+
+function closeAllToasts() {
+    // Close all old toasts
+    if (window.tb_framework.toast) {
+        window.tb_framework.toast.forEach(function (toast) {
+            toast.close();
+        });
+    }
 }
 
 // Buy_Block

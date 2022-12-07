@@ -489,6 +489,7 @@ class FrameworkController extends FrontController {
 
         if ($ajax) {
             return [
+                'name' => $component['name'],
                 'id' => $data['id'],
                 'htmlElement' => $htmlElement,
             ];
@@ -630,8 +631,8 @@ class FrameworkController extends FrontController {
 
     private static function validate_modal_default(&$data) {
 
-        $data['width'] = empty($data['width']) ? 'medium' : pSQL($data['width']);
-        $data['height'] = empty($data['height']) ? 'auto' : pSQL($data['height']);
+        // $data['width'] = empty($data['width']) ? 'medium' : pSQL($data['width']);
+        // $data['height'] = empty($data['height']) ? 'auto' : pSQL($data['height']);
 
         // Note: modules can be interested to use no default trigger at all -> we allow empty array
         if (!isset($data['triggers_show']) || !is_array($data['triggers_show'])) {
@@ -1120,8 +1121,8 @@ class FrameworkController extends FrontController {
         $demo_data = [
             'html' => $html, // Required
             'title' => 'Custom Modal',
-            'width' => 'medium', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
-            'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
+            'width' => '', // any custom css_width_value (example: 80vw, fit-content, or 50%)
+            'height' => '', // any custom css_width_value (example: 90vh or 100px)
             'item' => '',
             'triggers_show' => ['auto_show', 'click_item'], // Possible values: 'auto_show', 'click_item'
             'triggers_close' => ['click_close_button', 'click_item', 'click_outside'], // Possible value 'click_close_button', 'click_item', 'click_outside'
