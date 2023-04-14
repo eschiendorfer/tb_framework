@@ -267,16 +267,24 @@ function checkIfAnyModalIsOpen() {
     }
 
     if (!anyModalOpen && window.tb_framework.modal_login) {
-        window.tb_framework.modal_default.forEach(function (modal_default) {
-            if (modal_default.isOpen) {
+        window.tb_framework.modal_login.forEach(function (modal_login) {
+            if (modal_login.isOpen) {
                 anyModalOpen = true;
             }
         });
     }
 
     if (!anyModalOpen && window.tb_framework.modal_add_to_cart) {
-        window.tb_framework.modal_default.forEach(function (modal_default) {
-            if (modal_default.isOpen) {
+        window.tb_framework.modal_add_to_cart.forEach(function (modal_add_to_cart) {
+            if (modal_add_to_cart.isOpen) {
+                anyModalOpen = true;
+            }
+        });
+    }
+
+    if (!anyModalOpen && window.tb_framework.modal_confirmation) {
+        window.tb_framework.modal_confirmation.forEach(function (modal_confirmation) {
+            if (modal_confirmation.isOpen) {
                 anyModalOpen = true;
             }
         });

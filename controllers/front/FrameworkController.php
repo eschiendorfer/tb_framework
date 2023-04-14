@@ -81,6 +81,11 @@ class FrameworkController extends FrontController {
         'name' => 'modal_add_to_cart',
     ];
 
+    const COMPONENT_MODAL_CONFIRMATION = [
+        'type' => 'modal',
+        'name' => 'modal_confirmation',
+    ];
+
     const COMPONENT_CAROUSEL_COMPONENTS = [
         'type' => 'carousel',
         'name' => 'carousel_components',
@@ -670,6 +675,26 @@ class FrameworkController extends FrontController {
         self::validate_modal_default($data);
     }
 
+
+    private static function validate_modal_confirmation(&$data) {
+
+        if (empty($data['width'])) {
+            $data['width'] = '600px';
+        }
+
+        // Note: modules can be interested to use no default trigger at all -> we allow empty array
+        if (!isset($data['triggers_show']) || !is_array($data['triggers_show'])) {
+            $data['triggers_show'] = ['click_item'];
+        }
+
+        // Note: modules can be interested to use no default trigger at all -> we allow empty array
+        if (!isset($data['triggers_close']) || !is_array($data['triggers_close'])) {
+            $data['triggers_close'] = ['click_close_button'];
+        }
+
+        self::validate_modal_default($data);
+    }
+
     private static function validate_popover_default(&$data) {
 
         if (empty($data['item'])) {
@@ -978,7 +1003,7 @@ class FrameworkController extends FrontController {
             $link = new \Link();
 
             $product_data[] = [
-                'src' => 'https://'.$link->getImageLink($product->link_rewrite, $product->getCoverWs(), 'home_default'),
+                'src' => $link->getImageLink($product->link_rewrite, $product->getCoverWs(), 'home_default'),
                 'link' => [
                     'url' => $product->getLink(),
                     'title' => $product->name,
@@ -1155,13 +1180,30 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-
     public static function getDemoData_modal_login() {
 
         $demo_data = [
             'width' => 'small', // Possible values: full, big, medium, small & any custom css_width_value (example: 80vw)
             'height' => 'auto', // Possible values: full, big, medium, small & any custom css_width_value (example: 90vh)
             'back' => '' // Url if there, should be a redirect after login
+        ];
+
+        return $demo_data;
+    }
+
+    public static function getDemoData_confirmation() {
+
+        $html = '<h2>Are you sure?</h2><p>Do you really want to delete your account?</p>';
+
+        $demo_data = [
+            'html' => $html, // Required
+            'title_action' => 'Delete', // Required
+            'title' => 'Custom Modal',
+            'width' => '', // any custom css_width_value (example: 80vw, fit-content, or 50%)
+            'height' => '', // any custom css_width_value (example: 90vh or 100px)
+            'item' => '',
+            'triggers_show' => ['click_item'], // Possible values: 'auto_show', 'click_item'
+            'triggers_close' => ['click_close_button'], // Possible value 'click_close_button', 'click_item', 'click_outside'
         ];
 
         return $demo_data;
