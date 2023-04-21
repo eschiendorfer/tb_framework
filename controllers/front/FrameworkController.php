@@ -66,6 +66,11 @@ class FrameworkController extends FrontController {
         'name' => 'card_product',
     ];
 
+    const COMPONENT_CARD_PRODUCT_LIST = [
+        'type' => 'card',
+        'name' => 'card_product_list',
+    ];
+
     const COMPONENT_MODAL_DEFAULT = [
         'type' => 'modal',
         'name' => 'modal_default',
@@ -523,15 +528,11 @@ class FrameworkController extends FrontController {
     }
 
 
-
-
-
     private static function replaceColumns($smarty_vars, $rewrite_columns) {
 
         if (!is_array($smarty_vars) || !is_array($rewrite_columns) || empty($smarty_vars) || empty($rewrite_columns)) {
             return false;
         }
-
 
         // This complex function allows to replace columns, which is helpful if you have a given dataset with "wrong" column names
         foreach ($rewrite_columns as $key_input_structures => $key_needed_structures) {
@@ -606,6 +607,8 @@ class FrameworkController extends FrontController {
             }
 
         }
+
+        // print_r($smarty_vars)
 
         return $smarty_vars;
     }
@@ -892,8 +895,7 @@ class FrameworkController extends FrontController {
                 'title' => $product['name'],
                 'subtitle' => $product['category'].$manufacturer,
                 'link' => ['url' => $context->link->getProductLink($product['id_product'])],
-                'element_columns' => [
-                ]
+                'element_columns' => []
             ];
         }
 
@@ -1134,6 +1136,17 @@ class FrameworkController extends FrontController {
 
         return $product;
     }
+    public static function getDemoData_card_product_list() {
+
+        $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
+        $product = $products[0];
+
+        $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+
+        $product = Product::getProductProperties(1, $product);
+
+        return $product;
+    }
 
     // Modal
     public static function getDemoData_modal_default() {
@@ -1300,17 +1313,17 @@ class FrameworkController extends FrontController {
         $data = [
             'title' => 'Kategorien',
             'items' => [
-                ['title' => 'Brettspiele', 'url' => '/test', 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
-                ['title' => 'Puzzle', 'url' => '#', 'icon' => ['class' => 'icon-puzzle']],
-                ['title' => 'Trading Cards', 'url' => '#', 'icon' => ['class' => 'icon-tcg']],
-                ['title' => 'Actionfiguren', 'url' => '#', 'icon' => ['class' => 'icon-actionfigure']],
-                ['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
-                ['title' => 'Kartenspiele', 'url' => '#', 'icon' => ['class' => 'icon-cardgame']],
-                ['title' => 'Würfelspiele', 'url' => '#', 'icon' => ['class' => 'icon-dicegame']],
-                ['title' => 'Partyspiele', 'url' => '#', 'icon' => ['class' => 'icon-partygame']],
-                ['title' => 'Reisespiele', 'url' => '#', 'icon' => ['class' => 'icon-travelgame']],
-                ['title' => 'Abstrakte Spiele', 'url' => '#', 'icon' => ['class' => 'icon-abstractgame']],
-                ['title' => 'Spiel des Jahres', 'url' => '#', 'icon' => ['class' => 'icon-spiel-des-jahres']],
+                ['title' => 'Brettspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
+                ['title' => 'Puzzle', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-puzzle']],
+                ['title' => 'Trading Cards', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-tcg']],
+                ['title' => 'Actionfiguren', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-actionfigure']],
+                ['title' => 'Kinderspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-childgame']],
+                ['title' => 'Kartenspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-cardgame']],
+                ['title' => 'Würfelspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-dicegame']],
+                ['title' => 'Partyspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-partygame']],
+                ['title' => 'Reisespiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-travelgame']],
+                ['title' => 'Abstrakte Spiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-abstractgame']],
+                ['title' => 'Spiel des Jahres', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-spiel-des-jahres']],
             ],
         ];
 
