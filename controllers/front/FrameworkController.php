@@ -7,7 +7,6 @@
  * @copyright 2022 Emanuel Schiendorfer
  */
 
-
 class FrameworkController extends FrontController {
 
     // Supported Components
@@ -89,6 +88,11 @@ class FrameworkController extends FrontController {
     const COMPONENT_MODAL_CONFIRMATION = [
         'type' => 'modal',
         'name' => 'modal_confirmation',
+    ];
+
+    const COMPONENT_FANCYBOX_DEFAULT = [
+        'type' => 'fancybox',
+        'name' => 'fancybox_default',
     ];
 
     const COMPONENT_CAROUSEL_COMPONENTS = [
@@ -348,6 +352,9 @@ class FrameworkController extends FrontController {
 
     // Some other elements to be considered:
         // Close Button
+
+    /* @var $module bool|tb_framework */
+    public static $module = false;
 
     public static $alreadyCalledType = [];
     public static $alreadyCalledComponent = [];
@@ -730,7 +737,7 @@ class FrameworkController extends FrontController {
     }
 
     private static function validate_carousel_components(&$data) {
-        if (!isset($data['nbr_columns']) || ($data['nbr_columns'] > count($data['slides']))) {
+        if (!isset($data['nbr_columns'])) {
             $data['nbr_columns'] = count($data['slides']);
         }
     }
@@ -1204,7 +1211,7 @@ class FrameworkController extends FrontController {
         return $demo_data;
     }
 
-    public static function getDemoData_confirmation() {
+    public static function getDemoData_modal_confirmation() {
 
         $html = '<h2>Are you sure?</h2><p>Do you really want to delete your account?</p>';
 
@@ -1217,6 +1224,45 @@ class FrameworkController extends FrontController {
             'item' => '',
             'triggers_show' => ['click_item'], // Possible values: 'auto_show', 'click_item'
             'triggers_close' => ['click_close_button'], // Possible value 'click_close_button', 'click_item', 'click_outside'
+        ];
+
+        return $demo_data;
+    }
+
+    // Fancybox
+    public static function getDemoData_fancybox_default() {
+
+        $categories = [
+            ['id_category' => 12],
+            ['id_category' => 227],
+            ['id_category' => 235],
+            ['id_category' => 422],
+            ['id_category' => 426],
+        ];
+
+        $random_element = $categories[array_rand($categories)];
+
+        $products = Product::getProducts(1, 0, 10, 'id_product', 'ASC', $random_element['id_category'], true);
+        $productBoxes = [];
+
+        $link = new Link();
+        $images = [];
+
+        foreach ($products as &$product) {
+            $id_image = Product::getCover($product['id_product'])['id_image'];
+
+            $images[] = [
+                'entity_type' => ImageEntity::ENTITY_TYPE_PRODUCTS,
+                'entity_id' => $id_image,
+                'src' => '', // Possibility to give a direct src
+                'src_thumb' => '', // Possibility to give a direct src
+            ];
+        }
+
+        // Render the whole component
+        $demo_data = [
+            'title' => 'Demo Images',
+            'images' => $images,
         ];
 
         return $demo_data;
@@ -1449,6 +1495,9 @@ class FrameworkController extends FrontController {
 
         $review_stats = [
             'review_grade' => rand(1*10,5*10)/10,
+            'selector' => true,
+            'id' => 'grade',
+            'input_name' => 'grade[1]',
         ];
 
         return $review_stats;
@@ -1622,5 +1671,43 @@ class FrameworkController extends FrontController {
         ];
 
         return $message_thread;
+    }
+
+
+    // Helper
+    public static function formatDateToTimeElapsed($datetime) {
+
+        if (!static::$module) {
+            static::$module = Module::getInstanceByName('tb_framework');
+        }
+
+        $now = new \DateTime;
+        $ago = new \DateTime($datetime);
+        $diff = $now->diff($ago);
+
+        if ($diff->y) {
+            $ago = sprintf(static::$module->l('%d years ago'), $diff->y);
+        }
+        elseif ($diff->m) {
+            $ago = sprintf(static::$module->l('%d months ago'), $diff->m);
+        }
+        elseif ($diff->d) {
+            $ago = sprintf(static::$module->l('%d days ago'), $diff->d);
+        }
+        elseif ($diff->h) {
+            $ago = sprintf(static::$module->l('%d hours ago'), $diff->h);
+        }
+        elseif ($diff->i) {
+            $ago = sprintf(static::$module->l('%d minutes ago'), $diff->i);
+        }
+        elseif ($diff->s) {
+            $ago = sprintf(static::$module->l('%d seconds ago'), $diff->s);
+        }
+        else{
+            $ago = static::$module->l('just now');
+        }
+
+        return $ago;
+
     }
 }
