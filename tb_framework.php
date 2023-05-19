@@ -34,6 +34,7 @@ class tb_framework extends Module
 		if (!parent::install() OR
 			!$this->registerHook('moduleRoutes') OR
 			!$this->registerHook('displayHeader') OR
+			!$this->registerHook('displayTab') OR
 			!$this->registerHook('displayBottomColumn')
         ) {
             return false;
@@ -116,14 +117,30 @@ class tb_framework extends Module
             }
         }
 
+
 	}
+
+    public function hookDisplayTab($params) {
+        $id = pSQL($params['id']);
+        if (!empty($this->tabs[$id])) {
+            return FrameworkController::fetchElement(FrameworkController::COMPONENT_TAB_COMPONENTS, $this->tabs[$id]);
+        }
+
+        return null;
+    }
+
+
 
     // Display Hooks that support tabs functionality
     public function hookDisplayBottomColumn($params) {
 
         if (!empty($this->tabs['displayBottomColumn'])) {
-            return FrameworkController::fetchElement(FrameworkController::COMPONENT_TAB_COMPONENTS, $this->tabs['displayBottomColumn']);
+            return $this->hookDisplayTab(['id' => 'displayBottomColumn']);
         }
 
+        return null;
+
     }
+
+
 }

@@ -286,6 +286,11 @@ class FrameworkController extends FrontController {
         'css_selector' => 'tbfw_spinner_default', // 100% width & height of parent element, border can be set manually on div
     ];
 
+    // Fancybox Image
+    const ELEMENT_FANCYBOX_IMAGE = [
+        'name' => 'fancybox',
+        'css_selector' => 'tbfw_fancybox',
+    ];
 
     // Ecommerce Related Elements
 
