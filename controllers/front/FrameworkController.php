@@ -35,6 +35,11 @@ class FrameworkController extends FrontController {
         'name' => 'imagecloud_promo',
     ];
 
+    const COMPONENT_IMAGECLOUD_AVATAR = [
+        'type' => 'imagecloud',
+        'name' => 'imagecloud_avatar',
+    ];
+
     const COMPONENT_HEADER_DEFAULT = [
         'type' => 'header',
         'name' => 'header_default',
@@ -165,6 +170,10 @@ class FrameworkController extends FrontController {
     ];
 
     // Message
+    const COMPONENT_MESSAGE_PREVIEW = [
+        'type' => 'message',
+        'name' => 'message_preview'
+    ];
     const COMPONENT_MESSAGE_CHAT = [
         'type' => 'message',
         'name' => 'message_chat', // Only two people are involved
@@ -1043,6 +1052,60 @@ class FrameworkController extends FrontController {
 
         return $demo_data;
     }
+    public static function getDemoData_imagecloud_avatar() {
+
+        $images = [
+            [
+                'image' => [
+                    'imageEntity' => '',
+                    'idEntity' => 0,
+                    'src' => 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'width' => 0,
+                    'height' => 0,
+                    'alt' => 'Something Alt',
+                ],
+                'id' => '', // Can be used for javascript stuff
+                'link' => [
+                    'href' => '/demo/avatar1',
+                    'title' => '',
+                ]
+            ],
+            [
+                'image' => [
+                    'imageEntity' => '',
+                    'idEntity' => 0,
+                    'src' => 'https://images.unsplash.com/photo-1581624657276-5807462d0a3a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'width' => 0,
+                    'height' => 0,
+                    'alt' => 'Something Alt',
+                ],
+                'id' => '', // Can be used for javascript stuff
+                'link' => [
+                    'href' => 'demo/avatar2',
+                    'title' => '',
+                ]
+            ],
+            [
+                'image' => [
+                    'imageEntity' => '',
+                    'idEntity' => 0,
+                    'src' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'width' => 0,
+                    'height' => 0,
+                    'alt' => 'Something Alt',
+                ],
+                'id' => '', // Can be used for javascript stuff
+                'link' => [
+                    'href' => 'demo/avatar2',
+                    'title' => '',
+                ]
+            ],
+        ];
+
+        $demo_data['images'] = $images;
+
+        return $demo_data;
+    }
 
     // Header
     public static function getDemoData_header_default() {
@@ -1676,6 +1739,31 @@ class FrameworkController extends FrontController {
         ];
 
         return $message_thread;
+    }
+    public static function getDemoData_message_preview() {
+
+        // Todo: add functionality that transform date into '3 weeks ago'
+
+        // Todo: this shows how difficult it is to build complex components, how could we have a hover effect on avaters for genzo_krona module?
+        // Atm it's probably the best, to give a shit. Go online and see how things work out for us. Later we still could look for general approach for tb
+
+        $message_preview = [
+            'cta_title' => [
+                'title' => 'example title',
+                'href'  => '/hihi'
+            ],
+            'cta_section' => [
+                'title' => 'Puzzles',
+                'href'  => '/jojo'
+            ],
+            'message' => 'Lorem ispum ...',
+            'messages_total' => 3,
+            'imagecloud_avatar' => self::getDemoData_imagecloud_avatar(),
+            'date' => '2023-01-03 23:12:01'
+
+        ];
+
+        return $message_preview;
     }
 
 
