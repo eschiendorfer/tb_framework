@@ -165,15 +165,28 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
     component_helper.innerHTML = template.innerHTML.trim(); // Never return a text node of whitespace as the result
 
     var component = component_helper;
+    var childNodes = Array.from(component.childNodes);
 
     // Note: insertAdjacentHTML has the drawback, that the callback element is not usable
     if (relative_position === 'prepend') {
-        relative_element.prepend(component);
+
+        // Changing the order of the child array. We need to prepend the last child first.
+        childNodes = childNodes.reverse();
+
+        // Making sure, that we don't have the 'div' around but hold all javascript functionality (innerHtml/outerHtml does lose it)
+        childNodes.forEach(function (children) {
+            relative_element.prepend(children);
+        });
+
     } else if (relative_position === 'append') {
-        relative_element.appendChild(component);
+        // Making sure, that we don't have the 'div' around but hold all javascript functionality (innerHtml/outerHtml does lose it)
+        childNodes.forEach(function (children) {
+            relative_element.appendChild(children);
+        });
     }
     else if (relative_position === 'replace') {
-        relative_element.outerHTML = component.outerHTML;
+        relative_element.after(component);
+        relative_element.remove();
     }
 
     css_files.forEach(function (href) {

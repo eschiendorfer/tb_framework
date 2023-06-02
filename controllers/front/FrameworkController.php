@@ -1711,25 +1711,25 @@ class FrameworkController extends FrontController {
                     'alias'  => 'Frank',
                     'date'   => '2022-10-18 21:12:32',
                     'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
-                    'answer' => false,
                     'message' => 'Hello guys, how are you doing?',
-                    'buttons' => ''
+                    'buttons' => '',
+                    'respondings' => [],
                 ],
                 [
                     'alias'  => 'Melissa G.',
                     'date'   => '2022-10-19 05:06:51',
                     'avatar' => 'https://images.unsplash.com/photo-1581624657276-5807462d0a3a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
-                    'answer' => true,
                     'message' => 'Doing great, thank you',
-                    'buttons' => ''
+                    'buttons' => '',
+                    'respondings' => []
                 ],
                 [
                     'alias'  => 'King Arthur',
                     'date'   => '2022-10-19 09:14:01',
                     'avatar' => 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
-                    'answer' => true,
                     'message' => 'It\'s monday. What a stupid question...',
-                    'buttons' => ''
+                    'buttons' => '',
+                    'respondings' => []
                 ]
             ],
             'container' => [
