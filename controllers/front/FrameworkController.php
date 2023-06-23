@@ -1331,6 +1331,8 @@ class FrameworkController extends FrontController {
         $demo_data = [
             'title' => 'Demo Images',
             'images' => $images,
+            'thumbMax' => 0, // define a value, if you want a max nbr of thumbnails to show
+            'thumbSize' => 0,
         ];
 
         return $demo_data;
@@ -1657,7 +1659,6 @@ class FrameworkController extends FrontController {
                 self::getDemoData_review_default(1),
                 self::getDemoData_review_default(2),
             ],
-            'reviews_pagination_content' => '',
         ];
 
         return $review_section;
