@@ -775,7 +775,7 @@ class FrameworkController extends FrontController {
         foreach ($data['tabs'] as $key => &$tab) {
 
             // Remove empty tabs
-            if (empty(trim($tab['title'])) || empty(trim($tab['content']))) {
+            if (empty($tab['title']) || empty(trim($tab['title'])) || empty($tab['content']) || empty(trim($tab['content']))) {
                 unset($data['tabs'][$key]);
                 continue;
             }
