@@ -1390,22 +1390,26 @@ class FrameworkController extends FrontController {
             [
                 'title' => 'Brettspiele',
                 'link' => ['url' => '/test'],
-                'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']
+                'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20'],
+                'active' => false
             ],
             [
                 'title' => 'Puzzle',
                 'link' => ['url' => '#'],
-                'icon' => ['class' => 'icon-puzzle', 'width' => '20', 'height' => '20']
+                'icon' => ['class' => 'icon-puzzle', 'width' => '20', 'height' => '20'],
+                'active' => false
             ],
             [
                 'title' => 'Sammelkarten',
                 'link' => ['url' => '#'],
-                'icon' => ['class' => 'icon-tcg', 'width' => '20', 'height' => '20']
+                'icon' => ['class' => 'icon-tcg', 'width' => '20', 'height' => '20'],
+                'active' => false
             ],
             [
                 'title' => 'Actionfiguren',
                 'link' => ['url' => '#'],
-                'icon' => ['class' => 'icon-actionfigure', 'width' => '20', 'height' => '20']
+                'icon' => ['class' => 'icon-actionfigure', 'width' => '20', 'height' => '20'],
+                'active' => false
             ],
 
             /*['title' => 'Kinderspiele', 'url' => '#', 'icon' => ['class' => 'icon-childgame']],
