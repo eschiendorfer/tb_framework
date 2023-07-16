@@ -52,7 +52,7 @@ function addComponent(js_component) {
 function initComponent(js_component) {
 
     // Check if the component contains the init function -> if yes trigger it
-    if (typeof js_component.init === 'function') {
+    if (js_component.init && typeof js_component.init === 'function') {
         js_component.init();
     }
 
