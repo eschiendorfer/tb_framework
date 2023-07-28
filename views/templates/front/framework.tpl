@@ -14,6 +14,7 @@
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'table', 'component'=>1])}">Tables</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'accordion', 'component'=>1])}">Accordion</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'progressbar', 'component'=>1])}">Progessbar</a></li>
+        <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'timeline', 'component'=>1])}">Timeline</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'review', 'component'=>1])}">Reviews</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'message', 'component'=>1])}">Messages</a></li>
         <li class="primary">Containers</li>
