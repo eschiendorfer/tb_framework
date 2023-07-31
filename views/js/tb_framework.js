@@ -12,7 +12,6 @@ addEventListener('DOMContentLoaded', (event) => {
 
     });
 
-
 });
 
 addEventListener('click', function(e){
@@ -46,8 +45,38 @@ function addComponent(js_component) {
         window.tb_framework[js_component.name] = [];
     }
 
+    var blocksOfComponent = document.querySelectorAll('[data-id-component="'+js_component.id+'"]');
+    if (blocksOfComponent) {
+        js_component.htmlTags = blocksOfComponent; // Note: this concept only works with ajax or if the data-id-component is used in tpl files as well
+    }
+
     window.tb_framework[js_component.name].push(js_component);
 }
+
+function removeComponent(js_component) {
+
+    // Todo: while it's nice to have such a function: atm it doesn't work in combination with data-ajax-confirmation, as this would be triggered by the component
+
+    // Remove old object if the new id does match an old id
+    const indexOfComponent = window.tb_framework[js_component.name].findIndex(componentByType => componentByType.id === js_component.id);
+
+    // Check if object was found
+    if (indexOfComponent !== -1) {
+
+        // Remove related style/script tags of the component
+        if (window.tb_framework[js_component.name][indexOfComponent].htmlTags) {
+            window.tb_framework[js_component.name][indexOfComponent].htmlTags.forEach(function (htmlTag) {
+                htmlTag.remove();
+            });
+        }
+        // Remove the htmlElement of the component
+        window.tb_framework[js_component.name][indexOfComponent].htmlElement.remove();
+
+        // Remove the component in the component collection
+        window.tb_framework[js_component.name].splice(indexOfComponent, 1);
+    }
+}
+
 
 function initComponent(js_component) {
 
@@ -96,7 +125,10 @@ function renderComponentWithAjax(
 }
 
 function initAjaxComponent(component, relative_element = document.body, relative_position = 'append') {
-    initHtmlContent(component.htmlElement, relative_element, relative_position);
+
+    removeComponent(component);
+
+    initHtmlContent(component.htmlElement, relative_element, relative_position, component.id);
     var js_component = window[component.id];
     // Note: there is no need to use addComponent() as this is already executed in the tpl file
     initComponent(js_component);
@@ -106,7 +138,7 @@ function initAjaxComponent(component, relative_element = document.body, relative
 
 // Note: when you load html by ajax, the script tags and external files aren't executed/loaded by just adding the html div
 // This function does handle this "problem".
-function initHtmlContent(content, relative_element = document.body, relative_position = 'append') {
+function initHtmlContent(content, relative_element = document.body, relative_position = 'append', id_component = '') {
 
     // First we need create an element that is readable
     var template = document.createElement('template');
@@ -194,12 +226,21 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
         link.rel = 'stylesheet';
         link.href = href;
 
+        if (id_component) {
+            // This attribute helps to understand, which component added which tags
+            link.setAttribute('data-id-component', id_component);
+        }
+
         document.head.appendChild(link);
     });
 
     // Add css blocks
     css_blocks.forEach(function (css_code) {
         var style_inner = document.createElement('style');
+        if (id_component) {
+            // This attribute helps to understand, which component added which tags
+            style_inner.setAttribute('data-id-component', id_component);
+        }
         style_inner.innerHTML = css_code;
         document.body.appendChild(style_inner);
     });
@@ -219,24 +260,30 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
 
                 // Once all js files are loaded we execute the js blocks
                 if (!js_files.length) {
-                    loadJsBlocks(js_blocks);
+                    loadJsBlocks(js_blocks, id_component);
                 }
             });
 
         });
     }
     else {
-        loadJsBlocks(js_blocks);
+        loadJsBlocks(js_blocks, id_component);
     }
 
     // Return clean htmlElement
     return component;
 }
 
-function loadJsBlocks(js_blocks) {
+function loadJsBlocks(js_blocks, id_component) {
     if (js_blocks.length) {
         js_blocks.forEach(function (js_code) {
             var script_inner = document.createElement('script');
+
+            if (id_component) {
+                // This attribute helps to understand, which component added which tags
+                script_inner.setAttribute('data-id-component', id_component);
+            }
+
             script_inner.innerHTML = js_code;
             document.body.appendChild(script_inner);
         });
