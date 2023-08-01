@@ -57,23 +57,26 @@ function removeComponent(js_component) {
 
     // Todo: while it's nice to have such a function: atm it doesn't work in combination with data-ajax-confirmation, as this would be triggered by the component
 
-    // Remove old object if the new id does match an old id
-    const indexOfComponent = window.tb_framework[js_component.name].findIndex(componentByType => componentByType.id === js_component.id);
+    if (window.tb_framework[js_component.name]) {
 
-    // Check if object was found
-    if (indexOfComponent !== -1) {
+        // Remove old object if the new id does match an old id
+        const indexOfComponent = window.tb_framework[js_component.name].findIndex(componentByType => componentByType.id === js_component.id);
 
-        // Remove related style/script tags of the component
-        if (window.tb_framework[js_component.name][indexOfComponent].htmlTags) {
-            window.tb_framework[js_component.name][indexOfComponent].htmlTags.forEach(function (htmlTag) {
-                htmlTag.remove();
-            });
+        // Check if object was found
+        if (indexOfComponent !== -1) {
+
+            // Remove related style/script tags of the component
+            if (window.tb_framework[js_component.name][indexOfComponent].htmlTags) {
+                window.tb_framework[js_component.name][indexOfComponent].htmlTags.forEach(function (htmlTag) {
+                    htmlTag.remove();
+                });
+            }
+            // Remove the htmlElement of the component
+            window.tb_framework[js_component.name][indexOfComponent].htmlElement.remove();
+
+            // Remove the component in the component collection
+            window.tb_framework[js_component.name].splice(indexOfComponent, 1);
         }
-        // Remove the htmlElement of the component
-        window.tb_framework[js_component.name][indexOfComponent].htmlElement.remove();
-
-        // Remove the component in the component collection
-        window.tb_framework[js_component.name].splice(indexOfComponent, 1);
     }
 }
 
