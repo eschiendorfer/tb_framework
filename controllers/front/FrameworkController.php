@@ -190,8 +190,13 @@ class FrameworkController extends FrontController {
         'name' => 'message_thread', // Many people could be involved
     ];
 
+    // Calendar
+    const COMPONENT_CALENDAR_COMPACT = [
+        'type' => 'calendar',
+        'name' => 'calendar_compact', // A compact calendar (monthly view)
+    ];
+
     // Pagination / showMore, showBefore
-    // Comments (UI Kit/Fomantic)
 
     // Supported CSS Elements
 
@@ -1811,6 +1816,24 @@ class FrameworkController extends FrontController {
         ];
 
         return $message_preview;
+    }
+
+    // Calendar
+    public static function getDemoData_calendar_compact() {
+
+        $calendar_compact = [
+            'date_active' => date('Y-m-d'),
+            'dates_marked' => [
+                date('Y-m-d', strtotime('-3 days')),
+                date('Y-m-d', strtotime('+8 days')),
+                date('Y-m-d', strtotime('+9 days')),
+                date('Y-m-d', strtotime('+10 days')),
+                date('Y-m-d', strtotime('+21 days')),
+                date('Y-m-d', strtotime('+24 days')),
+            ]
+        ];
+
+        return $calendar_compact;
     }
 
 

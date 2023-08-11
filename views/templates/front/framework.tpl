@@ -17,6 +17,7 @@
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'timeline', 'component'=>1])}">Timeline</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'review', 'component'=>1])}">Reviews</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'message', 'component'=>1])}">Messages</a></li>
+        <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'calendar', 'component'=>1])}">Calendar</a></li>
         <li class="primary">Containers</li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'flexbox', 'component'=>1])}">Flexbox</a></li>
         <li><a href="{$link->getModuleLink('tb_framework', 'framework', ['type'=>'toast', 'component'=>1])}">Toats</a></li>
