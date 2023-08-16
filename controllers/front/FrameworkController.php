@@ -1021,44 +1021,58 @@ class FrameworkController extends FrontController {
 
     public static function getDemoData_imagecloud_promo() {
 
-        $query = new DbQuery();
-        $query->select('id_product');
-        $query->from('product');
-        $query->orderby('RAND()');
-        $query->where('active=1');
-        $query->limit(6);
-        $ids_product = array_column(\Db::getInstance()->ExecuteS($query), 'id_product');
+        // Todo: add more and make them sorted by categories, so that not 5 puzzles are showed on the same call
+        $ids_product = [
+            6152, // Kluster
+            30151, // DGT 2500
+            845, // Wie man im Schach gewinnt
+            25216, // Dorfromantik
+            3840, // Cabo
+            4567, // Disney Puzzle
+            32395, // Appenzeller Puzzle
+            766, // Patrouille Suisse Puzzle
+            14568, // Strahlende Sterne
+            1230, // Turnierschachspiel
+            6632, // Funko Josi
+            21999, // Funko Pikachu
+        ];
+
+        $randomKeys = array_rand($ids_product, 6);
 
         $product_data = [];
 
-        foreach ($ids_product as $id_product) {
+        foreach ($ids_product as $key => $id_product) {
 
-            $product = new \Product($id_product, false, 1);
-            $link = new \Link();
+            if (in_array($key, $randomKeys)) {
 
-            $product_data[] = [
-                'src' => $link->getImageLink($product->link_rewrite, $product->getCoverWs(), 'home_default'),
-                'link' => [
-                    'url' => $product->getLink(),
-                    'title' => $product->name,
-                ],
-            ];
+                $product = new \Product($id_product, false, 1);
+                $link = new \Link();
+
+                $product_data[] = [
+                    'src' => $link->getImageLink($product->link_rewrite, $product->getCoverWs(), 'home_default'),
+                    'link' => [
+                        'url' => $product->getLink(),
+                        'title' => $product->name,
+                    ],
+                ];
+            }
         }
 
         $demo_data = [
             'header' => [
-                'title' => 'Klassiker gehen immer oder nicht!?',
+                'title' => 'Sucht Du ein Geschenk? Ein paar Ideen:',
                 'subtitle' => 'Unsere Lieblingsstücke',
             ],
             'promo' => [
-                'src' => 'https://www.spielezar.ch/img/cms/cms/mitarbeiter/team-chesspoint.jpg',
+                'src' => '/themes/genzo_theme/img/home/gutscheine-ad.webp',
                 'position' => 'right',
+                'link' => ['href' => '/gutscheine']
             ],
             'data' => $product_data,
-            'link' => [
+            /*'link' => [
                 'title' => 'Alle anzeigen',
                 'url' => '#',
-            ],
+            ],*/
         ];
 
         return $demo_data;
