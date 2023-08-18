@@ -136,6 +136,10 @@ function initAjaxComponent(component, relative_element = document.body, relative
     // Note: there is no need to use addComponent() as this is already executed in the tpl file
     initComponent(js_component);
 
+    if (component.name==='toast') {
+        setMaxZIndex(js_component); // This is needed in an edge case, when a toast is triggered on a modal, that has already used setMaxZIndex
+    }
+
     return js_component;
 }
 
