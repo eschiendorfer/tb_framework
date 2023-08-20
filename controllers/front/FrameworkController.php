@@ -1066,7 +1066,7 @@ class FrameworkController extends FrontController {
             'promo' => [
                 'src' => '/themes/genzo_theme/img/home/gutscheine-ad.webp',
                 'position' => 'right',
-                'link' => ['href' => '/gutscheine']
+                'link' => ['href' => '/gutscheine', 'title' => 'Gutscheine']
             ],
             'data' => $product_data,
             /*'link' => [
