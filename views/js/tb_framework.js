@@ -436,18 +436,21 @@ function toggleAttributeRelatedData(id_product_attribute) {
     });
 
     // Handle all images that are attribute related
-    var images = document.querySelectorAll('img[data-id-image]');
+    if (typeof combinationImages!== "undefined") {
 
-    images.forEach(function (image) {
-        image.parentElement.classList.add('hidden');
-    });
+        var images = document.querySelectorAll('img[data-id-image]');
 
-    combinationImages[id_product_attribute].forEach(function (imageToShow) {
-        var images = document.querySelectorAll('img[data-id-image="'+imageToShow.id_image+'"]');
         images.forEach(function (image) {
-            image.parentElement.classList.remove('hidden');
+            image.parentElement.classList.add('hidden');
         });
-    });
+
+        combinationImages[id_product_attribute].forEach(function (imageToShow) {
+            var images = document.querySelectorAll('img[data-id-image="' + imageToShow.id_image + '"]');
+            images.forEach(function (image) {
+                image.parentElement.classList.remove('hidden');
+            });
+        });
+    }
 }
 
 // Note: we prefer to add to buy_blocks into the html (desktop vs mobile) instead of moving it with js

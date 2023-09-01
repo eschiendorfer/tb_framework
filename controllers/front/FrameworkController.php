@@ -1377,8 +1377,6 @@ class FrameworkController extends FrontController {
         ];
 
         $random_element = $categories[array_rand($categories)];
-        $random_element['display'] = true;
-
 
         $products = Product::getProducts(1, 0, 10, 'id_product', 'ASC', $random_element['id_category'], true);
         $productBoxes = [];
@@ -1404,6 +1402,10 @@ class FrameworkController extends FrontController {
 
         $demo_data_carousel['nbr_columns'] = 2.5;
         $demo_data_carousel['promo_position'] = 'left';
+        $demo_data_carousel['title'] = 'Title';
+        $demo_data_carousel['image'] = [
+            'src' => 'https://img.welt.de/img/wirtschaft/mobile188192711/5862508847-ci102l-w1024/Spielehersteller-Ravensburger.jpg'
+        ];
 
         // Maybe we can fix it also, if components need to implement a header and a show_all variant.
 
