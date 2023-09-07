@@ -372,8 +372,6 @@ function closeAllToasts() {
 // Buy_Block
 function updateQtyInput(value) {
 
-    // Todo: make this work with max quantities
-
     var buy_block_visible = getVisibleBuyBlock();
 
     var qty_input = buy_block_visible.querySelector('#qty_input');
@@ -398,6 +396,11 @@ function updateBuyBlock() {
 
     var add_to_cart_button = buy_block_visible.querySelector('#add_to_cart');
     var qty_input = buy_block_visible.querySelector('#qty_input');
+
+    // Make sure qty input is not bigger than max value
+    if (qty_input.value > parseInt(qty_input.getAttribute('max'))) {
+        qty_input.value = parseInt(qty_input.getAttribute('max'));
+    }
 
     var qty = (parseInt(qty_input.value) > 0) ? parseInt(qty_input.value) : 1;
 
@@ -436,7 +439,7 @@ function toggleAttributeRelatedData(id_product_attribute) {
     });
 
     // Handle all images that are attribute related
-    if (typeof combinationImages!== "undefined") {
+    if (typeof combinationImages!=="undefined") {
 
         var images = document.querySelectorAll('img[data-id-image]');
 
@@ -483,6 +486,7 @@ function findCombination() {
     // Disable qty_select and add_to_cart button -> this should only be available, once the customer has select a valid combination
     var add_to_cart_button = buy_block_visible.querySelector('#add_to_cart');
     var qty_select = buy_block_visible.querySelector('#qty_select');
+    var qty_input = buy_block_visible.querySelector('#qty_input');
     add_to_cart_button.disabled = true;
     qty_select.disabled = true;
 
@@ -527,6 +531,12 @@ function findCombination() {
 
         });
 
+        // Update max for input
+        qty_input.setAttribute('max', qty);
+
+        if (qty_input.value > qty) {
+            qty_input.value = qty;
+        }
 
         // Remove all please_select_option
         buy_block_visible.querySelectorAll('.please_select_option').forEach(function (please_select_option) {

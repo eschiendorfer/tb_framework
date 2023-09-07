@@ -101,8 +101,6 @@ class tb_framework extends Module
         // Make components available by ajax
         $this->context->controller->addJS($this->_path.'views/js/tb_framework.js');
 
-        // die($this->_path.'views/js/tb_framework.js');
-
 
         // Tabs Hooks
         $tabs = Hook::exec('displayTabContent', [], '', true);
@@ -144,5 +142,18 @@ class tb_framework extends Module
 
     }
 
+    // Compatibility
+    private function fakeTranslations() {
+        // Note: we don't use ModuleFrontController in FrameworkController
+        // This seems to make problems for translations if they are loaded by static methods
+        // That's why we call here each string from FrameworkController::formatDateToTimeElapsed()
+        $this->l('%d years ago');
+        $this->l('%d months ago');
+        $this->l('%d days ago');
+        $this->l('%d hours ago');
+        $this->l('%d minutes ago');
+        $this->l('%d seconds ago');
+        $this->l('just now');
+    }
 
 }

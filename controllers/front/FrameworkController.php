@@ -530,6 +530,7 @@ class FrameworkController extends FrontController {
         }
 
         if ($ajax) {
+
             return [
                 'name' => $component['name'],
                 'id' => $data['id'],
@@ -1389,6 +1390,7 @@ class FrameworkController extends FrontController {
 
         // Render the whole component
         $demo_data = [
+            'column_width' => '250px',
             'nbr_columns' => 6.5,
             'slides' => $productBoxes
         ];
@@ -1841,6 +1843,7 @@ class FrameworkController extends FrontController {
 
         $calendar_compact = [
             'date_active' => date('Y-m-d'),
+            'date_active_link' => 'https://www.domain.com/events/?date_active=',
             'dates_marked' => [
                 date('Y-m-d', strtotime('-3 days')),
                 date('Y-m-d', strtotime('+8 days')),
@@ -1848,7 +1851,7 @@ class FrameworkController extends FrontController {
                 date('Y-m-d', strtotime('+10 days')),
                 date('Y-m-d', strtotime('+21 days')),
                 date('Y-m-d', strtotime('+24 days')),
-            ]
+            ],
         ];
 
         return $calendar_compact;
