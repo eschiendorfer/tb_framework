@@ -837,10 +837,10 @@ class FrameworkController extends FrontController {
                 'align' => $align,
             ];
 
-            if ($column['align']==='right') {
+            if (isset($column['align']) && $column['align']==='right') {
                 $data['thead'][$original_key]['title'] = '<div style="text-align: right;">'.$column['title'].'</div>';
             }
-            else if ($column['align']==='center') {
+            else if (isset($column['align']) && $column['align']==='center') {
                 $data['thead'][$original_key]['title'] = '<div style="text-align: center;">'.$column['title'].'</div>';
             }
             else {
