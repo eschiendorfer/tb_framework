@@ -17,12 +17,21 @@ addEventListener('DOMContentLoaded', (event) => {
 addEventListener('click', function(e){
     var clicked_element = e.target;
     if (clicked_element.classList.contains('prevent-double-click')) {
-        if (clicked_element.getAttribute('data-last-click') && (+new Date() - clicked_element.getAttribute('data-last-click')) < 1000) {
+        if (isDoubleClick(clicked_element)) {
             e.preventDefault(); // Don't follow the link if 1000 ms weren't gone from the last click
         }
-        clicked_element.setAttribute('data-last-click', +new Date());
     }
 });
+
+function isDoubleClick(clicked_element, blockingTime = 1000) {
+    // Make sure that double clicks don't get trough
+    if (clicked_element.getAttribute('data-last-click') && (+new Date() - clicked_element.getAttribute('data-last-click')) < blockingTime) {
+        return true;
+    }
+
+    clicked_element.setAttribute('data-last-click', +new Date());
+    return false;
+}
 
 function getJsComponentByUniqueId(id) {
 
@@ -321,6 +330,7 @@ function hasSomeParentTheClass(element, classname) {
     return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
 }
 
+// Modal handling
 function checkIfAnyModalIsOpen() {
 
     var anyModalOpen = false;
@@ -359,6 +369,57 @@ function checkIfAnyModalIsOpen() {
 
     return anyModalOpen;
 }
+
+function closeAllModals() {
+
+
+    if (window.tb_framework.modal_default) {
+        window.tb_framework.modal_default.forEach(function (modal_default) {
+            if (modal_default.isOpen) {
+                modal_default.close();
+            }
+        });
+    }
+
+    if (window.tb_framework.modal_login) {
+        window.tb_framework.modal_login.forEach(function (modal_login) {
+            if (modal_login.isOpen) {
+                modal_login.close();
+            }
+        });
+    }
+
+    if (window.tb_framework.modal_add_to_cart) {
+        window.tb_framework.modal_add_to_cart.forEach(function (modal_add_to_cart) {
+            if (modal_add_to_cart.isOpen) {
+                modal_add_to_cart.close();
+            }
+        });
+    }
+
+    if (window.tb_framework.modal_confirmation) {
+        window.tb_framework.modal_confirmation.forEach(function (modal_confirmation) {
+            if (modal_confirmation.isOpen) {
+                modal_confirmation.close();
+            }
+        });
+    }
+}
+
+window.addEventListener('popstate', function (event) {
+    // This behaviour is very complex/buggy: https://stackoverflow.com/questions/11092736/window-onpopstate-event-state-null
+    /* Note: In modal_default.tpl we use pushState() to add a new state to history, but we can't gather this state in popstate eventListener
+             The reason is tricky: the history is already cleared by its first entry, that's why we kind of get the second history.
+             This also explains why some user use pushState just two times. We don't do this, as it could bring up other drawbacks
+     */
+    if (checkIfAnyModalIsOpen()) {
+        closeAllModals();
+    }
+    else {
+        history.back(); // Jump again back, if the user already closed the modals
+    }
+});
+
 
 function closeAllToasts() {
     // Close all old toasts

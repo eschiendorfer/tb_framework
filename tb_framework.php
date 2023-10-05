@@ -117,7 +117,6 @@ class tb_framework extends Module
             }
         }
 
-
 	}
 
     public function hookDisplayTab($params) {

@@ -499,6 +499,8 @@ class FrameworkController extends FrontController {
         self::setUniqueId($data, $component['name']);
         $data['component_name'] = $component['name'];
 
+        $data['style'] = $style;
+
         // Main component
         $context->smarty->assign([
             'component' => $data,
@@ -1265,8 +1267,10 @@ class FrameworkController extends FrontController {
             'width' => '', // any custom css_width_value (example: 80vw, fit-content, or 50%)
             'height' => '', // any custom css_width_value (example: 90vh or 100px)
             'item' => '',
-            'triggers_show' => ['auto_show', 'click_item'], // Possible values: 'auto_show', 'click_item'
+            'triggers_show' => ['auto_show', 'click_item'], // Possible values: 'auto_show', 'click_item' Todo: use consistent naming (open instead of show)
             'triggers_close' => ['click_close_button', 'click_item', 'click_outside'], // Possible value 'click_close_button', 'click_item', 'click_outside'
+            'callback_open' => '',
+            'callback_close' => '',
         ];
 
         return $demo_data;

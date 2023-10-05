@@ -58,5 +58,8 @@
 			document.getElementById(id).style.display = 'none';
 		}
 
+
+		// Tests
+
 	</script>
 {/literal}
