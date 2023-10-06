@@ -949,7 +949,7 @@ class FrameworkController extends FrontController {
             ];
         }
 
-        $titles = ['Brettspiele', 'Puzzles', 'Gesselschaftsspiele', 'Sammelkarten', 'Sammelfiguren', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
+        $titles = ['Brettspiele', 'Puzzles', 'Gesselschaftsspiele', 'TCG-Karten', 'Sammelfiguren', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
 
         $demo_data = [
             'title' => $titles[array_rand($titles)],
@@ -1435,13 +1435,13 @@ class FrameworkController extends FrontController {
                 'active' => false
             ],
             [
-                'title' => 'Sammelkarten',
+                'title' => 'TCG',
                 'link' => ['url' => '#'],
                 'icon' => ['class' => 'icon-tcg', 'width' => '20', 'height' => '20'],
                 'active' => false
             ],
             [
-                'title' => 'Actionfiguren',
+                'title' => 'Sammelfiguren',
                 'link' => ['url' => '#'],
                 'icon' => ['class' => 'icon-actionfigure', 'width' => '20', 'height' => '20'],
                 'active' => false
@@ -1471,7 +1471,7 @@ class FrameworkController extends FrontController {
                 ['title' => 'Brettspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-boardgame', 'width' => '20', 'height' => '20']],
                 ['title' => 'Puzzle', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-puzzle']],
                 ['title' => 'Trading Cards', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-tcg']],
-                ['title' => 'Actionfiguren', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-actionfigure']],
+                ['title' => 'Sammelfiguren', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-actionfigure']],
                 ['title' => 'Kinderspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-childgame']],
                 ['title' => 'Kartenspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-cardgame']],
                 ['title' => 'Würfelspiele', 'link' => ['url' => '#'], 'icon' => ['class' => 'icon-dicegame']],
