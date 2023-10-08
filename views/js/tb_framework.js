@@ -372,7 +372,6 @@ function checkIfAnyModalIsOpen() {
 
 function closeAllModals() {
 
-
     if (window.tb_framework.modal_default) {
         window.tb_framework.modal_default.forEach(function (modal_default) {
             if (modal_default.isOpen) {
