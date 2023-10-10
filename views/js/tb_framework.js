@@ -429,10 +429,31 @@ function closeAllToasts() {
     }
 }
 
-// Buy_Block
+// Buy_Block (note: for seo it's much better to have a moving buy_block than two -> duplicate content)
+window.addEventListener('resize', function () {
+   moveBuyBlock();
+});
+
+function moveBuyBlock() {
+
+    var buyBlockContainerMobile = document.getElementById('buy_block_container_mobile');
+    var buyBlockContainer = document.getElementById('buy_block_container');
+    var buyBlock = document.getElementById('buy_block');
+
+    if (buyBlockContainerMobile && buyBlockContainer && buyBlock) {
+        if (window.innerWidth < 1024) {
+            buyBlockContainerMobile.appendChild(buyBlock);
+        }
+        else {
+            buyBlockContainer.appendChild(buyBlock);
+        }
+    }
+
+}
+
 function updateQtyInput(value) {
 
-    var buy_block_visible = getVisibleBuyBlock();
+    var buy_block_visible = document.getElementById('buy_block');
 
     var qty_input = buy_block_visible.querySelector('#qty_input');
     var qty_select = buy_block_visible.querySelector('#qty_select');
@@ -452,7 +473,7 @@ function updateQtyInput(value) {
 
 function updateBuyBlock() {
 
-    var buy_block_visible = getVisibleBuyBlock();
+    var buy_block_visible = document.getElementById('buy_block');
 
     var add_to_cart_button = buy_block_visible.querySelector('#add_to_cart');
     var qty_input = buy_block_visible.querySelector('#qty_input');
@@ -516,22 +537,6 @@ function toggleAttributeRelatedData(id_product_attribute) {
     }
 }
 
-// Note: we prefer to add to buy_blocks into the html (desktop vs mobile) instead of moving it with js
-// That way we have no content shift after loading
-function getVisibleBuyBlock() {
-
-    var buy_block_visible = false;
-    var buy_blocks = document.querySelectorAll('#buy_block');
-
-    buy_blocks.forEach(function (buy_block) {
-        if (buy_block.offsetParent!==null) {
-            buy_block_visible = buy_block;
-        }
-    });
-
-    return buy_block_visible;
-}
-
 function findCombination() {
 
     // Check if the product has even attributes
@@ -541,7 +546,7 @@ function findCombination() {
 
     var id_product_attribute = null;
 
-    var buy_block_visible = getVisibleBuyBlock();
+    var buy_block_visible = document.getElementById('buy_block');
 
     // Disable qty_select and add_to_cart button -> this should only be available, once the customer has select a valid combination
     var add_to_cart_button = buy_block_visible.querySelector('#add_to_cart');
