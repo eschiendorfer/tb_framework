@@ -949,7 +949,7 @@ class FrameworkController extends FrontController {
             ];
         }
 
-        $titles = ['Brettspiele', 'Puzzles', 'Gesselschaftsspiele', 'TCG-Karten', 'Sammelfiguren', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
+        $titles = ['Brettspiele', 'Puzzles', 'Gesselschaftsspiele', 'TCG', 'Sammelfiguren', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
 
         $demo_data = [
             'title' => $titles[array_rand($titles)],
