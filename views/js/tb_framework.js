@@ -415,7 +415,23 @@ window.addEventListener('popstate', function (event) {
         closeAllModals();
     }
     else {
-        history.back(); // Jump again back, if the user already closed the modals
+        // Note: popstate is also triggered when clicking on anchor
+        var currentURL = window.location.href;
+
+        if (currentURL.includes('#')) {
+            // Scroll a bit up as there is often fixed menu above it...
+            setTimeout(function () {
+                window.scrollTo({
+                    top: window.scrollY - 70, // Aktuelle Y-Position minus 50 Pixel
+                    left: 0, // Die horizontale Position bleibt unverändert
+                    behavior: 'smooth' // Optional: Scrollen mit Animation
+                });
+            }, 150);
+        }
+        else {
+            // Jump again back, if the user already closed the modals and if no anchor seems to be clicked
+            history.back();
+        }
     }
 });
 
