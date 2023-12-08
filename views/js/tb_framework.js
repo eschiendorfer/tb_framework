@@ -233,7 +233,8 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
         });
     }
     else if (relative_position === 'replace') {
-        relative_element.after(component);
+        // Note: component was changed to component.firstChild as we always had an additional <div></div> around after replacement
+        relative_element.after(component.firstChild);
         relative_element.remove();
     }
 

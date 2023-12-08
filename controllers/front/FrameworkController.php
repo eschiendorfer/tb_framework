@@ -1412,6 +1412,9 @@ class FrameworkController extends FrontController {
         $demo_data_carousel['image'] = [
             'src' => 'https://img.welt.de/img/wirtschaft/mobile188192711/5862508847-ci102l-w1024/Spielehersteller-Ravensburger.jpg'
         ];
+        $demo_data_carousel['link'] = [
+            'href' => '/bla'
+        ];
 
         // Maybe we can fix it also, if components need to implement a header and a show_all variant.
 
