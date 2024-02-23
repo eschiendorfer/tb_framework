@@ -12,6 +12,8 @@ addEventListener('DOMContentLoaded', (event) => {
 
     });
 
+    cutLongTexts();
+
 });
 
 addEventListener('click', function(e){
@@ -287,6 +289,8 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
         loadJsBlocks(js_blocks, id_component);
     }
 
+    cutLongTexts();
+
     // Return clean htmlElement
     return component;
 }
@@ -318,6 +322,31 @@ function setMaxZIndex(component) {
     );
 
     component.htmlElement.style.zIndex = z_index_max+1;
+}
+
+// Cut length text functionality
+function cutLongTexts() {
+    var textContainers = document.querySelectorAll('[data-text-cut]');
+    textContainers.forEach(function(container) {
+
+        var maxChars = parseInt(container.getAttribute('data-text-cut'));
+        var text = container.textContent;
+
+        if (text.length > maxChars) {
+            var truncatedText = text.slice(0, maxChars);
+            var cutoffText = text.slice(maxChars, text.length);
+
+            container.innerHTML = truncatedText+'<span> ... </span><span class="underline cursor-pointer" onclick="showMoreLongText(this);">Mehr anzeigen</span><span class="hidden">'+cutoffText+'</span>';
+        }
+
+        container.removeAttribute('data-text-cut');
+    });
+}
+
+function showMoreLongText(clickedElement) {
+    clickedElement.previousElementSibling.classList.toggle('hidden');
+    clickedElement.nextElementSibling.classList.toggle('hidden');
+    clickedElement.remove();
 }
 
 // Used for outside click handling
