@@ -630,6 +630,10 @@ function findCombination() {
         // Check which quantity options should be selectable
         var qty = combinations[id_product_attribute]['quantity'];
 
+        if (!qty && allowBuyWhenOutOfStock) {
+            qty = 10;
+        }
+
         Object.entries(qty_select.options).forEach(function ([key, option]) {
 
             // Theoretically it would be wishful to even check for the qty_input and reduce it to the max
