@@ -487,11 +487,17 @@ function moveBuyBlock() {
     var buyBlock = document.getElementById('buy_block');
 
     if (buyBlockContainerMobile && buyBlockContainer && buyBlock) {
-        if (window.innerWidth < 1024) {
-            buyBlockContainerMobile.appendChild(buyBlock);
+
+        var currentContainer = buyBlock.parentElement;
+        var newContainer = buyBlockContainer;
+
+        if ((window.innerWidth < 1024)) {
+            newContainer = buyBlockContainerMobile;
         }
-        else {
-            buyBlockContainer.appendChild(buyBlock);
+
+        // Check if there is change (note: it's important otherwise we trigger this move often and it leads to issues with android keyboard)
+        if (currentContainer!==newContainer) {
+            newContainer.appendChild(buyBlock);
         }
     }
 
