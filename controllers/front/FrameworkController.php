@@ -446,7 +446,7 @@ class FrameworkController extends FrontController {
         $constants = $reflectionClass->getConstants();
 
         foreach ($constants as $constant_name => $constant_value) {
-            if (strpos($constant_name, 'COMPONENT_')!==false && $constant_value['name']==$component_name) {
+            if (str_contains($constant_name, 'COMPONENT_') && $constant_value['name']==$component_name) {
                 return $constant_value;
             }
         }

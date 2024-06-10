@@ -4,9 +4,13 @@ include_once(dirname(__FILE__).'/../../config/config.inc.php');
 include_once(dirname(__FILE__).'/../../init.php');
 
 // Global Stuff
-if (Tools::isSubmit('renderComponentWithAjax')) {
+if (Tools::isSubmit('renderComponentWithAjax') && ($componentName = pSQL(Tools::getValue('component_name')))) {
 
-    $component = FrameworkController::getComponentByComponentName(Tools::getValue('component_name'));
+    if (!Validate::isMailName($componentName)) {
+        die(false); // Likely a hacking attempt
+    }
+
+    $component = FrameworkController::getComponentByComponentName($componentName);
     $data = json_decode(urldecode($_POST['data']), true); // Note: it seems to be important to use $_POST instead of Tools::getValue
     $style = Tools::getValue('style');
     $component = FrameworkController::fetchElement($component, $data, [], $style, true);
