@@ -14,6 +14,8 @@ addEventListener('DOMContentLoaded', (event) => {
 
     cutLongTexts();
 
+    toggleDataBlocks();
+
 });
 
 addEventListener('click', function(e){
@@ -587,6 +589,28 @@ function toggleAttributeRelatedData(id_product_attribute) {
             });
         });
     }
+}
+
+function toggleDataBlocks() {
+    var data = document.querySelectorAll('[data-toggle-id]');
+
+    data.forEach(function (row) {
+
+        var id = row.getAttribute('data-toggle-id');
+        var elementToCheck = document.getElementById(id);
+
+        var valueTrue;
+
+        if (elementToCheck.tagName==='INPUT' && (elementToCheck.type==='radio' || elementToCheck.type==='checkbox')) {
+            valueTrue = elementToCheck.checked;
+        }
+        else {
+            valueTrue = elementToCheck.value === row.getAttribute('data-toggle-value');
+        }
+
+         valueTrue ? row.classList.remove('hidden') : row.classList.add('hidden');
+
+    });
 }
 
 function findCombination() {
