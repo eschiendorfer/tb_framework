@@ -784,8 +784,9 @@ class FrameworkController extends FrontController {
             self::$alreadyCalledType = [];
             self::$alreadyCalledComponent = [];
 
+
             $displayProductTabs = Hook::exec('displayProductTab', [], null, true);
-            $displayProductsTabContents = Hook::exec('displayProductTabContent', [], null, true);
+            $displayProductsTabContents = Hook::exec('displayProductTabContent', ['id_product' => $data['id_product']], null, true);
 
             foreach ($displayProductTabs as $module => $displayProductTab) {
                 $data['tabs'][] = [
