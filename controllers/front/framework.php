@@ -22,6 +22,8 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         $component = (bool)(Tools::getValue('component'));
 
         $this->context->smarty->assign(array(
+            'nobots' => true, // Google shouldn't index this pages -> if we still see a lot of page hits, it's likely a bad crawler or hacking attempt
+            'nofollow' => true, // Google shouldn't indes this pages -> if we still see a lot of page hits, it's likely a bad crawler or hacking attempt
             'meta_title' => 'TB FrontOffice Framework',
             'meta_description' => 'bla',
             'site_title' => 'TB Framework',
