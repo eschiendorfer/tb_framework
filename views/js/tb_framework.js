@@ -202,7 +202,6 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
 
     if (script_tags) {
         script_tags.forEach(function (script_tag) {
-
             script_tag.remove(); // Remove it from html content
 
             if (script_tag.src) {
@@ -212,7 +211,6 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
             }
         });
     }
-
 
     // Adding the clean html block (needs to happen before we add the script tags -> otherwise a lot of error will happen as the selectors are not working)
     var component_helper = document.createElement('div');

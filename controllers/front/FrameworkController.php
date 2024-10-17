@@ -175,6 +175,12 @@ class FrameworkController extends FrontController {
         'name' => 'toast',
     ];
 
+    // Rich Text Editor / WYSIWYG Editor
+    const COMPONENT_RTE = [
+        'type' => 'rte',
+        'name' => 'rte_default'
+    ];
+
     // Message
     const COMPONENT_MESSAGE_PREVIEW = [
         'type' => 'message',
@@ -885,6 +891,12 @@ class FrameworkController extends FrontController {
         }
 
         $data['tbody'] = $new_data;
+    }
+
+    private static function validate_rte_default(&$data) {
+        if (!isset($data['autoload'])) {
+            $data['autoload'] = true;
+        }
     }
 
 
@@ -1745,6 +1757,15 @@ class FrameworkController extends FrontController {
 
 
     // Messages
+
+    public static function getDemoData_rte_default() {
+
+        $rte_default = [
+            'autoload' => true,
+        ];
+
+        return $rte_default;
+    }
     public static function getDemoData_message_chat() {
 
         // Todo: add functionality that transform date into '3 weeks ago'
