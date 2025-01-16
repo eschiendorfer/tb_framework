@@ -546,7 +546,6 @@ class FrameworkController extends FrontController {
             ];
         }
 
-
         return $htmlElement;
     }
 
