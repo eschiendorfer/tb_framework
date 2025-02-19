@@ -1368,6 +1368,7 @@ class FrameworkController extends FrontController {
                 'entity_id' => $id_image,
                 'src' => '', // Possibility to give a direct src
                 'src_thumb' => '', // Possibility to give a direct src
+                'link_rewrite' => '', // Might be important for SEO
             ];
         }
 
