@@ -1923,4 +1923,9 @@ class FrameworkController extends FrontController {
         return $ago;
 
     }
+
+    public static function removeAjaxLoginFromHtmlString($htmlString) {
+        $htmlString = str_replace('data-ajax-login="true"', '', $htmlString);
+        return str_replace("data-ajax-login='true'", '', $htmlString);
+    }
 }
