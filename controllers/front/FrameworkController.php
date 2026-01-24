@@ -538,7 +538,6 @@ class FrameworkController extends FrontController {
         }
 
         if ($ajax) {
-
             return [
                 'name' => $component['name'],
                 'id' => $data['id'],
@@ -968,7 +967,7 @@ class FrameworkController extends FrontController {
             'data' => $data,
             'button' => [
                 'title' => 'View All',
-                'link'  => ['url' => 'https://www.blick.ch'],
+                'link'  => ['url' => '#'],
                 'style' => 'width: 100%;',
             ],
         ];
@@ -1041,7 +1040,7 @@ class FrameworkController extends FrontController {
             'data' => $data,
             'button' => [
                 'title' => 'View All Brands',
-                'link'  => ['url' => 'https://www.blick.ch'],
+                'link'  => ['url' => '#'],
                 'style' => 'width: 100%;',
             ],
         ];
@@ -1253,6 +1252,7 @@ class FrameworkController extends FrontController {
 
         return $product;
     }
+
     public static function getDemoData_card_product_list() {
 
         $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
@@ -1294,11 +1294,14 @@ class FrameworkController extends FrontController {
         $products = Product::getProducts(1, 1, 1, 'id_product', 'ASC');
         $product = $products[0];
         $product['id_image'] = Product::getCover($product['id_product'])['id_image'];
+        $product['total_wt'] = 10.15;
         $product = Product::getProductProperties(1, $product);
 
         // Cart Summary
         $cart_summary = [
-
+            'total_products_wt' => 10.25,
+            'total_shipping'    => 4.00,
+            'total_price'       => 14.25,
         ];
 
         $demo_data = [
@@ -1336,6 +1339,7 @@ class FrameworkController extends FrontController {
             'item' => '',
             'triggers_show' => ['click_item'], // Possible values: 'auto_show', 'click_item'
             'triggers_close' => ['click_close_button'], // Possible value 'click_close_button', 'click_item', 'click_outside'
+            'link' => ['href' => "#", 'title' => "Some Link Title"],
         ];
 
         return $demo_data;
@@ -1667,39 +1671,51 @@ class FrameworkController extends FrontController {
     public static function getDemoData_review_default($key = null) {
 
         $reviews_default[] = [
+            'id_customer' => 0,
+            'id_review' => 0,
             'customer' => [
                 'name' => 'Genzo Wakabayashi',
                 'image' => ['src' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
-                'link' => ['url'],
+                'link' => ['href' => ''],
             ],
             'review_grade' => rand(1*10,5*10)/10,
             'review_date' => date('d. F Y'),
             'review_title' => 'Something',
             'review_content' => '<p>Mauris non odio at est convallis rhoncus at vitae odio. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut sagittis, nibh sit amet porttitor efficitur, purus urna elementum dolor, in congue ipsum augue scelerisque ex.</p>',
+            'rich_snippets' => false,
+            'verified_buyer' => true,
         ];
 
         $reviews_default[] = [
+            'id_customer' => 0,
+            'id_review' => 0,
             'customer' => [
                 'name' => 'Martina Meyer',
                 'image' => ['src' => 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
-                'link' => ['url'],
+                'link' => ['href' => ''],
             ],
             'review_grade' => rand(1*10,5*10)/10,
             'review_date' => date('d. F Y', strtotime('-3 months -2 days')),
             'review_title' => 'Something',
             'review_content' => '<p>Nullam placerat luctus odio, sed tincidunt ex volutpat sed. Maecenas at magna nec mi vulputate egestas eget non nibh. </p>',
+            'rich_snippets' => false,
+            'verified_buyer' => false,
         ];
 
         $reviews_default[] = [
+            'id_customer' => 0,
+            'id_review' => 0,
             'customer' => [
                 'name' => 'Sadio Perreira',
                 'image' => ['src' => 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixqx=oilqXxSqey&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'],
-                'link' => ['url'],
+                'link' => ['href' => ''],
             ],
             'review_grade' => rand(1*10,5*10)/10,
             'review_date' => date('d. F Y', strtotime('-1 year -2 weeks')),
             'review_title' => 'Something',
             'review_content' => '<p>In hac habitasse platea dictumst. Nunc volutpat neque vitae nunc condimentum, placerat elementum ex gravida. In eu ligula sodales, egestas nunc id, porttitor lorem. Vestibulum pretium risus eu turpis bibendum vehicula. Morbi vestibulum tellus non tortor molestie, sit amet maximus leo mattis.</p><p>Morbi facilisis ipsum quis odio efficitur egestas sit amet ac quam. Fusce sodales ex sem. Nunc at sapien auctor, dapibus ipsum at, varius purus. Aenean egestas enim in lorem porttitor pulvinar. Quisque suscipit lobortis enim vitae rutrum. Quisque a neque dolor. Curabitur non sodales lectus.</p>',
+            'rich_snippets' => false,
+            'verified_buyer' => true,
         ];
 
         if (is_null($key)) {
@@ -1730,7 +1746,8 @@ class FrameworkController extends FrontController {
         $review_stats = [
             'reviews_grade_aggregated' => round($stars_total/$reviews_count_total,2),
             'reviews_total_count' => $reviews_count_total,
-            'stats' => $stats
+            'stats' => $stats,
+            'rich_snippets' => false,
         ];
 
         return $review_stats;
@@ -1741,6 +1758,8 @@ class FrameworkController extends FrontController {
         $review_stats = self::getDemoData_review_stats();
 
         $review_section = [
+            'entity_type' => 'product',
+            'entity_id' => 8,
             'reviews_grade_aggregated' => $review_stats['reviews_grade_aggregated'],
             'reviews_total_count' => $review_stats['reviews_total_count'],
             'stats' => $review_stats['stats'],
@@ -1750,6 +1769,7 @@ class FrameworkController extends FrontController {
                 self::getDemoData_review_default(1),
                 self::getDemoData_review_default(2),
             ],
+            'rich_snippets' => false,
         ];
 
         return $review_section;
@@ -1771,6 +1791,7 @@ class FrameworkController extends FrontController {
         // Todo: add functionality that transform date into '3 weeks ago'
 
         $message_thread = [
+            'title' => 'Some Title',
             'alias' => 'Frank the tank',
             'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
             'messages' => [
@@ -1809,28 +1830,37 @@ class FrameworkController extends FrontController {
         $message_thread = [
             'messages' => [
                 [
+                    'id_customer' => 0,
+                    'id_message' => 0,
                     'alias'  => 'Frank',
                     'date'   => '2022-10-18 21:12:32',
                     'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
                     'message' => 'Hello guys, how are you doing?',
                     'buttons' => '',
                     'respondings' => [],
+                    'html' => '',
                 ],
                 [
+                    'id_customer' => 0,
+                    'id_message' => 0,
                     'alias'  => 'Melissa G.',
                     'date'   => '2022-10-19 05:06:51',
                     'avatar' => 'https://images.unsplash.com/photo-1581624657276-5807462d0a3a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
                     'message' => 'Doing great, thank you',
                     'buttons' => '',
-                    'respondings' => []
+                    'respondings' => [],
+                    'html' => '',
                 ],
                 [
+                    'id_customer' => 0,
+                    'id_message' => 0,
                     'alias'  => 'King Arthur',
                     'date'   => '2022-10-19 09:14:01',
                     'avatar' => 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
                     'message' => 'It\'s monday. What a stupid question...',
                     'buttons' => '',
-                    'respondings' => []
+                    'respondings' => [],
+                    'html' => '',
                 ]
             ],
             'container' => [
