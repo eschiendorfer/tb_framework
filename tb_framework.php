@@ -4,6 +4,7 @@ if (!defined('_PS_VERSION_'))
 	exit;
 
 require_once(dirname(__FILE__).'/controllers/front/FrameworkController.php');
+require_once(dirname(__FILE__).'/autoload.php');
 
 class tb_framework extends Module
 {
@@ -28,11 +29,16 @@ class tb_framework extends Module
 		$this->description = $this->l('Render FO Elements/Components easily with this framework.');
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
 
+        if ($this->id && method_exists($this, 'isRegisteredInHook') && !$this->isRegisteredInHook('actionRegisterAutoloader')) {
+            $this->registerHook('actionRegisterAutoloader');
+        }
+
 	}
 
 	public function install() {
 		if (!parent::install() OR
 			!$this->registerHook('moduleRoutes') OR
+			!$this->registerHook('actionRegisterAutoloader') OR
 			!$this->registerHook('displayHeader') OR
 			!$this->registerHook('displayTab') OR
 			!$this->registerHook('displayBottomColumn')
@@ -84,15 +90,16 @@ class tb_framework extends Module
         return $my_routes;
     }
 
-	public function hookDisplayHeader($params) {
+    public function hookActionRegisterAutoloader() {
+        require_once(dirname(__FILE__).'/autoload.php');
+        FrameworkRegistry::assignCssSelectorsToSmarty();
+    }
 
-        // Make Sure that CSS Selectors are always available
-        $this->context->smarty->assign(array(
-            'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
-        ));
+	public function hookDisplayHeader($params) {
+        FrameworkRegistry::assignCssSelectorsToSmarty();
 
         Media::addJsDef(array(
-            'css_selector' => FrameworkController::getAllCssSelectorsForElements(),
+            'css_selector' => FrameworkRegistry::getAllCssSelectors(),
         ));
 
         // Make sure that the default styles are always available */
@@ -122,7 +129,7 @@ class tb_framework extends Module
     public function hookDisplayTab($params) {
         $id = pSQL($params['id']);
         if (!empty($this->tabs[$id])) {
-            return FrameworkController::fetchElement(FrameworkController::COMPONENT_TAB_COMPONENTS, $this->tabs[$id]);
+            return TabComponentsComponent::fetchWeb($this->tabs[$id]);
         }
 
         return null;

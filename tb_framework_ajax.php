@@ -2,6 +2,7 @@
 
 include_once(dirname(__FILE__).'/../../config/config.inc.php');
 include_once(dirname(__FILE__).'/../../init.php');
+include_once(dirname(__FILE__).'/autoload.php');
 
 // Global Stuff
 if (Tools::isSubmit('renderComponentWithAjax') && ($componentName = pSQL(Tools::getValue('component_name')))) {
@@ -10,10 +11,14 @@ if (Tools::isSubmit('renderComponentWithAjax') && ($componentName = pSQL(Tools::
         die(false); // Likely a hacking attempt
     }
 
-    $component = FrameworkController::getComponentByComponentName($componentName);
+    $component = FrameworkRegistry::getByName($componentName);
+    if (!$component) {
+        die(false);
+    }
+
     $data = json_decode(urldecode($_POST['data']), true); // Note: it seems to be important to use $_POST instead of Tools::getValue
     $style = Tools::getValue('style');
-    $component = FrameworkController::fetchElement($component, $data, [], $style, true);
+    $component = $component::fetchWeb($data, $style, true);
 
     die(json_encode($component));
 }

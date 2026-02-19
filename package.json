@@ -4,8 +4,7 @@
   "description": "This is providing a frontend framework for thirty bees ecommerce system",
   "main": "index.js",
   "dependencies": {
-    "basiclightbox": "^5.0.4",
-    "@glidejs/glide": "^3.4.1"
+
   },
   "devDependencies": {},
   "author": "Emanuel Schiendorfer"
