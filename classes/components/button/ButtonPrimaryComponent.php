@@ -19,7 +19,10 @@ class ButtonPrimaryComponent extends ComponentDefinition {
     }
 
     public function getDemoData(): array {
-        return [];
+        return [
+            'title' => 'Test',
+            'href' => '#test'
+        ];
     }
 }
 

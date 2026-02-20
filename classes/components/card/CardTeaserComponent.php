@@ -5,8 +5,16 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class CardTeaserComponent extends ComponentDefinition {
     protected const TYPE = 'card';
     protected const NAME = 'card_teaser';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [ComponentChannel::WEB, ComponentChannel::EMAIL];
     protected const SUPPORTS_CACHING = false;
+    protected const TEMPLATE_PATHS_BY_STYLE = [
+        'web' => [
+            'default' => 'component/card/web/card_teaser.tpl',
+        ],
+        'email' => [
+            'default' => 'component/card/email/card_teaser.tpl',
+        ],
+    ];
 
     public function validate(array &$data): void {
     }
@@ -21,6 +29,4 @@ class CardTeaserComponent extends ComponentDefinition {
         ];
     }
 }
-
-
 
