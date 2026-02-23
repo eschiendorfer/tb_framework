@@ -2,9 +2,9 @@
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 
-class AccordionPreviewBoxComponent extends ComponentDefinition {
-    protected const TYPE = 'accordion';
-    protected const NAME = 'accordion_preview_box';
+class BoxAccordionComponent extends ComponentDefinition {
+    protected const TYPE = 'box';
+    protected const NAME = 'box_accordion';
     protected const CHANNELS = [ComponentChannel::WEB];
     protected const SUPPORTS_CACHING = false;
 

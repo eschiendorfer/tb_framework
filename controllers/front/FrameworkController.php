@@ -127,9 +127,14 @@ class FrameworkController extends FrontController {
         'name' => 'accordion_default',
     ];
 
-    const COMPONENT_ACCORDION_PREVIEW_BOX = [
-        'type' => 'accordion',
-        'name' => 'accordion_preview_box',
+    const COMPONENT_BOX_ACCORDION = [
+        'type' => 'box',
+        'name' => 'box_accordion',
+    ];
+
+    const COMPONENT_BOX_DEFAULT = [
+        'type' => 'box',
+        'name' => 'box_default',
     ];
 
     // Progressbar
