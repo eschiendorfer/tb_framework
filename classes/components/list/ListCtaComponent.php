@@ -2,9 +2,9 @@
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 
-class ListCompactComponent extends ComponentDefinition {
+class ListCtaComponent extends ComponentDefinition {
     protected const TYPE = 'list';
-    protected const NAME = 'list_compact';
+    protected const NAME = 'list_cta';
     protected const CHANNELS = [ComponentChannel::WEB, ComponentChannel::EMAIL];
     protected const SUPPORTS_CACHING = false;
 
@@ -23,53 +23,33 @@ class ListCompactComponent extends ComponentDefinition {
         $query->leftJoin('manufacturer', 'm', 'm.id_manufacturer=p.id_manufacturer AND m.active=1');
         $query->orderBy('p.active DESC, RAND()');
         $query->limit('5');
-        $products =\Db::getInstance()->ExecuteS($query);
+        $products = \Db::getInstance()->ExecuteS($query);
 
         $data = [];
 
         foreach ($products as $product) {
             $manufacturer = $product['manufacturer'] ? ' from '.$product['manufacturer'] : '';
-
-            $price_selling = Tools::displayPrice(Product::getPriceStatic($product['id_product']));
-            $price_drop = Tools::displayPrice(5.95);
-
-            $css_price_default = PriceDefaultComponent::fetchCssClasses();
-            $css_price_reduced = PriceDefaultComponent::fetchCssClasses();
-            $css_price_original = PriceDefaultComponent::fetchCssClasses();
-
-            if ($price_drop) {
-                $price_content = "<span class='{$css_price_reduced}'>{$price_selling}</span> <span class='{$css_price_original}'>{$price_drop}</span>";
-            }
-            else {
-                $price_content = "<span class='{$css_price_default}'>{$price_selling}</span>";
-            }
-
-            $price_content = '';
+            $productLink = $context->link->getProductLink($product['id_product']);
 
             // Info: that is the correct structure of one row
             $data[] = [
                 'img' => $context->link->getImageLink($product['link_rewrite'], Product::getCover($product['id_product'])['id_image'], 'small_default'),
                 'title' => $product['name'],
                 'subtitle' => $product['category'].$manufacturer,
-                'link' => ['url' => $context->link->getProductLink($product['id_product'])],
+                'link' => ['url' => $productLink],
+                'button' => [
+                    'title' => 'View',
+                    'link' => ['url' => $productLink],
+                ],
                 'element_columns' => []
             ];
         }
 
-        $titles = ['Brettspiele', 'Puzzles', 'Gesellschaftsspiele', 'TCG', 'Merchandise', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
+        $titles = ['Brettspiele', 'Puzzles', 'Gesselschaftsspiele', 'TCG', 'Merchandise', 'Klassiker', 'Kinderspiele', 'Leuchtpuzzles'];
 
         return [
             'title' => $titles[array_rand($titles)],
             'data' => $data,
-            'button' => [
-                'title' => 'View All',
-                'link'  => ['url' => '#'],
-                'style' => 'width: 100%;',
-            ],
         ];
     }
 }
-
-
-
-
