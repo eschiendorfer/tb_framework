@@ -16,6 +16,27 @@ abstract class ComponentDefinition {
 
     abstract public function getDemoData(): array;
 
+    public static function addTrackingToData(array &$data, array $conversionTypes, int $entityType, int $entityId): void
+    {
+        if ($entityType <= 0 || $entityId <= 0) {
+            return;
+        }
+
+        $conversionTypes = array_values(array_unique(array_filter(array_map('intval', $conversionTypes))));
+        if (empty($conversionTypes)) {
+            return;
+        }
+
+        $payload = [
+            'conversion_types' => $conversionTypes,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+        ];
+
+        $data['conversion'] = $payload;
+        $data['conversion_json'] = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
     public function getName(): string {
         return static::NAME;
     }
