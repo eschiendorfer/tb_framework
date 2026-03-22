@@ -2,6 +2,8 @@
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 
+use CoreExtension\EntityTypeEnum;
+
 class ReviewSectionComponent extends ComponentDefinition {
     protected const TYPE = 'review';
     protected const NAME = 'review_section';
@@ -37,7 +39,7 @@ class ReviewSectionComponent extends ComponentDefinition {
         $reviews = $this->getReviewDefaults();
 
         return [
-            'entity_type' => 'product',
+            'entity_type' => EntityTypeEnum::PRODUCT->value,
             'entity_id' => 8,
             'reviews_grade_aggregated' => $review_stats['reviews_grade_aggregated'],
             'reviews_total_count' => $review_stats['reviews_total_count'],
