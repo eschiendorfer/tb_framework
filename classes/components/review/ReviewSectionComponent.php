@@ -33,7 +33,6 @@ class ReviewSectionComponent extends ComponentDefinition {
             'reviews_grade_aggregated' => round($stars_total/$reviews_count_total,2),
             'reviews_total_count' => $reviews_count_total,
             'stats' => $stats,
-            'rich_snippets' => false,
         ];
 
         $reviews = $this->getReviewDefaults();
