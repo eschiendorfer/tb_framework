@@ -21,7 +21,7 @@ class tb_framework extends Module
 
 		$this->bootstrap = true;
 
-        $this->controllers = array('framework');
+        $this->controllers = array('framework', 'ajaxlist');
 
 	 	parent::__construct();
 

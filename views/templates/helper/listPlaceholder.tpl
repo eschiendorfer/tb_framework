@@ -1,0 +1,1 @@
+<div data-ajax-onload="{$ajax_list_url}" data-ajax-replacement-id="{$ajax_list_unique_key}">lädt ...</div>
