@@ -12,7 +12,11 @@ interface AjaxListInterface
 
     public function getTargetIdEntity(): int;
 
-    public function getDefaultLimit(): int;
+    public function getDefaultInitLimit(): int;
+
+    public function getDefaultStepLimit(): int;
+
+    public function getPublicListUrl(int $offset, int $stepLimit): string;
 
     /**
      * @return array<int, mixed>
@@ -24,4 +28,6 @@ interface AjaxListInterface
     public function getItemsTotal(): int;
 
     public function getItemsLabel(): string;
+
+    public function getItemsContainerClass(): string;
 }

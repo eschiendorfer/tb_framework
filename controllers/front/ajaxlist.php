@@ -5,8 +5,6 @@ class tb_frameworkAjaxlistModuleFrontController extends ModuleFrontController
     private const ACTION_INIT = 'init';
     private const ACTION_APPEND = 'append';
     private const PROVIDERS_HOOK = 'actionRegisterAjaxListProviders';
-    private const DEFAULT_LIMIT = 5;
-    private const MAX_LIMIT = 50;
 
     /** @var array<string, array<string, string>>|null */
     private ?array $providersByKey = null;
@@ -15,13 +13,14 @@ class tb_frameworkAjaxlistModuleFrontController extends ModuleFrontController
     {
         parent::initContent();
 
-        if (!$this->ajax) {
-            $this->ajaxError('Ajax requests only.');
-            return;
-        }
-
         $providerKey = pSQL((string)Tools::getValue('provider'));
-        $action = strtolower((string)Tools::getValue('action', self::ACTION_INIT));
+
+        // We need to make sure that AI crawler without javascript can still index get the content
+        $action = self::ACTION_INIT;
+
+        if ($this->ajax) {
+            $action = strtolower((string)Tools::getValue('list_action', Tools::getValue('action', self::ACTION_INIT)));
+        }
 
         if (!in_array($action, [self::ACTION_INIT, self::ACTION_APPEND], true)) {
             $this->ajaxError('Invalid action.');
@@ -34,16 +33,18 @@ class tb_frameworkAjaxlistModuleFrontController extends ModuleFrontController
             return;
         }
 
-        $providerDefaultLimit = max(1, (int)$provider->getDefaultLimit());
-        $defaultLimit = max(1, min($providerDefaultLimit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT));
-        $limit = max(1, min((int)Tools::getIntValue('limit', $defaultLimit), self::MAX_LIMIT));
         $offset = max(0, (int)Tools::getIntValue('offset'));
-        $stepLimit = max(1, min((int)Tools::getIntValue('step_limit', $limit), self::MAX_LIMIT));
 
         $renderer = new AjaxListRender($provider);
-        $content['page'] = $renderer->renderByAction($action, $limit, $offset, $stepLimit);
+        $content['page'] = $renderer->renderByAction($action, $offset);
 
-        $this->ajaxDie(json_encode($content));
+        if ($this->ajax) {
+            $this->ajaxDie(json_encode($content));
+        }
+
+        $this->context->smarty->assign('content', $content['page']);
+        $this->setTemplate('ajaxlist.tpl');
+
     }
 
     private function buildProvider(string $providerKey): ?AjaxListInterface

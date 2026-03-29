@@ -15,40 +15,68 @@ class AjaxListRender
         $this->provider = $provider;
     }
 
-    public function renderList(bool $ajaxPlaceholder = false, ?int $firstLimit = null, ?int $steps = null): string
+    public static function handleListActionRequest(
+        ModuleFrontController $controller,
+        AjaxListInterface $provider
+    ): bool
     {
-        $firstLimit = $this->normalizeLimit($firstLimit ?? $this->provider->getDefaultLimit());
-        $steps = $this->normalizeLimit($steps ?? $firstLimit);
+        $listAction = strtolower((string)Tools::getValue('list_action', Tools::getValue('action')));
 
-        if ($ajaxPlaceholder) {
-            return $this->renderListPlaceholder($firstLimit, $steps);
+        if (
+            !Tools::getValue('ajax')
+            || !in_array($listAction, [self::ACTION_INIT, self::ACTION_APPEND], true)
+        ) {
+            return false;
         }
 
-        return $this->renderListInit($firstLimit, 0, $steps);
+        $offset = max(0, (int)Tools::getIntValue('offset'));
+
+        $renderer = new self($provider);
+        $content['page'] = $renderer->renderByAction($listAction, $offset);
+        die(json_encode($content));
+    }
+
+    public function renderList(
+        bool $ajaxPlaceholder = false,
+        ?int $initLimit = null,
+        ?int $stepLimit = null,
+        int $offset = 0
+    ): string
+    {
+        $initLimit = $this->normalizeLimit($initLimit ?? $this->provider->getDefaultInitLimit());
+        $stepLimit = $this->normalizeLimit($stepLimit ?? $this->provider->getDefaultStepLimit());
+        $offset = max(0, $offset);
+
+        if ($ajaxPlaceholder) {
+            return $this->renderListPlaceholder($initLimit, $stepLimit);
+        }
+
+        return $this->renderListInit($initLimit, $offset, $stepLimit);
     }
 
     public function renderByAction(
         string $action,
-        ?int $limit = null,
-        ?int $offset = null,
-        ?int $stepLimit = null
+        ?int $offset = null
     ): string
     {
+        $requestedInitLimit = Tools::getIsset('init_limit') ? (int)Tools::getIntValue('init_limit') : null;
+        $requestedStepLimit = Tools::getIsset('step_limit') ? (int)Tools::getIntValue('step_limit') : null;
+
         if ($action === self::ACTION_APPEND) {
-            return $this->renderListAppend($limit, $offset);
+            return $this->renderListAppend($offset, $requestedStepLimit);
         }
 
-        $limit = $this->normalizeLimit($limit ?? $this->provider->getDefaultLimit());
-        $stepLimit = $this->normalizeLimit($stepLimit ?? $limit);
+        $initLimit = $this->normalizeLimit($requestedInitLimit ?? $this->provider->getDefaultInitLimit());
+        $stepLimit = $this->normalizeLimit($requestedStepLimit ?? $this->provider->getDefaultStepLimit());
 
-        return $this->renderListInit($limit, $offset ?? 0, $stepLimit);
+        return $this->renderListInit($initLimit, $offset ?? 0, $stepLimit);
     }
 
-    private function renderListAppend(?int $limit = null, ?int $offset = null): string
+    private function renderListAppend(?int $offset = null, ?int $stepLimit = null): string
     {
-        $limit = $this->normalizeLimit($limit ?? $this->provider->getDefaultLimit());
+        $stepLimit = $this->normalizeLimit($stepLimit ?? $this->provider->getDefaultStepLimit());
         $offset = max(0, $offset ?? 0);
-        $items = $this->provider->getItems($limit, $offset);
+        $items = $this->provider->getItems($stepLimit, $offset);
 
         $this->context->smarty->assign([
             'items_html' => $this->renderItems($items),
@@ -57,29 +85,30 @@ class AjaxListRender
         return $this->renderTemplate('listAppend.tpl');
     }
 
-    private function renderListPlaceholder(int $firstLimit, int $steps): string
+    private function renderListPlaceholder(int $initLimit, int $stepLimit): string
     {
         $this->context->smarty->assign([
-            'ajax_list_url' => $this->getUrl(self::ACTION_INIT, 0, $firstLimit, $steps),
+            'ajax_list_url' => $this->resolveAjaxUrl(self::ACTION_INIT, 0, $initLimit, $stepLimit),
         ]);
 
         return $this->renderTemplate('listPlaceholder.tpl');
     }
 
-    private function renderListInit(?int $limit = null, int $offset = 0, ?int $stepLimit = null): string
+    private function renderListInit(?int $initLimit = null, int $offset = 0, ?int $stepLimit = null): string
     {
-        $limit = $this->normalizeLimit($limit ?? $this->provider->getDefaultLimit());
-        $stepLimit = $this->normalizeLimit($stepLimit ?? $limit);
+        $initLimit = $this->normalizeLimit($initLimit ?? $this->provider->getDefaultInitLimit());
+        $stepLimit = $this->normalizeLimit($stepLimit ?? $this->provider->getDefaultStepLimit());
         $offset = max(0, $offset);
-        $offsetNext = $offset + $limit;
-        $items = $this->provider->getItems($limit, $offset);
+        $offsetNext = $offset + $initLimit;
+        $items = $this->provider->getItems($initLimit, $offset);
 
         $this->context->smarty->assign([
             'items_html'    => $this->renderItems($items),
             'itemsTotal'    => $this->provider->getItemsTotal(),
-            'limit_next'    => $stepLimit,
+            'step_limit_next' => $stepLimit,
             'offset_next'   => $offsetNext,
-            'ajax_list_url' => $this->getUrl(self::ACTION_APPEND, $offsetNext, $stepLimit),
+            'ajax_list_url' => $this->resolveAjaxUrl(self::ACTION_APPEND, $offsetNext, null, $stepLimit),
+            'public_list_url' => $this->provider->getPublicListUrl($offsetNext, $stepLimit),
             'itemsLabel'    => $this->provider->getItemsLabel(),
         ]);
 
@@ -96,25 +125,53 @@ class AjaxListRender
             'origin_id_entity' => $this->provider->getOriginIdEntity(),
             'target_entity_type' => $this->provider->getTargetEntityType(),
             'target_id_entity' => $this->provider->getTargetIdEntity(),
+            'ajax_list_items_class' => (string)$this->provider->getItemsContainerClass(),
         ]);
 
         return (string)$this->context->smarty->fetch($templatePath);
     }
 
-    private function getUrl(string $action, int $offset, int $limit, ?int $stepLimit = null): string
+    private function getUrl(
+        string $action,
+        int $offset,
+        ?int $initLimit = null,
+        ?int $stepLimit = null
+    ): string
     {
         $params = [
-            'action'             => $action,
+            'list_action'        => $action,
             'provider'           => $this->provider->getProviderKey(),
-            'origin_entity_type' => $this->provider->getOriginEntityType(),
-            'origin_id_entity'   => $this->provider->getOriginIdEntity(),
-            'target_entity_type' => $this->provider->getTargetEntityType(),
-            'target_id_entity'   => $this->provider->getTargetIdEntity(),
             'offset'             => $offset,
-            'limit'              => $limit,
         ];
 
-        if ($stepLimit !== null && $stepLimit > 0) {
+        if ($this->provider->getOriginEntityType() > 0) {
+            $params['origin_entity_type'] = $this->provider->getOriginEntityType();
+        }
+
+        if ($this->provider->getOriginIdEntity() > 0) {
+            $params['origin_id_entity'] = $this->provider->getOriginIdEntity();
+        }
+
+        if ($this->provider->getTargetEntityType() > 0) {
+            $params['target_entity_type'] = $this->provider->getTargetEntityType();
+        }
+
+        if ($this->provider->getTargetIdEntity() > 0) {
+            $params['target_id_entity'] = $this->provider->getTargetIdEntity();
+        }
+
+        if (
+            $action === self::ACTION_INIT
+            && $initLimit !== null
+            && $initLimit !== $this->provider->getDefaultInitLimit()
+        ) {
+            $params['init_limit'] = $initLimit;
+        }
+
+        if (
+            $stepLimit !== null
+            && $stepLimit !== $this->provider->getDefaultStepLimit()
+        ) {
             $params['step_limit'] = $stepLimit;
         }
 
@@ -123,6 +180,24 @@ class AjaxListRender
             'ajaxlist',
             $params
         );
+    }
+
+    private function resolveAjaxUrl(
+        string $action,
+        int $offset,
+        ?int $initLimit = null,
+        ?int $stepLimit = null
+    ): string
+    {
+        if (method_exists($this->provider, 'getAjaxListUrl')) {
+            $customUrl = (string)$this->provider->getAjaxListUrl($action, $offset, $initLimit, $stepLimit);
+
+            if ($customUrl !== '') {
+                return $customUrl;
+            }
+        }
+
+        return $this->getUrl($action, $offset, $initLimit, $stepLimit);
     }
 
     private function normalizeLimit(int $limit): int

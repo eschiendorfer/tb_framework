@@ -13,10 +13,12 @@
                data-ajax="true"
                data-ajax-loadingSpinner="true"
                data-ajax-callback="updateAjaxListShowMore"
+               data-ajax-list_action="append"
                data-items-total="{$itemsTotal}"
                data-ajax-offset="{$offset_next}"
-               data-ajax-limit="{$limit_next}"
-               href="{$ajax_list_url}"
+               data-step-limit="{$step_limit_next}"
+               data-href="{$ajax_list_url}"
+               href="{$public_list_url}"
             >
                 {l s='Show more' mod='tb_framework'}
             </a>
