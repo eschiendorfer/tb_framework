@@ -8,6 +8,7 @@ require_once(dirname(__FILE__).'/autoload.php');
 
 class tb_framework extends Module
 {
+    private const SHORTCODE_REGISTRATION_HOOK = 'actionGenzoShortcodesRegister';
 
 	public $errors;
     private $tabs;
@@ -29,8 +30,14 @@ class tb_framework extends Module
 		$this->description = $this->l('Render FO Elements/Components easily with this framework.');
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
 
-        if ($this->id && method_exists($this, 'isRegisteredInHook') && !$this->isRegisteredInHook('actionRegisterAutoloader')) {
-            $this->registerHook('actionRegisterAutoloader');
+        if ($this->id && method_exists($this, 'isRegisteredInHook')) {
+            if ((int)Hook::getIdByName('actionRegisterAutoloader') > 0 && !$this->isRegisteredInHook('actionRegisterAutoloader')) {
+                $this->registerHook('actionRegisterAutoloader');
+            }
+
+            if ((int)Hook::getIdByName(self::SHORTCODE_REGISTRATION_HOOK) > 0 && !$this->isRegisteredInHook(self::SHORTCODE_REGISTRATION_HOOK)) {
+                $this->registerHook(self::SHORTCODE_REGISTRATION_HOOK);
+            }
         }
 
 	}
@@ -39,6 +46,7 @@ class tb_framework extends Module
 		if (!parent::install() OR
 			!$this->registerHook('moduleRoutes') OR
 			!$this->registerHook('actionRegisterAutoloader') OR
+            !$this->registerShortcodeRegistrationHook() OR
 			!$this->registerHook('displayHeader') OR
 			!$this->registerHook('displayTab') OR
 			!$this->registerHook('displayBottomColumn')
@@ -48,6 +56,24 @@ class tb_framework extends Module
 
 		return true;
 	}
+
+    private function registerShortcodeRegistrationHook(): bool
+    {
+        if ((int)Hook::getIdByName(self::SHORTCODE_REGISTRATION_HOOK) <= 0) {
+            $hook = new Hook();
+            $hook->name = self::SHORTCODE_REGISTRATION_HOOK;
+            $hook->title = 'Genzo Shortcodes Registration';
+            $hook->description = 'Allows modules to register shortcode handler classes.';
+            $hook->position = false;
+            $hook->live_edit = false;
+
+            if (!(bool)$hook->add()) {
+                return false;
+            }
+        }
+
+        return $this->registerHook(self::SHORTCODE_REGISTRATION_HOOK);
+    }
 
 	public function uninstall() {
 		if (!parent::uninstall()) {
@@ -93,6 +119,29 @@ class tb_framework extends Module
     public function hookActionRegisterAutoloader() {
         require_once(dirname(__FILE__).'/autoload.php');
         FrameworkRegistry::assignCssSelectorsToSmarty();
+    }
+
+    public function hookActionGenzoShortcodesRegister($params)
+    {
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/BoxShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ButtonShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CarouselShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/HeaderShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ImagecloudcompactShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ListShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ProductgridShortcode.php';
+
+        return [
+            \BoxShortcode::class,
+            \ButtonShortcode::class,
+            \CarouselShortcode::class,
+            \CardShortcode::class,
+            \HeaderShortcode::class,
+            \ImagecloudcompactShortcode::class,
+            \ListShortcode::class,
+            \ProductgridShortcode::class,
+        ];
     }
 
 	public function hookDisplayHeader($params) {
