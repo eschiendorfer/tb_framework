@@ -130,37 +130,41 @@ function renderComponentWithAjax(
         if (this.status >= 200 && this.status < 400) {
             var response = JSON.parse(this.response);
             if (response) {
-                var js_component = initAjaxComponent(response, relative_element, relative_position);
-                if (typeof callback_function == "function") {
-                    if (js_component) {
-                        callback_function(js_component);
-                    }
-                }
+                initAjaxComponent(response, relative_element, relative_position, callback_function);
             }
         }
     }
 
 }
 
-function initAjaxComponent(component, relative_element = document.body, relative_position = 'append') {
+function initAjaxComponent(component, relative_element = document.body, relative_position = 'append', callback_function = false) {
 
     removeComponent(component);
 
-    initHtmlContent(component.htmlElement, relative_element, relative_position, component.id);
-    var js_component = window[component.id];
-    // Note: there is no need to use addComponent() as this is already executed in the tpl file
-    initComponent(js_component);
+    initHtmlContent(component.htmlElement, relative_element, relative_position, component.id, function () {
+        var js_component = window[component.id] || null;
+        if (!js_component) {
+            return;
+        }
 
-    if (component.name==='toast') {
-        setMaxZIndex(js_component); // This is needed in an edge case, when a toast is triggered on a modal, that has already used setMaxZIndex
-    }
+        // Note: there is no need to use addComponent() as this is already executed in the tpl file
+        initComponent(js_component);
 
-    return js_component;
+        if (component.name === 'toast') {
+            setMaxZIndex(js_component); // This is needed in an edge case, when a toast is triggered on a modal, that has already used setMaxZIndex
+        }
+
+        if (typeof callback_function === 'function') {
+            callback_function(js_component);
+        }
+    });
+
+    return window[component.id] || null;
 }
 
 // Note: when you load html by ajax, the script tags and external files aren't executed/loaded by just adding the html div
 // This function does handle this "problem".
-function initHtmlContent(content, relative_element = document.body, relative_position = 'append', id_component = '') {
+function initHtmlContent(content, relative_element = document.body, relative_position = 'append', id_component = '', callback_on_ready = false) {
 
     // First we need create an element that is readable
     var template = document.createElement('template');
@@ -266,29 +270,47 @@ function initHtmlContent(content, relative_element = document.body, relative_pos
         document.body.appendChild(style_inner);
     });
 
+    var readyCalled = false;
+    var markReady = function () {
+        if (readyCalled) {
+            return;
+        }
+        readyCalled = true;
+
+        if (typeof callback_on_ready === 'function') {
+            callback_on_ready(component);
+        }
+    };
+
+    var loadInlineBlocksAndFinalize = function () {
+        loadJsBlocks(js_blocks, id_component);
+        markReady();
+    };
+
     // Now we read the script and link tags, so that they are executed.
     if (js_files.length) {
+        var pendingExternalScripts = js_files.length;
+        var handleExternalScriptFinished = function () {
+            pendingExternalScripts -= 1;
+            if (pendingExternalScripts <= 0) {
+                loadInlineBlocksAndFinalize();
+            }
+        };
+
         // In case there are external js files, we first need to load them all
-        js_files.forEach(function (src, index, array) {
+        js_files.forEach(function (src) {
 
             var script = document.createElement('script');
             script.src = src;
             document.body.appendChild(script);
 
-            script.addEventListener('load', function () {
-
-                array.splice(index, 1); // Remove the js file from the array
-
-                // Once all js files are loaded we execute the js blocks
-                if (!js_files.length) {
-                    loadJsBlocks(js_blocks, id_component);
-                }
-            });
+            script.addEventListener('load', handleExternalScriptFinished);
+            script.addEventListener('error', handleExternalScriptFinished);
 
         });
     }
     else {
-        loadJsBlocks(js_blocks, id_component);
+        loadInlineBlocksAndFinalize();
     }
 
     cutLongTexts();

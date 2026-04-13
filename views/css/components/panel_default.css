@@ -1,0 +1,81 @@
+.panel_default.panel_dialog {
+    z-index: 50;
+}
+
+.panel_default.panel_popover {
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.panel_default.panel_popover.panel_popover_external_anchor {
+    pointer-events: none;
+}
+
+.panel_default.panel_popover.panel_popover_external_anchor .panel_popover_content {
+    pointer-events: auto;
+}
+
+.panel_default.panel_popover .panel_popover_content {
+    width: max-content;
+    max-width: min(92vw, 480px);
+}
+
+@media (max-width: 1024px) {
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled {
+        top: 0;
+        bottom: var(--panel-sheet-bottom-offset, 0px);
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_helper {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        width: 100vw;
+        height: var(--panel-sheet-current-height, 70vh);
+        min-height: 0;
+        max-height: calc(100vh - var(--panel-sheet-bottom-offset, 0px));
+        background: transparent;
+        transition: height .2s ease, transform .2s ease;
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_sheet_card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_sheet_title {
+        position: relative;
+        padding-top: 18px;
+        touch-action: none;
+        cursor: grab;
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_sheet_title.dragging {
+        cursor: grabbing;
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_sheet_drag_handle {
+        display: inline-block;
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: #d1d5db;
+        position: absolute;
+        top: 7px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .panel_default.panel_dialog.panel-sheet-mobile-enabled .panel_sheet_content {
+        flex: 1;
+        overflow: auto;
+    }
+}

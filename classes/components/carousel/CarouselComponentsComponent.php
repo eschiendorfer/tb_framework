@@ -9,8 +9,18 @@ class CarouselComponentsComponent extends ComponentDefinition {
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
+        if (!isset($data['slides']) || !is_array($data['slides'])) {
+            $data['slides'] = [];
+        }
+
         if (!isset($data['nbr_columns'])) {
             $data['nbr_columns'] = count($data['slides']);
+        }
+
+        if (!array_key_exists('slides_indicators', $data)) {
+            $data['slides_indicators'] = false;
+        } else {
+            $data['slides_indicators'] = (bool)$data['slides_indicators'];
         }
     }
 

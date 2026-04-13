@@ -7,6 +7,7 @@ class MessageThreadComponent extends ComponentDefinition {
     protected const NAME = 'message_thread';
     protected const CHANNELS = [ComponentChannel::WEB];
     protected const SUPPORTS_CACHING = false;
+    protected const STYLES = ['default', 'compact'];
 
     public function validate(array &$data): void {
     }

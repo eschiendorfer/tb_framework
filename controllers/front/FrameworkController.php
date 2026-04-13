@@ -176,6 +176,12 @@ class FrameworkController extends FrontController {
         'name' => 'popover_default',
     ];
 
+    // Panel
+    const COMPONENT_PANEL = [
+        'type' => 'panel',
+        'name' => 'panel_default',
+    ];
+
     // Toast
     const COMPONENT_TOAST = [
         'type' => 'toast',

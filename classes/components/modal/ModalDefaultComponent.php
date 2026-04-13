@@ -28,6 +28,8 @@ class ModalDefaultComponent extends ComponentDefinition {
             'triggers_close' => ['click_close_button', 'click_item', 'click_outside'],
             'callback_open' => '',
             'callback_close' => '',
+            'mobile_mode' => '',
+            'nav_layer' => 'over',
         ];
     }
 

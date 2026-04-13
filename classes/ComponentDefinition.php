@@ -13,6 +13,8 @@ abstract class ComponentDefinition {
     protected const STYLES = ['default'];
     protected const CSS_CLASSES_BY_STYLE = [];
     protected const TEMPLATE_PATHS_BY_STYLE = [];
+    protected const ASSET_FILES_BY_STYLE = [];
+    private static $registeredAssetUris = [];
 
     abstract public function getDemoData(): array;
 
@@ -61,6 +63,7 @@ abstract class ComponentDefinition {
 
         $data['component_name'] = $instance->getName();
         $data['style'] = $resolvedStyle;
+        $instance->attachAssets($data, $resolvedStyle, $ajax, $context);
 
         $context->smarty->assign([
             'component' => $data,
@@ -198,6 +201,20 @@ abstract class ComponentDefinition {
         return 'component/'.static::TYPE.'/'.$channelValue.'/'.static::NAME.'.tpl';
     }
 
+    public function getAssetFiles(string $style = ''): array
+    {
+        $resolvedStyle = $this->normalizeStyle($style);
+        $assetFiles = static::ASSET_FILES_BY_STYLE[$resolvedStyle] ?? static::ASSET_FILES_BY_STYLE[static::DEFAULT_STYLE] ?? [];
+
+        $cssFiles = $this->normalizeAssetFileList($assetFiles['css'] ?? []);
+        $jsFiles = $this->normalizeAssetFileList($assetFiles['js'] ?? []);
+
+        return [
+            'css' => $cssFiles,
+            'js' => $jsFiles,
+        ];
+    }
+
     private function normalizeStyle(string $style): string {
         $style = trim($style);
 
@@ -210,6 +227,87 @@ abstract class ComponentDefinition {
         }
 
         return $style;
+    }
+
+    private function normalizeAssetFileList($assetFiles): array
+    {
+        if (!is_array($assetFiles)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($assetFiles as $assetFile) {
+            if (!is_string($assetFile)) {
+                continue;
+            }
+
+            $assetFile = trim(str_replace('\\', '/', $assetFile));
+            if ($assetFile === '') {
+                continue;
+            }
+
+            $assetFile = ltrim($assetFile, '/');
+            $assetPath = _PS_MODULE_DIR_.'tb_framework/'.$assetFile;
+            if (!file_exists($assetPath)) {
+                continue;
+            }
+
+            if (!in_array($assetFile, $normalized, true)) {
+                $normalized[] = $assetFile;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function attachAssets(array &$data, string $resolvedStyle, bool $ajax, Context $context): void
+    {
+        $assetFiles = $this->getAssetFiles($resolvedStyle);
+        if (empty($assetFiles['css']) && empty($assetFiles['js'])) {
+            return;
+        }
+
+        $assetUris = [
+            'css' => array_map([self::class, 'resolveModuleAssetUri'], $assetFiles['css']),
+            'js' => array_map([self::class, 'resolveModuleAssetUri'], $assetFiles['js']),
+        ];
+
+        if ($ajax) {
+            $data['component_assets'] = $assetUris;
+            return;
+        }
+
+        if (!isset($context->controller)) {
+            return;
+        }
+
+        foreach ($assetUris['css'] as $cssUri) {
+            if (!$cssUri || isset(self::$registeredAssetUris['css'][$cssUri])) {
+                continue;
+            }
+
+            if (method_exists($context->controller, 'addCSS')) {
+                $context->controller->addCSS($cssUri);
+            }
+            self::$registeredAssetUris['css'][$cssUri] = true;
+        }
+
+        foreach ($assetUris['js'] as $jsUri) {
+            if (!$jsUri || isset(self::$registeredAssetUris['js'][$jsUri])) {
+                continue;
+            }
+
+            if (method_exists($context->controller, 'addJS')) {
+                $context->controller->addJS($jsUri);
+            }
+            self::$registeredAssetUris['js'][$jsUri] = true;
+        }
+    }
+
+    private static function resolveModuleAssetUri(string $assetFile): string
+    {
+        $assetFile = ltrim(str_replace('\\', '/', trim($assetFile)), '/');
+        return __PS_BASE_URI__.'modules/tb_framework/'.$assetFile;
     }
 
     private function getCssSelectorByStyle(string $style): ?string {
