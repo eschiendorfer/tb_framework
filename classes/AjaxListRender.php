@@ -48,7 +48,7 @@ class AjaxListRender
         $offset = max(0, $offset);
 
         if ($ajaxPlaceholder) {
-            return $this->renderListPlaceholder($initLimit, $stepLimit);
+            return $this->renderListPlaceholder($initLimit, $stepLimit, $offset);
         }
 
         return $this->renderListInit($initLimit, $offset, $stepLimit);
@@ -79,16 +79,16 @@ class AjaxListRender
         $items = $this->provider->getItems($stepLimit, $offset);
 
         $this->context->smarty->assign([
-            'items_html' => $this->renderItems($items),
+            'items_html' => $this->renderItems($items, $offset),
         ]);
 
         return $this->renderTemplate('listAppend.tpl');
     }
 
-    private function renderListPlaceholder(int $initLimit, int $stepLimit): string
+    private function renderListPlaceholder(int $initLimit, int $stepLimit, int $offset = 0): string
     {
         $this->context->smarty->assign([
-            'ajax_list_url' => $this->resolveAjaxUrl(self::ACTION_INIT, 0, $initLimit, $stepLimit),
+            'ajax_list_url' => $this->resolveAjaxUrl(self::ACTION_INIT, max(0, $offset), $initLimit, $stepLimit),
         ]);
 
         return $this->renderTemplate('listPlaceholder.tpl');
@@ -103,7 +103,7 @@ class AjaxListRender
         $items = $this->provider->getItems($initLimit, $offset);
 
         $this->context->smarty->assign([
-            'items_html'    => $this->renderItems($items),
+            'items_html'    => $this->renderItems($items, $offset),
             'itemsTotal'    => $this->provider->getItemsTotal(),
             'step_limit_next' => $stepLimit,
             'offset_next'   => $offsetNext,
@@ -126,6 +126,7 @@ class AjaxListRender
             'target_entity_type' => $this->provider->getTargetEntityType(),
             'target_id_entity' => $this->provider->getTargetIdEntity(),
             'ajax_list_items_class' => (string)$this->provider->getItemsContainerClass(),
+            'ajax_list_back_restore_enabled' => $this->provider->isAjaxListBackRestoreEnabled() ? 1 : 0,
         ]);
 
         return (string)$this->context->smarty->fetch($templatePath);
@@ -220,13 +221,26 @@ class AjaxListRender
      * @param array<int, mixed> $items
      * @return array<int, string>
      */
-    private function renderItems(array $items): array
+    private function renderItems(array $items, int $batchOffset = 0): array
     {
         $itemsHtml = [];
+        $batchOffset = max(0, $batchOffset);
 
         foreach ($items as $item) {
             if (is_array($item)) {
-                $itemsHtml[] = $this->provider->renderItem($item);
+                $itemHtml = $this->provider->renderItem($item);
+                if ($itemHtml === '') {
+                    continue;
+                }
+
+                if ($this->provider->isAjaxListBackRestoreEnabled()) {
+                    $itemMarker = trim((string)$this->provider->getAjaxListBackRestoreMarker($item));
+                    if ($itemMarker !== '') {
+                        $itemHtml = '<div data-ajax-list-item-marker="' . htmlspecialchars($itemMarker, ENT_QUOTES, 'UTF-8') . '" data-ajax-list-item-offset="' . (int)$batchOffset . '">' . $itemHtml . '</div>';
+                    }
+                }
+
+                $itemsHtml[] = $itemHtml;
             }
         }
 

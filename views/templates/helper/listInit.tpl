@@ -1,4 +1,4 @@
-<div data-ajax-replacement-id="{$ajax_list_unique_key}">
+<div data-ajax-replacement-id="{$ajax_list_unique_key}"{if !empty($ajax_list_back_restore_enabled)} data-ajax-list-back-restore="1"{/if}>
 
     {include file="./listAppend.tpl"}
 

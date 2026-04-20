@@ -30,4 +30,8 @@ interface AjaxListInterface
     public function getItemsLabel(): string;
 
     public function getItemsContainerClass(): string;
+
+    public function isAjaxListBackRestoreEnabled(): bool;
+
+    public function getAjaxListBackRestoreMarker(array $item): string;
 }
