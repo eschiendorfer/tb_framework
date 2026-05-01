@@ -7,6 +7,7 @@ class ReviewGradeComponent extends ComponentDefinition {
     protected const NAME = 'review_grade';
     protected const CHANNELS = [ComponentChannel::WEB];
     protected const SUPPORTS_CACHING = false;
+    protected const STYLES = ['small', 'default', 'large'];
 
     public function validate(array &$data): void {
     }
