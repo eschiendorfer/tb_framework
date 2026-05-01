@@ -37,6 +37,18 @@ class MessageHeaderComponent extends ComponentDefinition
             $data['subtitle'] = '';
         }
 
+        if (!isset($data['subtitle_icon_html'])) {
+            $data['subtitle_icon_html'] = '';
+        }
+
+        if (!isset($data['subtitle_activity_text'])) {
+            $data['subtitle_activity_text'] = '';
+        }
+
+        if (!isset($data['subtitle_elapsed_text'])) {
+            $data['subtitle_elapsed_text'] = '';
+        }
+
         if (!isset($data['activity'])) {
             $data['activity'] = '';
         }
