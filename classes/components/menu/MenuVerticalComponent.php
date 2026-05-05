@@ -7,6 +7,7 @@ class MenuVerticalComponent extends ComponentDefinition {
     protected const NAME = 'menu_vertical';
     protected const CHANNELS = [ComponentChannel::WEB];
     protected const SUPPORTS_CACHING = false;
+    protected const STYLES = ['default', 'compact'];
 
     public function validate(array &$data): void {
     }
