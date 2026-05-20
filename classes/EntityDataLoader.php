@@ -130,6 +130,10 @@ final class EntityDataLoader
             $linkInformation['title'] = (string)($manufacturer->name ?? '');
         } elseif (!empty($params['customproductlist'])) {
             $idCustomProductList = (int)$params['customproductlist'];
+            if (\Module::isEnabled('genzo_filter')) {
+                require_once _PS_MODULE_DIR_ . 'genzo_filter/autoload.php';
+            }
+
             if (class_exists('\FilterCustomProductList')) {
                 $customProductList = new \FilterCustomProductList($idCustomProductList, $idLang);
                 $linkInformation['href'] = (string)($customProductList->url ?? '');
@@ -321,22 +325,17 @@ final class EntityDataLoader
             $effectiveLimit = 5;
         }
 
-        $genzoFilter = \Module::getInstanceByName('genzo_filter');
-        if (!is_object($genzoFilter) || !method_exists($genzoFilter, 'getProducts')) {
+        if (!\Module::isEnabled('genzo_filter')) {
             return [];
         }
 
-        $genzoFilter->orderBy = '';
-        $genzoFilter->orderWay = '';
-        $genzoFilter->orderSql = '';
-        $genzoFilter->limit = $effectiveLimit;
-        $genzoFilter->entity_type = trim((string)$entityType);
-        $genzoFilter->id_entity = (int)$idEntity;
-        $genzoFilter->ids_product = $idsProductNormalized;
-        $genzoFilter->offset = 0;
-        $genzoFilter->filters = [];
+        require_once _PS_MODULE_DIR_ . 'genzo_filter/autoload.php';
+        if (!class_exists('\FilterListingService')) {
+            return [];
+        }
 
-        $products = (array)$genzoFilter->getProducts('products');
+        $state = \FilterListingService::forProductList(trim((string)$entityType), (int)$idEntity, [], $idsProductNormalized, $effectiveLimit);
+        $products = (array)\FilterListingService::getProducts($state, \FilterProductsService::MODE_PRODUCTS);
         if (empty($products)) {
             return [];
         }
