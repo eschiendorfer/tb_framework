@@ -5,7 +5,7 @@ require_once(dirname(__FILE__) . '/CardProductDataBridge.php');
 require_once(dirname(__FILE__) . '/CardDefaultDataBridge.php');
 require_once(dirname(__FILE__) . '/CardTeaserDataBridge.php');
 
-class CardShortcode implements \ShortcodeModule\ShortcodeInterface
+class CardShortcode implements \ShortcodeModule\ShortcodeInterface, \ShortcodeModule\CustomerContentEditShortcodeInterface
 {
     private const SHORTCODE_NAME = 'card';
     private const COMPONENT_TYPE = 'card';
@@ -212,6 +212,10 @@ class CardShortcode implements \ShortcodeModule\ShortcodeInterface
             return '';
         }
 
+        if ($outputMode === \ShortcodeModule\ShortcodeOutputMode::CUSTOMER_CONTENT_EDIT->value) {
+            return self::resolveCustomerContentEditUrl($params, $componentName, $entityType, $data);
+        }
+
         if ($outputMode === \ShortcodeModule\ShortcodeOutputMode::TEXT->value) {
             return self::buildTextOutput($componentName, $data);
         }
@@ -221,6 +225,67 @@ class CardShortcode implements \ShortcodeModule\ShortcodeInterface
         }
 
         return $component::fetchWeb($data, $style);
+    }
+
+    public function renderCustomerContentEdit(array $params, string $channel, array $context = []): string
+    {
+        $componentChannel = self::resolveComponentChannel($channel);
+        $componentName = self::resolveComponentName($params, $componentChannel);
+        if (self::resolveAllowedComponent($componentName, $componentChannel) === null) {
+            return '';
+        }
+
+        $entityType = trim(strtolower((string)($params['entity_type'] ?? '')));
+        if (!self::isEntityTypeAllowedForComponent($componentName, $entityType)) {
+            return '';
+        }
+
+        $idEntityRaw = trim((string)($params['id_entity'] ?? ''));
+        $data = self::resolveDataByComponent($componentName, $entityType, $idEntityRaw, $params, $componentChannel);
+        if (empty($data)) {
+            return '';
+        }
+
+        return self::resolveCustomerContentEditUrl($params, $componentName, $entityType, $data);
+    }
+
+    private static function resolveCustomerContentEditUrl(
+        array $params,
+        string $componentName,
+        string $entityType,
+        array $data
+    ): string {
+        if (!self::isAutomaticProductTeaser($params, $componentName, $entityType)) {
+            return '';
+        }
+
+        $url = trim((string)($data['link']['url'] ?? ''));
+        if (!self::isCustomerContentUrl($url)) {
+            return '';
+        }
+
+        return $url;
+    }
+
+    private static function isAutomaticProductTeaser(array $params, string $componentName, string $entityType): bool
+    {
+        if ($componentName !== self::COMPONENT_CARD_TEASER || $entityType !== self::ENTITY_TYPE_PRODUCT) {
+            return false;
+        }
+
+        $expectedKeys = ['entity_type' => true, 'id_entity' => true, 'name' => true];
+        foreach ($params as $key => $value) {
+            if (!isset($expectedKeys[(string)$key])) {
+                return false;
+            }
+        }
+
+        return isset($params['id_entity']) && (int)$params['id_entity'] > 0;
+    }
+
+    private static function isCustomerContentUrl(string $value): bool
+    {
+        return (bool)preg_match('#^https://[^\s<>"\']+$#i', $value);
     }
 
     private static function resolveDataByComponent(
