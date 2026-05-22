@@ -91,7 +91,7 @@ class tb_framework extends Module
         return "<div>Watch the Elements & Componets: <a href='{$link}' target='_blank'>{$link}</a></div>";
 	}
 
-
+	
 	// Hooks
     public function hookModuleRoutes() {
 
@@ -164,6 +164,10 @@ class tb_framework extends Module
         foreach ($tabs as $module => $hooks) {
             if (is_array($hooks) && !empty($hooks)) {
                 foreach ($hooks as $hook => $tabs) {
+                    // Keep SEO and community content on the main listing page to avoid duplicate pagination content.
+                    if ($hook === 'displayBottomColumn' && (int)Tools::getValue('offset') > 0) {
+                        continue;
+                    }
 
                     // Todo: Do a validation before and make a clean structure
                     foreach ($tabs as $tab) {
