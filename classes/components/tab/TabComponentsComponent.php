@@ -10,11 +10,9 @@ class TabComponentsComponent extends ComponentDefinition {
 
     public function validate(array &$data): void {
         if (isset($data['displayProductTab']) && $data['displayProductTab']) {
-            $backupAlreadyCalledType = FrameworkController::$alreadyCalledType;
-            $backupAlreadyCalledComponent = FrameworkController::$alreadyCalledComponent;
+            $renderStateSnapshot = FrameworkRenderState::snapshotCallTracking();
 
-            FrameworkController::$alreadyCalledType = [];
-            FrameworkController::$alreadyCalledComponent = [];
+            FrameworkRenderState::resetCallTracking();
 
             $displayProductTabs = Hook::exec('displayProductTab', [], null, true);
             $displayProductsTabContents = Hook::exec('displayProductTabContent', ['id_product' => $data['id_product']], null, true);
@@ -26,8 +24,7 @@ class TabComponentsComponent extends ComponentDefinition {
                 ];
             }
 
-            FrameworkController::$alreadyCalledType = $backupAlreadyCalledType;
-            FrameworkController::$alreadyCalledComponent = $backupAlreadyCalledComponent;
+            FrameworkRenderState::restoreCallTracking($renderStateSnapshot);
         }
 
         $display_set = false;

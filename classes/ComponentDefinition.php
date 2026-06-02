@@ -2,7 +2,7 @@
 
 require_once(dirname(__FILE__).'/enums/ComponentChannel.php');
 require_once(dirname(__FILE__).'/FrameworkRegistry.php');
-require_once(dirname(__DIR__).'/controllers/front/FrameworkController.php');
+require_once(dirname(__FILE__).'/FrameworkRenderState.php');
 
 abstract class ComponentDefinition {
     protected const TYPE = '';
@@ -67,14 +67,14 @@ abstract class ComponentDefinition {
 
         $context->smarty->assign([
             'component' => $data,
-            'first_call' => !isset(FrameworkController::$alreadyCalledComponent[$instance->getName().$channel->value.$resolvedStyle]),
-            'first_call_type' => !isset(FrameworkController::$alreadyCalledType[$instance->getType().$channel->value]),
+            'first_call' => FrameworkRenderState::isFirstComponentCall($instance->getName(), $channel, $resolvedStyle),
+            'first_call_type' => FrameworkRenderState::isFirstTypeCall($instance->getType(), $channel),
         ]);
 
         FrameworkRegistry::assignCssSelectorsToSmarty();
 
-        FrameworkController::$alreadyCalledComponent[$instance->getName().$channel->value.$resolvedStyle] = true;
-        FrameworkController::$alreadyCalledType[$instance->getType().$channel->value] = true;
+        FrameworkRenderState::markComponentCalled($instance->getName(), $channel, $resolvedStyle);
+        FrameworkRenderState::markTypeCalled($instance->getType(), $channel);
 
         $templatePath = self::resolveTemplatePath($instance->getTemplatePath($channel, $resolvedStyle), $instance->getName());
         $htmlElement = $context->smarty->fetch($templatePath);
@@ -383,14 +383,6 @@ abstract class ComponentDefinition {
     }
 
     private static function setUniqueId(array &$data, string $componentName): void {
-        if (!isset($data['id']) || !$data['id']) {
-            do {
-                $unique_id = $componentName.'_'.time().'_'.rand(10000,99999);
-            } while (in_array($unique_id, FrameworkController::$ids_unique, true));
-
-            $data['id'] = $unique_id;
-        }
-
-        FrameworkController::$ids_unique[] = $data['id'];
+        FrameworkRenderState::ensureUniqueId($data, $componentName);
     }
 }

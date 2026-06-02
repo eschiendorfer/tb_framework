@@ -3,7 +3,6 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-require_once(dirname(__FILE__).'/controllers/front/FrameworkController.php');
 require_once(dirname(__FILE__).'/autoload.php');
 
 class tb_framework extends Module
@@ -16,7 +15,7 @@ class tb_framework extends Module
 	function __construct() {
 		$this->name = 'tb_framework';
 		$this->tab = 'front_office_features';
-		$this->version = '1.0';
+		$this->version = '1.0.1';
 		$this->author = 'Emanuel Schiendorfer';
 		$this->need_instance = 0;
 
@@ -29,16 +28,6 @@ class tb_framework extends Module
 		$this->displayName = $this->l('ThirtyBees FO Framework');
 		$this->description = $this->l('Render FO Elements/Components easily with this framework.');
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
-
-        if ($this->id && method_exists($this, 'isRegisteredInHook')) {
-            if ((int)Hook::getIdByName('actionRegisterAutoloader') > 0 && !$this->isRegisteredInHook('actionRegisterAutoloader')) {
-                $this->registerHook('actionRegisterAutoloader');
-            }
-
-            if ((int)Hook::getIdByName(self::SHORTCODE_REGISTRATION_HOOK) > 0 && !$this->isRegisteredInHook(self::SHORTCODE_REGISTRATION_HOOK)) {
-                $this->registerHook(self::SHORTCODE_REGISTRATION_HOOK);
-            }
-        }
 
 	}
 
@@ -201,18 +190,17 @@ class tb_framework extends Module
 
     }
 
-    // Compatibility
-    private function fakeTranslations() {
-        // Note: we don't use ModuleFrontController in FrameworkController
-        // This seems to make problems for translations if they are loaded by static methods
-        // That's why we call here each string from FrameworkController::formatDateToTimeElapsed()
-        $this->l('%d years ago');
-        $this->l('%d months ago');
-        $this->l('%d days ago');
-        $this->l('%d hours ago');
-        $this->l('%d minutes ago');
-        $this->l('%d seconds ago');
-        $this->l('just now');
+    /**
+     * Used by the Back Office translation scanner. Runtime translation happens in FrameworkDateFormatter.
+     */
+    private function registerStaticFormatterTranslations() {
+        $this->l('%d years ago', 'FrameworkDateFormatter');
+        $this->l('%d months ago', 'FrameworkDateFormatter');
+        $this->l('%d days ago', 'FrameworkDateFormatter');
+        $this->l('%d hours ago', 'FrameworkDateFormatter');
+        $this->l('%d minutes ago', 'FrameworkDateFormatter');
+        $this->l('%d seconds ago', 'FrameworkDateFormatter');
+        $this->l('just now', 'FrameworkDateFormatter');
     }
 
 }

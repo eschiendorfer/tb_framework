@@ -14,13 +14,23 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
 
     }
 
+    public function init() {
+
+        parent::init();
+
+        if (!$this->hasFrameworkAccess()) {
+            Tools::redirect('index.php?controller=404');
+        }
+
+    }
+
     public function initContent() {
 
         parent::initContent();
 
-        $type = pSQL(Tools::getValue('type'));
-        $component = (bool)(Tools::getValue('component'));
-        $style = pSQL(Tools::getValue('style'));
+        $type = $this->resolveRequestedType();
+        $component = (bool)(int)Tools::getValue('component');
+        $style = (string)Tools::getValue('style');
 
         $this->context->smarty->assign(array(
             'nobots' => true, // Google shouldn't index this pages -> if we still see a lot of page hits, it's likely a bad crawler or hacking attempt
@@ -89,11 +99,67 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             ));
         }
 
-        if (file_exists(_PS_MODULE_DIR_."tb_framework/views/templates/helper/{$type}.tpl")) {
-            return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/{$type}.tpl");
+        $typeTemplate = _PS_MODULE_DIR_.'tb_framework/views/templates/helper/'.$type.'.tpl';
+        if (file_exists($typeTemplate)) {
+            return $this->context->smarty->fetch($typeTemplate);
         }
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/components.tpl");
+    }
+
+    private function resolveRequestedType(): string {
+        $type = trim((string)Tools::getValue('type'));
+        if ($type === '') {
+            return '';
+        }
+
+        if (!preg_match('/^[a-z0-9_]+$/', $type)) {
+            Tools::redirect('index.php?controller=404');
+        }
+
+        if (!in_array($type, $this->getAvailableFrameworkTypes(), true)) {
+            Tools::redirect('index.php?controller=404');
+        }
+
+        return $type;
+    }
+
+    private function getAvailableFrameworkTypes(): array {
+        $types = [];
+
+        foreach (FrameworkRegistry::all() as $component) {
+            $type = $component->getType();
+            if ($type === '') {
+                continue;
+            }
+
+            if (!preg_match('/^[a-z0-9_]+$/', $type)) {
+                continue;
+            }
+
+            $types[$type] = true;
+        }
+
+        return array_keys($types);
+    }
+
+    private function hasFrameworkAccess(): bool {
+        if (!empty($this->context->employee) && Validate::isLoadedObject($this->context->employee)) {
+            return true;
+        }
+
+        if (empty($this->context->customer) || !Validate::isLoadedObject($this->context->customer)) {
+            return false;
+        }
+
+        if (!class_exists('SpielezarHelper')) {
+            return false;
+        }
+
+        $idCustomer = (int)$this->context->customer->id;
+
+        return SpielezarHelper::checkIfTeamMember($idCustomer)
+            || SpielezarHelper::checkIfCustomerIsEmployeeWithInvoiceRights($idCustomer);
     }
 
     private function buildComponentNavigation() {
