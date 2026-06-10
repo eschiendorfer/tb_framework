@@ -6,7 +6,7 @@ require_once(dirname(__DIR__, 2).'/components/imagecloud/ImagecloudAvatarCompone
 class MessagePreviewComponent extends ComponentDefinition {
     protected const TYPE = 'message';
     protected const NAME = 'message_preview';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {

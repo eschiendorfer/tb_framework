@@ -5,50 +5,49 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ImagecloudDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'imagecloud';
     protected const NAME = 'imagecloud_default';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
+    protected const STYLES = ['default', 'compact'];
+    protected const TEMPLATE_PATHS_BY_STYLE = [
+        'web' => [
+            'default' => 'component/imagecloud/web/imagecloud_default.tpl',
+            'compact' => 'component/imagecloud/web/imagecloud_default/imagecloud_default_compact.tpl',
+        ],
+    ];
 
     public function validate(array &$data): void {
+        if (!isset($data['items']) || !is_array($data['items'])) {
+            $data['items'] = [];
+        }
     }
 
     public function getDemoData(): array {
-        // Todo: how to know how many elements are showed? -> the theme needs to tell
-        $manufacturers = Manufacturer::getManufacturers(false, 1, true, 1, 12);
-
-        $data = [
+        $items = [
             [
-                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
                 'title' => 'Boardgames',
+                'image' => ['src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg'],
                 'link' => ['url' => '#'],
             ],
             [
-                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
                 'title' => 'Card Games',
+                'image' => ['src' => _THEME_DIR_.'/img/icons/colored/cardgame.svg'],
                 'link' => ['url' => '#'],
             ],
             [
-                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
                 'title' => 'Collectibles',
+                'image' => ['src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg'],
                 'link' => ['url' => '#'],
             ],
             [
-                'src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg',
                 'title' => 'Chess',
+                'image' => ['src' => _THEME_DIR_.'/img/icons/colored/boardgame.svg'],
                 'link' => ['url' => '#'],
             ],
         ];
 
-        /*foreach ($manufacturers as $manufacturer) {
-            $data[] = [
-                'src' => __PS_BASE_URI__ . 'img/m/' . (int) $manufacturer['id_manufacturer'] . '.jpg',
-                'title' => $manufacturer['name'],
-                'link' => ['url' => $this->context->link->getManufacturerLink($manufacturer['id_manufacturer'])],
-            ];
-        }*/
-
         return [
             'title' => 'Handcrafted Brands',
-            'data' => $data,
+            'items' => $items,
             'button' => [
                 'title' => 'View All Brands',
                 'link'  => ['url' => '#'],
@@ -57,6 +56,3 @@ class ImagecloudDefaultComponent extends ComponentDefinition {
         ];
     }
 }
-
-
-

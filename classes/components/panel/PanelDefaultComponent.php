@@ -8,7 +8,7 @@ class PanelDefaultComponent extends ComponentDefinition
 {
     protected const TYPE = 'panel';
     protected const NAME = 'panel_default';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const ASSET_FILES_BY_STYLE = [
         'default' => [

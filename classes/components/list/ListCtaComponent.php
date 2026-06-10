@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ListCtaComponent extends ComponentDefinition {
     protected const TYPE = 'list';
     protected const NAME = 'list_cta';
-    protected const CHANNELS = [ComponentChannel::WEB, ComponentChannel::EMAIL];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB, \CoreExtension\OutputChannelEnum::EMAIL];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
@@ -31,7 +31,6 @@ class ListCtaComponent extends ComponentDefinition {
             $manufacturer = $product['manufacturer'] ? ' from '.$product['manufacturer'] : '';
             $productLink = $context->link->getProductLink($product['id_product']);
 
-            // Info: that is the correct structure of one row
             $data[] = [
                 'img' => $context->link->getImageLink($product['link_rewrite'], Product::getCover($product['id_product'])['id_image'], 'small_default'),
                 'title' => $product['name'],
@@ -41,7 +40,6 @@ class ListCtaComponent extends ComponentDefinition {
                     'title' => 'View',
                     'link' => ['url' => $productLink],
                 ],
-                'element_columns' => []
             ];
         }
 

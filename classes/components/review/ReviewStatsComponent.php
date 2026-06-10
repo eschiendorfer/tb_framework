@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ReviewStatsComponent extends ComponentDefinition {
     protected const TYPE = 'review';
     protected const NAME = 'review_stats';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {

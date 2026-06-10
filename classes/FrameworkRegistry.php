@@ -1,11 +1,9 @@
 <?php
 
-require_once(dirname(__FILE__).'/enums/ComponentChannel.php');
 require_once(dirname(__FILE__).'/ComponentDefinition.php');
 
 class FrameworkRegistry {
     private static ?array $components = null;
-    private static ?array $cssSelectors = null;
 
     private static function build(): array {
         $components = [];
@@ -27,8 +25,13 @@ class FrameworkRegistry {
             $before = get_declared_classes();
             require_once $file;
             $after = get_declared_classes();
+            $candidateClasses = array_unique(array_merge(array_diff($after, $before), [$fileInfo->getBasename('.php')]));
 
-            foreach (array_diff($after, $before) as $className) {
+            foreach ($candidateClasses as $className) {
+                if (!class_exists($className, false)) {
+                    continue;
+                }
+
                 if (!is_subclass_of($className, ComponentDefinition::class)) {
                     continue;
                 }
@@ -64,7 +67,7 @@ class FrameworkRegistry {
         return null;
     }
 
-    public static function getByChannel(ComponentChannel $channel): array {
+    public static function getByChannel(\CoreExtension\OutputChannelEnum $channel): array {
         $components = [];
 
         foreach (self::all() as $component) {
@@ -76,45 +79,4 @@ class FrameworkRegistry {
         return $components;
     }
 
-    public static function getAllCssSelectors(): array {
-        if (self::$cssSelectors !== null) {
-            return self::$cssSelectors;
-        }
-
-        $smartyCssSelectors = [];
-
-        foreach (self::all() as $component) {
-            if (!in_array(ComponentChannel::CSS_CLASSES, $component->getChannels(), true)) {
-                continue;
-            }
-
-            if (!method_exists($component, 'getCssSelector')) {
-                continue;
-            }
-
-            foreach ($component->getStyles() as $style) {
-                $styleSelector = $component->getCssSelector($style);
-                if (!$styleSelector) {
-                    continue;
-                }
-
-                $smartyCssSelectors[$component->getName()][$style] = $styleSelector;
-            }
-        }
-
-        self::$cssSelectors = $smartyCssSelectors;
-        return self::$cssSelectors;
-    }
-
-    public static function assignCssSelectorsToSmarty(): void {
-        $context = Context::getContext();
-
-        if (!isset($context->smarty)) {
-            return;
-        }
-
-        if (!isset($context->smarty->tpl_vars['css_selector'])) {
-            $context->smarty->assign('css_selector', self::getAllCssSelectors());
-        }
-    }
 }

@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ModalLoginComponent extends ComponentDefinition {
     protected const TYPE = 'modal';
     protected const NAME = 'modal_login';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const STYLES = ['default', 'checkout'];
     protected const TEMPLATE_PATHS_BY_STYLE = [

@@ -1,0 +1,26 @@
+{
+  "sections": [
+    {
+      "title": "Puzzles",
+      "items": [
+        {
+          "title": "Können Einzelteile nachbestellt werden?",
+          "content": "Ja, wenn der Hersteller Ersatzteile anbietet."
+        }
+      ]
+    },
+    {
+      "title": "Allgemein",
+      "items": [
+        {
+          "title": "Wie schnell ist der Versand?",
+          "content": "Lagerartikel werden in der Regel schnell verschickt."
+        },
+        {
+          "title": "Kann ich auf Rechnung kaufen?",
+          "content": "Für berechtigte Kunden ist Rechnungskauf möglich."
+        }
+      ]
+    }
+  ]
+}

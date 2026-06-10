@@ -1,101 +1,105 @@
 <?php
 
-class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
+require_once(dirname(__FILE__).'/../../classes/FrameworkCatalogBuilder.php');
 
+class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
     public $errors;
 
     public function __construct() {
-
         parent::__construct();
 
-        // Disable left and right column
         $this->display_column_left = false;
         $this->display_column_right = false;
-
     }
 
     public function init() {
-
         parent::init();
 
-        if (!$this->hasFrameworkAccess()) {
+        if (!$this->isCurrentCustomerAllowedToViewFramework()) {
             Tools::redirect('index.php?controller=404');
         }
-
     }
 
     public function initContent() {
-
         parent::initContent();
 
-        $type = $this->resolveRequestedType();
+        CssTokenRegistry::assignCssSelectorsToSmarty();
+
+        $catalogBuilder = new FrameworkCatalogBuilder();
+        $catalogItems = $catalogBuilder->all();
+        $selectedChannels = $this->resolveSelectedChannels();
+        $selectedDataInputModes = $this->resolveSelectedDataInputModes();
+        $availableTargetEntityTypeKeys = $catalogBuilder->getAvailableTargetEntityTypeKeys($catalogItems);
+        $selectedTargetEntityTypeKeys = $this->resolveSelectedTargetEntityTypeKeys($availableTargetEntityTypeKeys);
+        $selectedCatalogKind = $this->resolveSelectedCatalogKind();
+        $filteredCatalogItems = $catalogBuilder->filterItems(
+            $catalogItems,
+            $selectedChannels,
+            $selectedDataInputModes,
+            $selectedTargetEntityTypeKeys
+        );
+        $visibleCatalogItems = $this->filterItemsByKind($filteredCatalogItems, $selectedCatalogKind);
+        $type = $this->resolveRequestedType($catalogBuilder->getAvailableTypes($catalogItems));
         $component = (bool)(int)Tools::getValue('component');
-        $style = (string)Tools::getValue('style');
 
         $this->context->smarty->assign(array(
-            'nobots' => true, // Google shouldn't index this pages -> if we still see a lot of page hits, it's likely a bad crawler or hacking attempt
-            'nofollow' => true, // Google shouldn't indes this pages -> if we still see a lot of page hits, it's likely a bad crawler or hacking attempt
+            'nobots' => true,
+            'nofollow' => true,
             'meta_title' => 'TB FrontOffice Framework',
-            'meta_description' => 'bla',
-            'site_title' => 'TB Framework (Beta)',
-            'site_description' => 'CSS returns just classnames, while Web and Mail return full html components',
+            'meta_description' => 'Internal Framework for spielezar.ch',
+            'site_title' => 'TB Framework',
+            'site_description' => 'HTML-Komponenten und CSS-Klassen fuer Frontoffice und Mail.',
             'site_image' => '',
-            'framework_content' => $type ? $this->renderFrameworkContentByType($type, $component, $style) : '',
-            'framework_component_navigation' => $this->buildComponentNavigation(),
+            'framework_content' => $type ? $this->renderFrameworkContentByType(
+                $catalogBuilder,
+                $visibleCatalogItems,
+                $type,
+                $component,
+                $selectedChannels,
+                $selectedDataInputModes,
+                $selectedTargetEntityTypeKeys
+            ) : '',
+            'framework_navigation_sections' => $this->buildNavigationSections(
+                $filteredCatalogItems,
+                $selectedChannels,
+                $selectedDataInputModes,
+                $selectedTargetEntityTypeKeys,
+                $type,
+                $selectedCatalogKind
+            ),
+            'framework_channel_filters' => $this->buildChannelFilterOptions($selectedChannels),
+            'framework_data_input_filters' => $this->buildDataInputModeFilterOptions($selectedDataInputModes),
+            'framework_target_entity_filters' => $this->buildTargetEntityFilterOptions(
+                $availableTargetEntityTypeKeys,
+                $selectedTargetEntityTypeKeys
+            ),
+            'framework_current_type' => $type,
+            'framework_current_component' => $component,
+            'framework_current_kind' => $selectedCatalogKind ? $selectedCatalogKind->value : '',
         ));
 
         $this->setTemplate('framework.tpl');
     }
 
-
-    private function renderFrameworkContentByType($type, $component = false, $style = '') {
-
+    private function renderFrameworkContentByType(
+        FrameworkCatalogBuilder $catalogBuilder,
+        array $catalogItems,
+        string $type,
+        bool $component,
+        array $selectedChannels,
+        array $selectedDataInputModes,
+        array $selectedTargetEntityTypeKeys
+    ) {
         if ($component) {
-            $componentsMap = [];
-
-            foreach (FrameworkRegistry::all() as $registeredComponent) {
-                if ($registeredComponent->getType() !== $type) {
-                    continue;
-                }
-
-                $styles = method_exists($registeredComponent, 'getStyles')
-                    ? $registeredComponent->getStyles()
-                    : ['default'];
-
-                foreach ($registeredComponent->getChannels() as $channel) {
-                    foreach ($styles as $componentStyle) {
-                        $output = $registeredComponent::fetchDemo($channel, $componentStyle);
-
-                        if ($channel === ComponentChannel::CSS_CLASSES) {
-                            $className = htmlspecialchars((string)$output, ENT_QUOTES, 'UTF-8');
-                            $componentName = htmlspecialchars($registeredComponent->getName(), ENT_QUOTES, 'UTF-8');
-                            $output = '<span class="'.$className.'">'.$componentName.'</span>';
-                        }
-
-                        $channelName = strtoupper($channel->value);
-                        $componentKey = $registeredComponent->getName().'_'.$channelName;
-
-                        if (!isset($componentsMap[$componentKey])) {
-                            $componentsMap[$componentKey] = [
-                                'name' => $registeredComponent->getName(),
-                                'channel' => $channelName,
-                                'variants' => [],
-                            ];
-                        }
-
-                        $componentsMap[$componentKey]['variants'][] = [
-                            'style' => $componentStyle,
-                            'output' => $output,
-                        ];
-                    }
-                }
-            }
-
-            $components = array_values($componentsMap);
-
             $this->context->smarty->assign(array(
-                'title' => ucwords($type),
-                'components' => $components,
+                'title' => $this->formatTypeLabel($type),
+                'components' => $catalogBuilder->buildPreviewGroups(
+                    $catalogItems,
+                    $type,
+                    $selectedChannels,
+                    $selectedDataInputModes,
+                    $selectedTargetEntityTypeKeys
+                ),
             ));
         }
 
@@ -104,10 +108,10 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             return $this->context->smarty->fetch($typeTemplate);
         }
 
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_."tb_framework/views/templates/helper/components.tpl");
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_.'tb_framework/views/templates/helper/components.tpl');
     }
 
-    private function resolveRequestedType(): string {
+    private function resolveRequestedType(array $availableTypes): string {
         $type = trim((string)Tools::getValue('type'));
         if ($type === '') {
             return '';
@@ -117,37 +121,14 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             Tools::redirect('index.php?controller=404');
         }
 
-        if (!in_array($type, $this->getAvailableFrameworkTypes(), true)) {
+        if (!in_array($type, $availableTypes, true)) {
             Tools::redirect('index.php?controller=404');
         }
 
         return $type;
     }
 
-    private function getAvailableFrameworkTypes(): array {
-        $types = [];
-
-        foreach (FrameworkRegistry::all() as $component) {
-            $type = $component->getType();
-            if ($type === '') {
-                continue;
-            }
-
-            if (!preg_match('/^[a-z0-9_]+$/', $type)) {
-                continue;
-            }
-
-            $types[$type] = true;
-        }
-
-        return array_keys($types);
-    }
-
-    private function hasFrameworkAccess(): bool {
-        if (!empty($this->context->employee) && Validate::isLoadedObject($this->context->employee)) {
-            return true;
-        }
-
+    private function isCurrentCustomerAllowedToViewFramework(): bool {
         if (empty($this->context->customer) || !Validate::isLoadedObject($this->context->customer)) {
             return false;
         }
@@ -162,49 +143,362 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             || SpielezarHelper::checkIfCustomerIsEmployeeWithInvoiceRights($idCustomer);
     }
 
-    private function buildComponentNavigation() {
-        $navigation = [];
+    private function buildNavigationSections(
+        array $catalogItems,
+        array $selectedChannels,
+        array $selectedDataInputModes,
+        array $selectedTargetEntityTypeKeys,
+        string $currentType,
+        ?FrameworkCatalogItemKindEnum $selectedCatalogKind
+    ): array {
+        $sections = [
+            FrameworkCatalogItemKindEnum::COMPONENT->value => [
+                'kind' => FrameworkCatalogItemKindEnum::COMPONENT->value,
+                'label' => 'Components',
+                'items' => [],
+            ],
+            FrameworkCatalogItemKindEnum::CSS_TOKEN->value => [
+                'kind' => FrameworkCatalogItemKindEnum::CSS_TOKEN->value,
+                'label' => 'CSS Tokens',
+                'items' => [],
+            ],
+        ];
 
-        foreach (FrameworkRegistry::all() as $component) {
-            $type = $component->getType();
-            $channels = $component->getChannels();
+        foreach ($catalogItems as $item) {
+            if (!$item instanceof FrameworkCatalogItem) {
+                continue;
+            }
 
-            if (!isset($navigation[$type])) {
-                $navigation[$type] = [
+            $type = $item->getType();
+            if ($type === '') {
+                continue;
+            }
+
+            $sectionKey = $item->getKind()->value;
+            if (!isset($sections[$sectionKey]['items'][$type])) {
+                $sections[$sectionKey]['items'][$type] = [
                     'type' => $type,
-                    'label' => ucwords(str_replace('_', ' ', $type)),
-                    'has_web' => false,
-                    'has_email' => false,
-                    'has_css' => false,
-                    'route_type' => $type,
-                    'route_component' => 0,
+                    'kind' => $sectionKey,
+                    'label' => $this->formatTypeLabel($type),
+                    'count' => 0,
+                    'active' => $currentType === $type
+                        && $selectedCatalogKind !== null
+                        && $selectedCatalogKind === $item->getKind(),
+                    'url' => $this->context->link->getModuleLink(
+                        'tb_framework',
+                        'framework',
+                        $this->buildFrameworkRouteParams(
+                            $type,
+                            true,
+                            $selectedChannels,
+                            $selectedDataInputModes,
+                            $selectedTargetEntityTypeKeys,
+                            $item->getKind()
+                        )
+                    ),
                 ];
             }
 
-            if (in_array(ComponentChannel::WEB, $channels, true)) {
-                $navigation[$type]['has_web'] = true;
-                $navigation[$type]['route_type'] = $type;
-                $navigation[$type]['route_component'] = 1;
+            $sections[$sectionKey]['items'][$type]['count']++;
+        }
+
+        foreach ($sections as &$section) {
+            uasort($section['items'], function ($left, $right) {
+                return strcmp($left['label'], $right['label']);
+            });
+
+            $section['items'] = array_values($section['items']);
+        }
+        unset($section);
+
+        return array_values($sections);
+    }
+
+    private function resolveSelectedChannels(): array {
+        $requestedChannels = Tools::getValue('channels', null);
+
+        if ($requestedChannels === null || $requestedChannels === '') {
+            return [];
+        }
+
+        $requestedValues = is_array($requestedChannels)
+            ? $requestedChannels
+            : explode(',', (string)$requestedChannels);
+
+        $selectedChannels = [];
+        foreach ($requestedValues as $requestedValue) {
+            $channel = \CoreExtension\OutputChannelEnum::tryFrom(trim((string)$requestedValue));
+            if ($channel === null) {
+                continue;
             }
 
-            if (in_array(ComponentChannel::EMAIL, $channels, true)) {
-                $navigation[$type]['has_email'] = true;
-                $navigation[$type]['route_type'] = $type;
-                $navigation[$type]['route_component'] = 1;
+            $selectedChannels[$channel->value] = $channel;
+        }
+
+        return array_values($selectedChannels);
+    }
+
+    private function resolveSelectedDataInputModes(): array {
+        return $this->resolveSelectedEnumFilter(
+            'data_input_modes',
+            $this->getSelectableDataInputModes(),
+            \ShortcodeModule\ShortcodeDataInputModeEnum::class
+        );
+    }
+
+    private function resolveSelectedTargetEntityTypeKeys(array $availableTargetEntityTypeKeys): array {
+        $requestedValues = Tools::getValue('target_entities', null);
+
+        if ($requestedValues === null || $requestedValues === '') {
+            return [];
+        }
+
+        $requestedValueList = is_array($requestedValues)
+            ? $requestedValues
+            : explode(',', (string)$requestedValues);
+        $availableValues = array_flip($availableTargetEntityTypeKeys);
+        $selectedValues = [];
+
+        foreach ($requestedValueList as $requestedValue) {
+            $targetEntityTypeKey = strtolower(trim((string)$requestedValue));
+            if ($targetEntityTypeKey === '' || !isset($availableValues[$targetEntityTypeKey])) {
+                continue;
             }
 
-            if (in_array(ComponentChannel::CSS_CLASSES, $channels, true)) {
-                $navigation[$type]['has_css'] = true;
-                $navigation[$type]['route_type'] = $type;
-                $navigation[$type]['route_component'] = 1;
+            $selectedValues[$targetEntityTypeKey] = $targetEntityTypeKey;
+        }
+
+        $selectedValues = array_values($selectedValues);
+        sort($selectedValues);
+
+        $availableValuesSorted = $availableTargetEntityTypeKeys;
+        sort($availableValuesSorted);
+
+        if ($selectedValues === $availableValuesSorted) {
+            return [];
+        }
+
+        return $selectedValues;
+    }
+
+    private function resolveSelectedCatalogKind(): ?FrameworkCatalogItemKindEnum {
+        $catalogKind = trim((string)Tools::getValue('catalog_kind', ''));
+
+        if ($catalogKind === '') {
+            return null;
+        }
+
+        return FrameworkCatalogItemKindEnum::tryFrom($catalogKind);
+    }
+
+    private function filterItemsByKind(array $items, ?FrameworkCatalogItemKindEnum $catalogKind): array {
+        if ($catalogKind === null) {
+            return $items;
+        }
+
+        return array_values(array_filter(
+            $items,
+            static function (FrameworkCatalogItem $item) use ($catalogKind): bool {
+                return $item->getKind() === $catalogKind;
+            }
+        ));
+    }
+
+    private function resolveSelectedEnumFilter(
+        string $valueName,
+        array $supportedValues,
+        string $enumClass
+    ): array {
+        $requestedValues = Tools::getValue($valueName, null);
+
+        if ($requestedValues === null || $requestedValues === '') {
+            return [];
+        }
+
+        $requestedValueList = is_array($requestedValues)
+            ? $requestedValues
+            : explode(',', (string)$requestedValues);
+
+        $supportedValueMap = [];
+        foreach ($supportedValues as $supportedValue) {
+            if ($supportedValue instanceof BackedEnum) {
+                $supportedValueMap[$supportedValue->value] = true;
             }
         }
 
-        uasort($navigation, function ($left, $right) {
-            return strcmp($left['label'], $right['label']);
-        });
+        $selectedValues = [];
+        foreach ($requestedValueList as $requestedValue) {
+            $enumValue = $enumClass::tryFrom(trim((string)$requestedValue));
+            if ($enumValue === null) {
+                continue;
+            }
 
-        return array_values($navigation);
+            if (!isset($supportedValueMap[$enumValue->value])) {
+                continue;
+            }
+
+            $selectedValues[$enumValue->value] = $enumValue;
+        }
+
+        return array_values($selectedValues);
     }
 
+    private function buildChannelFilterOptions(array $selectedChannels): array {
+        $selectedChannelValues = array_flip($this->getChannelValues($selectedChannels));
+        $options = [];
+
+        foreach ($this->getSupportedChannels() as $channel) {
+            $options[] = [
+                'value' => $channel->value,
+                'label' => $this->getChannelLabel($channel),
+                'selected' => isset($selectedChannelValues[$channel->value]),
+            ];
+        }
+
+        return $options;
+    }
+
+    private function buildDataInputModeFilterOptions(array $selectedDataInputModes): array {
+        $selectedValues = array_flip($this->getDataInputModeValues($selectedDataInputModes));
+        $options = [];
+
+        foreach ($this->getSelectableDataInputModes() as $dataInputMode) {
+            $options[] = [
+                'value' => $dataInputMode->value,
+                'label' => $this->getDataInputModeLabel($dataInputMode),
+                'selected' => isset($selectedValues[$dataInputMode->value]),
+            ];
+        }
+
+        return $options;
+    }
+
+    private function buildTargetEntityFilterOptions(
+        array $availableTargetEntityTypeKeys,
+        array $selectedTargetEntityTypeKeys
+    ): array {
+        $selectedValues = array_flip($selectedTargetEntityTypeKeys);
+        $options = [];
+
+        foreach ($availableTargetEntityTypeKeys as $targetEntityTypeKey) {
+            $options[] = [
+                'value' => $targetEntityTypeKey,
+                'label' => $this->getTargetEntityTypeLabel($targetEntityTypeKey),
+                'selected' => isset($selectedValues[$targetEntityTypeKey]),
+            ];
+        }
+
+        return $options;
+    }
+
+    private function buildFrameworkRouteParams(
+        string $type,
+        bool $component,
+        array $selectedChannels,
+        array $selectedDataInputModes,
+        array $selectedTargetEntityTypeKeys,
+        ?FrameworkCatalogItemKindEnum $catalogKind = null
+    ): array {
+        $routeParams = [
+            'type' => $type,
+        ];
+
+        $selectedChannelValues = $this->getChannelValues($selectedChannels);
+        if (!empty($selectedChannelValues)) {
+            $routeParams['channels'] = implode(',', $selectedChannelValues);
+        }
+
+        $selectedDataInputModeValues = $this->getSelectableDataInputModeValues($selectedDataInputModes);
+        if (!empty($selectedDataInputModeValues)) {
+            $routeParams['data_input_modes'] = implode(',', $selectedDataInputModeValues);
+        }
+
+        if (!empty($selectedTargetEntityTypeKeys)) {
+            $routeParams['target_entities'] = implode(',', $selectedTargetEntityTypeKeys);
+        }
+
+        if ($catalogKind !== null) {
+            $routeParams['catalog_kind'] = $catalogKind->value;
+        }
+
+        if ($component) {
+            $routeParams['component'] = 1;
+        }
+
+        return $routeParams;
+    }
+
+    private function getSupportedChannels(): array {
+        return [
+            \CoreExtension\OutputChannelEnum::WEB,
+            \CoreExtension\OutputChannelEnum::EMAIL,
+        ];
+    }
+
+    private function getSelectableDataInputModes(): array {
+        return [
+            \ShortcodeModule\ShortcodeDataInputModeEnum::MANUAL,
+            \ShortcodeModule\ShortcodeDataInputModeEnum::JSON,
+            \ShortcodeModule\ShortcodeDataInputModeEnum::ENTITY,
+            \ShortcodeModule\ShortcodeDataInputModeEnum::ENTITY_COLLECTION,
+        ];
+    }
+
+    private function getChannelValues(array $channels): array {
+        return array_map(
+            static function (\CoreExtension\OutputChannelEnum $channel): string {
+                return $channel->value;
+            },
+            $channels
+        );
+    }
+
+    private function getDataInputModeValues(array $dataInputModes): array {
+        return array_map(
+            static function (\ShortcodeModule\ShortcodeDataInputModeEnum $dataInputMode): string {
+                return $dataInputMode->value;
+            },
+            $dataInputModes
+        );
+    }
+
+    private function getSelectableDataInputModeValues(array $dataInputModes): array {
+        $selectableDataInputModes = $this->getSelectableDataInputModes();
+
+        return $this->getDataInputModeValues(array_values(array_filter(
+            $dataInputModes,
+            static function (\ShortcodeModule\ShortcodeDataInputModeEnum $dataInputMode) use ($selectableDataInputModes): bool {
+                return in_array($dataInputMode, $selectableDataInputModes, true);
+            }
+        )));
+    }
+
+    private function getChannelLabel(\CoreExtension\OutputChannelEnum $channel): string {
+        return match ($channel) {
+            \CoreExtension\OutputChannelEnum::WEB => 'Web',
+            \CoreExtension\OutputChannelEnum::EMAIL => 'Mail',
+        };
+    }
+
+    private function getDataInputModeLabel(\ShortcodeModule\ShortcodeDataInputModeEnum $dataInputMode): string {
+        return $dataInputMode->getLabel();
+    }
+
+    private function getTargetEntityTypeLabel(string $targetEntityTypeKey): string {
+        return match ($targetEntityTypeKey) {
+            'none' => 'Ohne Entity',
+            'blog' => 'Blog',
+            'category' => 'Kategorie',
+            'cms' => 'CMS',
+            'customproductlist' => 'Custom Product List',
+            'event' => 'Event',
+            'manufacturer' => 'Hersteller',
+            'product' => 'Produkt',
+            default => $this->formatTypeLabel($targetEntityTypeKey),
+        };
+    }
+
+    private function formatTypeLabel(string $type): string {
+        return ucwords(str_replace(['_', '-'], ' ', $type));
+    }
 }

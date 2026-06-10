@@ -68,6 +68,11 @@ if (Tools::isSubmit('renderComponentWithAjax') && ($componentName = pSQL(Tools::
         die(false); // Likely a hacking attempt
     }
 
+    if ($componentName === 'toast') {
+        trigger_error('tb_framework: AJAX component name "toast" is deprecated. Use "toast_default" instead.', E_USER_WARNING);
+        $componentName = 'toast_default';
+    }
+
     $component = FrameworkRegistry::getByName($componentName);
     if (!$component) {
         die(false);

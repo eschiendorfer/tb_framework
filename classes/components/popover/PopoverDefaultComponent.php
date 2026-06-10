@@ -6,16 +6,18 @@ require_once(dirname(__DIR__).'/card/CardProductComponent.php');
 class PopoverDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'popover';
     protected const NAME = 'popover_default';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
         if (empty($data['item'])) {
-            die('popover item is empty');
+            trigger_error('tb_framework: PopoverDefaultComponent rendered without required "item" data.', E_USER_WARNING);
+            $data['item'] = '';
         }
 
         if (empty($data['popover_content'])) {
-            die('popover content is empty');
+            trigger_error('tb_framework: PopoverDefaultComponent rendered without required "popover_content" data.', E_USER_WARNING);
+            $data['popover_content'] = '';
         }
 
         if (empty($data['triggers_show']) || !is_array($data['triggers_show'])) {

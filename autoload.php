@@ -1,5 +1,9 @@
 <?php
 
+if (defined('_PS_MODULE_DIR_') && file_exists(_PS_MODULE_DIR_ . 'extending_core_files/ExtendingCoreFilesAutoloader.php')) {
+    require_once _PS_MODULE_DIR_ . 'extending_core_files/ExtendingCoreFilesAutoloader.php';
+}
+
 if (!class_exists('TbFrameworkAutoloader', false)) {
     final class TbFrameworkAutoloader {
         private static ?array $classMap = null;

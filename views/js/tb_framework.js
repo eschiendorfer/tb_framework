@@ -150,7 +150,7 @@ function initAjaxComponent(component, relative_element = document.body, relative
         // Note: there is no need to use addComponent() as this is already executed in the tpl file
         initComponent(js_component);
 
-        if (component.name === 'toast') {
+        if (component.name === 'toast_default' || component.name === 'toast') {
             setMaxZIndex(js_component); // This is needed in an edge case, when a toast is triggered on a modal, that has already used setMaxZIndex
         }
 
@@ -500,11 +500,15 @@ window.addEventListener('popstate', function (event) {
 
 function closeAllToasts() {
     // Close all old toasts
-    if (window.tb_framework.toast) {
-        window.tb_framework.toast.forEach(function (toast) {
+    ['toast_default', 'toast'].forEach(function (toastComponentName) {
+        if (!window.tb_framework[toastComponentName]) {
+            return;
+        }
+
+        window.tb_framework[toastComponentName].forEach(function (toast) {
             toast.close();
         });
-    }
+    });
 }
 
 // Allowing zooming of image

@@ -5,17 +5,21 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ButtonPrimaryComponent extends ComponentDefinition {
     protected const TYPE = 'button';
     protected const NAME = 'button_primary';
-    protected const CHANNELS = [ComponentChannel::CSS_CLASSES, ComponentChannel::EMAIL];
-    protected const SUPPORTS_CACHING = false;
-    protected const STYLES = ['default', 'small', 'large'];
-    protected const CSS_CLASSES_BY_STYLE = [
-        'default' => 'tbfw_button tbfw_button_primary',
-        'small' => 'tbfw_button tbfw_button_primary tbfw_button_small',
-        'large' => 'tbfw_button tbfw_button_primary tbfw_button_large',
+    protected const CHANNELS = [
+        \CoreExtension\OutputChannelEnum::WEB,
+        \CoreExtension\OutputChannelEnum::EMAIL,
     ];
+    protected const STYLES = ['default', 'small', 'large'];
+    protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
+        $data['href'] = trim((string)($data['href'] ?? ''));
+        $data['title'] = trim((string)($data['title'] ?? ''));
+        $data['target'] = trim((string)($data['target'] ?? ''));
 
+        if ($data['title'] === '' && $data['href'] !== '') {
+            $data['title'] = $data['href'];
+        }
     }
 
     public function getDemoData(): array {

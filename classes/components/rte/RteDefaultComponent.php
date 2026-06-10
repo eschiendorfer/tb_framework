@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class RteDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'rte';
     protected const NAME = 'rte_default';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     private const DEFAULT_FEATURES = ['bold', 'bullet', 'emoji', 'mention', 'youtube', 'link', 'image', 'attachment'];
     private const ALLOWED_FEATURES = ['bold', 'bullet', 'emoji', 'mention', 'youtube', 'link', 'image', 'attachment', 'poll'];

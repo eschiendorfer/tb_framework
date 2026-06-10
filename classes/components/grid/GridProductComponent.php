@@ -6,7 +6,7 @@ require_once(dirname(__DIR__).'/card/CardProductComponent.php');
 class GridProductComponent extends ComponentDefinition {
     protected const TYPE = 'grid';
     protected const NAME = 'grid_product';
-    protected const CHANNELS = [ComponentChannel::EMAIL];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::EMAIL];
     protected const SUPPORTS_CACHING = false;
     protected const TEMPLATE_PATHS_BY_STYLE = [
         'email' => [

@@ -1,6 +1,10 @@
 <?php
 
-require_once(dirname(__FILE__).'/enums/ComponentChannel.php');
+if (defined('_PS_MODULE_DIR_') && file_exists(_PS_MODULE_DIR_ . 'extending_core_files/ExtendingCoreFilesAutoloader.php')) {
+    require_once _PS_MODULE_DIR_ . 'extending_core_files/ExtendingCoreFilesAutoloader.php';
+}
+
+require_once(dirname(__FILE__).'/CssTokenRegistry.php');
 require_once(dirname(__FILE__).'/FrameworkRegistry.php');
 require_once(dirname(__FILE__).'/FrameworkRenderState.php');
 
@@ -11,7 +15,6 @@ abstract class ComponentDefinition {
     protected const SUPPORTS_CACHING = false;
     protected const DEFAULT_STYLE = 'default';
     protected const STYLES = ['default'];
-    protected const CSS_CLASSES_BY_STYLE = [];
     protected const TEMPLATE_PATHS_BY_STYLE = [];
     protected const ASSET_FILES_BY_STYLE = [];
     private static $registeredAssetUris = [];
@@ -43,17 +46,13 @@ abstract class ComponentDefinition {
         return static::NAME;
     }
 
-    private static function fetch(ComponentChannel $channel, array $data = [], string $style = '', bool $ajax = false)
+    private static function fetch(\CoreExtension\OutputChannelEnum $channel, array $data = [], string $style = '', bool $ajax = false)
     {
         $instance = new static();
         $resolvedStyle = $instance->normalizeStyle($style);
 
         if (!in_array($channel, $instance->getChannels(), true)) {
             throw new PrestaShopException("Channel {$channel->value} not supported for component {$instance->getName()}.");
-        }
-
-        if ($channel === ComponentChannel::CSS_CLASSES) {
-            return $instance->getCssSelector($resolvedStyle);
         }
 
         $context = Context::getContext();
@@ -71,7 +70,7 @@ abstract class ComponentDefinition {
             'first_call_type' => FrameworkRenderState::isFirstTypeCall($instance->getType(), $channel),
         ]);
 
-        FrameworkRegistry::assignCssSelectorsToSmarty();
+        CssTokenRegistry::assignCssSelectorsToSmarty();
 
         FrameworkRenderState::markComponentCalled($instance->getName(), $channel, $resolvedStyle);
         FrameworkRenderState::markTypeCalled($instance->getType(), $channel);
@@ -102,24 +101,15 @@ abstract class ComponentDefinition {
 
     public static function fetchWeb(array $data = [], string $style = '', bool $ajax = false)
     {
-        return static::fetch(ComponentChannel::WEB, $data, $style, $ajax);
+        return static::fetch(\CoreExtension\OutputChannelEnum::WEB, $data, $style, $ajax);
     }
 
     public static function fetchEmail(array $data = [], string $style = '', bool $ajax = false)
     {
-        return static::fetch(ComponentChannel::EMAIL, $data, $style, $ajax);
+        return static::fetch(\CoreExtension\OutputChannelEnum::EMAIL, $data, $style, $ajax);
     }
 
-    public static function fetchCssClasses($style = '')
-    {
-        if (!is_string($style)) {
-            $style = '';
-        }
-
-        return static::fetch(ComponentChannel::CSS_CLASSES, [], $style, false);
-    }
-
-    public static function fetchDemo(ComponentChannel $channel = ComponentChannel::WEB, string $style = '')
+    public static function fetchDemo(\CoreExtension\OutputChannelEnum $channel = \CoreExtension\OutputChannelEnum::WEB, string $style = '')
     {
         $instance = new static();
         $data = $instance->getDemoData();
@@ -157,23 +147,7 @@ abstract class ComponentDefinition {
         return array_values(array_unique($styles));
     }
 
-    public function getCssSelector(string $style = ''): ?string {
-        $resolvedStyle = $this->normalizeStyle($style);
-
-        $selector = $this->getCssSelectorByStyle($resolvedStyle);
-        if ($selector === null) {
-            return null;
-        }
-
-        $customSelector = $this->resolveCustomCssSelector($resolvedStyle);
-        if ($customSelector !== null && $customSelector !== '') {
-            return $customSelector;
-        }
-
-        return $selector;
-    }
-
-    public function getTemplatePath(ComponentChannel $channel, string $style = ''): string {
+    public function getTemplatePath(\CoreExtension\OutputChannelEnum $channel, string $style = ''): string {
         $resolvedStyle = $this->normalizeStyle($style);
         $channelValue = $channel->value;
 
@@ -308,61 +282,6 @@ abstract class ComponentDefinition {
     {
         $assetFile = ltrim(str_replace('\\', '/', trim($assetFile)), '/');
         return __PS_BASE_URI__.'modules/tb_framework/'.$assetFile;
-    }
-
-    private function getCssSelectorByStyle(string $style): ?string {
-        $supportsCssChannel = in_array(ComponentChannel::CSS_CLASSES, static::CHANNELS, true);
-
-        if ($supportsCssChannel && empty(static::CSS_CLASSES_BY_STYLE)) {
-            throw new PrestaShopException("Component {$this->getName()} must define CSS_CLASSES_BY_STYLE when CSS_CLASSES channel is enabled.");
-        }
-
-        if ($supportsCssChannel && !isset(static::CSS_CLASSES_BY_STYLE[static::DEFAULT_STYLE])) {
-            throw new PrestaShopException("Component {$this->getName()} must define CSS_CLASSES_BY_STYLE['default'] when CSS_CLASSES channel is enabled.");
-        }
-
-        if (isset(static::CSS_CLASSES_BY_STYLE[$style])) {
-            return static::CSS_CLASSES_BY_STYLE[$style];
-        }
-
-        if (isset(static::CSS_CLASSES_BY_STYLE[static::DEFAULT_STYLE])) {
-            return static::CSS_CLASSES_BY_STYLE[static::DEFAULT_STYLE];
-        }
-
-        return null;
-    }
-
-    private function resolveCustomCssSelector(string $style): ?string {
-        $configPath = _PS_THEME_DIR_.'config.xml';
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        $configObject = simplexml_load_file($configPath);
-        if (!$configObject || !isset($configObject->custom_css_selectors)) {
-            return null;
-        }
-
-        $defaultOverride = null;
-
-        foreach ($configObject->custom_css_selectors->custom_css_selector as $customCssSelector) {
-            if ((string)$customCssSelector['name'] !== static::NAME || !$customCssSelector['custom']) {
-                continue;
-            }
-
-            $selector = (string)$customCssSelector['custom'];
-            $selectorStyle = trim((string)$customCssSelector['style']);
-
-            if ($selectorStyle !== '' && $selectorStyle === $style) {
-                return $selector;
-            }
-
-            if ($selectorStyle === '' || $selectorStyle === static::DEFAULT_STYLE) {
-                $defaultOverride = $selector;
-            }
-        }
-
-        return $defaultOverride;
     }
 
     private static function templateExists(string $filePathRelative): bool {

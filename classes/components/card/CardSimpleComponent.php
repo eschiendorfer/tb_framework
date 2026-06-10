@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class CardSimpleComponent extends ComponentDefinition {
     protected const TYPE = 'card';
     protected const NAME = 'card_simple';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const STYLES = ['default', 'rounded'];
     protected const TEMPLATE_PATHS_BY_STYLE = [

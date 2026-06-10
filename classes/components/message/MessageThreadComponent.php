@@ -1,11 +1,12 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
+require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class MessageThreadComponent extends ComponentDefinition {
     protected const TYPE = 'message';
     protected const NAME = 'message_thread';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const STYLES = ['default', 'compact'];
 
@@ -14,37 +15,41 @@ class MessageThreadComponent extends ComponentDefinition {
 
     public function getDemoData(): array {
         // Todo: add functionality that transform date into '3 weeks ago'
+        $profiles = ImagecloudAvatarComponent::getKronaAvatarProfiles(3);
+        $firstProfile = $profiles[0] ?? [];
+        $secondProfile = $profiles[1] ?? [];
+        $thirdProfile = $profiles[2] ?? [];
 
         return [
             'messages' => [
                 [
-                    'id_customer' => 0,
+                    'id_customer' => (int)($firstProfile['id_customer'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => 'Frank',
+                    'alias'  => (string)($firstProfile['name'] ?? 'Frank'),
                     'date'   => '2022-10-18 21:12:32',
-                    'avatar' => 'https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'avatar' => (string)($firstProfile['avatar'] ?? ''),
                     'message' => 'Hello guys, how are you doing?',
                     'buttons' => '',
                     'respondings' => [],
                     'html' => '',
                 ],
                 [
-                    'id_customer' => 0,
+                    'id_customer' => (int)($secondProfile['id_customer'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => 'Melissa G.',
+                    'alias'  => (string)($secondProfile['name'] ?? 'Melissa G.'),
                     'date'   => '2022-10-19 05:06:51',
-                    'avatar' => 'https://images.unsplash.com/photo-1581624657276-5807462d0a3a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'avatar' => (string)($secondProfile['avatar'] ?? ''),
                     'message' => 'Doing great, thank you',
                     'buttons' => '',
                     'respondings' => [],
                     'html' => '',
                 ],
                 [
-                    'id_customer' => 0,
+                    'id_customer' => (int)($thirdProfile['id_customer'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => 'King Arthur',
+                    'alias'  => (string)($thirdProfile['name'] ?? 'King Arthur'),
                     'date'   => '2022-10-19 09:14:01',
-                    'avatar' => 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&faces=1&faceindex=1&facepad=2.5&w=500&h=500&q=80',
+                    'avatar' => (string)($thirdProfile['avatar'] ?? ''),
                     'message' => 'It\'s monday. What a stupid question...',
                     'buttons' => '',
                     'respondings' => [],

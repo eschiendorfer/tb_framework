@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class HeaderDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'header';
     protected const NAME = 'header_default';
-    protected const CHANNELS = [ComponentChannel::WEB, ComponentChannel::EMAIL];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB, \CoreExtension\OutputChannelEnum::EMAIL];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {

@@ -15,7 +15,7 @@ class tb_framework extends Module
 	function __construct() {
 		$this->name = 'tb_framework';
 		$this->tab = 'front_office_features';
-		$this->version = '1.0.1';
+		$this->version = '1.1.0';
 		$this->author = 'Emanuel Schiendorfer';
 		$this->need_instance = 0;
 
@@ -107,37 +107,52 @@ class tb_framework extends Module
 
     public function hookActionRegisterAutoloader() {
         require_once(dirname(__FILE__).'/autoload.php');
-        FrameworkRegistry::assignCssSelectorsToSmarty();
+        CssTokenRegistry::assignCssSelectorsToSmarty();
     }
 
     public function hookActionGenzoShortcodesRegister($params)
     {
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/BoxShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ButtonShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CarouselShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/HeaderShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ImagecloudcompactShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ListShortcode.php';
-        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ProductgridShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ComponentJsonDataLoader.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/AccordionDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/StatsBarChartHorizontalShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/BoxAccordionShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/BoxDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ButtonPrimaryShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardProductShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardPromoShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CardTeaserShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/CarouselDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/GridProductShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/HeaderDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ImagecloudDefaultShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/StatsLineChartShortcode.php';
+        require_once _PS_MODULE_DIR_ . 'tb_framework/classes/shortcodes/ListDefaultShortcode.php';
 
         return [
-            \BoxShortcode::class,
-            \ButtonShortcode::class,
-            \CarouselShortcode::class,
-            \CardShortcode::class,
-            \HeaderShortcode::class,
-            \ImagecloudcompactShortcode::class,
-            \ListShortcode::class,
-            \ProductgridShortcode::class,
+            \AccordionDefaultShortcode::class,
+            \StatsBarChartHorizontalShortcode::class,
+            \BoxAccordionShortcode::class,
+            \BoxDefaultShortcode::class,
+            \ButtonPrimaryShortcode::class,
+            \CardDefaultShortcode::class,
+            \CardProductShortcode::class,
+            \CardPromoShortcode::class,
+            \CardTeaserShortcode::class,
+            \CarouselDefaultShortcode::class,
+            \GridProductShortcode::class,
+            \HeaderDefaultShortcode::class,
+            \ImagecloudDefaultShortcode::class,
+            \StatsLineChartShortcode::class,
+            \ListDefaultShortcode::class,
         ];
     }
 
 	public function hookDisplayHeader($params) {
-        FrameworkRegistry::assignCssSelectorsToSmarty();
+        CssTokenRegistry::assignCssSelectorsToSmarty();
 
         Media::addJsDef(array(
-            'css_selector' => FrameworkRegistry::getAllCssSelectors(),
+            'css_selector' => CssTokenRegistry::getAllCssSelectors(),
         ));
 
         // Make sure that the default styles are always available */

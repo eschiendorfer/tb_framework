@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class ModalDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'modal';
     protected const NAME = 'modal_default';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
@@ -16,7 +16,7 @@ class ModalDefaultComponent extends ComponentDefinition {
         $html = '<br><br>This is a custom modal';
 
         $html .= HeaderDefaultComponent::fetchDemo();
-        $html .= CarouselComponentsComponent::fetchDemo();
+        $html .= CarouselDefaultComponent::fetchDemo();
 
         return [
             'html' => $html,

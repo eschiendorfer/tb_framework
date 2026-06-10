@@ -1,12 +1,13 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
+require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class MessageHeaderComponent extends ComponentDefinition
 {
     protected const TYPE = 'message';
     protected const NAME = 'message_header';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const STYLES = ['default', 'compact'];
     protected const TEMPLATE_PATHS_BY_STYLE = [
@@ -67,12 +68,14 @@ class MessageHeaderComponent extends ComponentDefinition
 
     public function getDemoData(): array
     {
+        $profile = ImagecloudAvatarComponent::getKronaAvatarProfiles(1)[0] ?? [];
+
         return [
-            'avatar' => '/upload/genzo_krona/img/avatar/no-avatar.jpg',
-            'avatar_alt' => 'Avatar',
+            'avatar' => (string)($profile['avatar'] ?? ''),
+            'avatar_alt' => (string)($profile['name'] ?? 'Avatar'),
             'style' => 'default',
-            'title' => 'Demo User',
-            'title_url' => '#',
+            'title' => (string)($profile['name'] ?? 'Demo User'),
+            'title_url' => (string)($profile['url'] ?? '#'),
             'activity' => 'Opened a discussion',
             'subtitle' => '2 hours ago',
             'player_badge' => 'employee',

@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class MenuVerticalComponent extends ComponentDefinition {
     protected const TYPE = 'menu';
     protected const NAME = 'menu_vertical';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
     protected const STYLES = ['default', 'compact'];
 

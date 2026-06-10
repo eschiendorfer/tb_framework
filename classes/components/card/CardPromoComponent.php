@@ -5,7 +5,7 @@ require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
 class CardPromoComponent extends ComponentDefinition {
     protected const TYPE = 'card';
     protected const NAME = 'card_promo';
-    protected const CHANNELS = [ComponentChannel::WEB, ComponentChannel::EMAIL];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB, \CoreExtension\OutputChannelEnum::EMAIL];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {

@@ -1,13 +1,14 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
+require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 use CoreExtension\EntityTypeEnum;
 
 class ReviewSectionComponent extends ComponentDefinition {
     protected const TYPE = 'review';
     protected const NAME = 'review_section';
-    protected const CHANNELS = [ComponentChannel::WEB];
+    protected const CHANNELS = [\CoreExtension\OutputChannelEnum::WEB];
     protected const SUPPORTS_CACHING = false;
 
     public function validate(array &$data): void {
@@ -54,14 +55,19 @@ class ReviewSectionComponent extends ComponentDefinition {
     }
 
     private function getReviewDefaults(): array {
+        $profiles = ImagecloudAvatarComponent::getKronaAvatarProfiles(3);
+        $firstProfile = $profiles[0] ?? [];
+        $secondProfile = $profiles[1] ?? [];
+        $thirdProfile = $profiles[2] ?? [];
+
         return [
             [
                 'id_customer' => 0,
                 'id_review' => 0,
                 'customer' => [
-                    'name' => 'Genzo Wakabayashi',
-                    'image' => ['src' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
-                    'link' => ['href' => ''],
+                    'name' => (string)($firstProfile['name'] ?? 'Genzo Wakabayashi'),
+                    'image' => ['src' => (string)($firstProfile['avatar'] ?? '')],
+                    'link' => ['href' => (string)($firstProfile['url'] ?? '')],
                 ],
                 'review_grade' => rand(1*10,5*10)/10,
                 'review_date' => date('d. F Y'),
@@ -74,9 +80,9 @@ class ReviewSectionComponent extends ComponentDefinition {
                 'id_customer' => 0,
                 'id_review' => 0,
                 'customer' => [
-                    'name' => 'Martina Meyer',
-                    'image' => ['src' => 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80'],
-                    'link' => ['href' => ''],
+                    'name' => (string)($secondProfile['name'] ?? 'Martina Meyer'),
+                    'image' => ['src' => (string)($secondProfile['avatar'] ?? '')],
+                    'link' => ['href' => (string)($secondProfile['url'] ?? '')],
                 ],
                 'review_grade' => rand(1*10,5*10)/10,
                 'review_date' => date('d. F Y', strtotime('-3 months -2 days')),
@@ -89,9 +95,9 @@ class ReviewSectionComponent extends ComponentDefinition {
                 'id_customer' => 0,
                 'id_review' => 0,
                 'customer' => [
-                    'name' => 'Sadio Perreira',
-                    'image' => ['src' => 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixqx=oilqXxSqey&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'],
-                    'link' => ['href' => ''],
+                    'name' => (string)($thirdProfile['name'] ?? 'Sadio Perreira'),
+                    'image' => ['src' => (string)($thirdProfile['avatar'] ?? '')],
+                    'link' => ['href' => (string)($thirdProfile['url'] ?? '')],
                 ],
                 'review_grade' => rand(1*10,5*10)/10,
                 'review_date' => date('d. F Y', strtotime('-1 year -2 weeks')),
