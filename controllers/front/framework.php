@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__).'/../../classes/FrameworkCatalogBuilder.php');
+require_once(dirname(__FILE__).'/../../classes/FrameworkIconCatalogBuilder.php');
 
 class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
     public $errors;
@@ -26,6 +27,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         CssTokenRegistry::assignCssSelectorsToSmarty();
 
         $catalogBuilder = new FrameworkCatalogBuilder();
+        $iconCatalogBuilder = new FrameworkIconCatalogBuilder();
         $catalogItems = $catalogBuilder->all();
         $selectedChannels = $this->resolveSelectedChannels();
         $selectedDataInputModes = $this->resolveSelectedDataInputModes();
@@ -39,7 +41,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             $selectedTargetEntityTypeKeys
         );
         $visibleCatalogItems = $this->filterItemsByKind($filteredCatalogItems, $selectedCatalogKind);
-        $type = $this->resolveRequestedType($catalogBuilder->getAvailableTypes($catalogItems));
+        $type = $this->resolveRequestedType($this->getAvailableTypes($catalogBuilder, $catalogItems, $iconCatalogBuilder));
         $component = (bool)(int)Tools::getValue('component');
 
         $this->context->smarty->assign(array(
@@ -52,6 +54,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             'site_image' => '',
             'framework_content' => $type ? $this->renderFrameworkContentByType(
                 $catalogBuilder,
+                $iconCatalogBuilder,
                 $visibleCatalogItems,
                 $type,
                 $component,
@@ -65,7 +68,8 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
                 $selectedDataInputModes,
                 $selectedTargetEntityTypeKeys,
                 $type,
-                $selectedCatalogKind
+                $selectedCatalogKind,
+                $iconCatalogBuilder->count()
             ),
             'framework_channel_filters' => $this->buildChannelFilterOptions($selectedChannels),
             'framework_data_input_filters' => $this->buildDataInputModeFilterOptions($selectedDataInputModes),
@@ -83,6 +87,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
 
     private function renderFrameworkContentByType(
         FrameworkCatalogBuilder $catalogBuilder,
+        FrameworkIconCatalogBuilder $iconCatalogBuilder,
         array $catalogItems,
         string $type,
         bool $component,
@@ -90,6 +95,15 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         array $selectedDataInputModes,
         array $selectedTargetEntityTypeKeys
     ) {
+        if ($type === $iconCatalogBuilder->getType()) {
+            $this->context->smarty->assign(array(
+                'title' => 'Icons',
+                'icon_groups' => $iconCatalogBuilder->grouped(),
+            ));
+
+            return $this->context->smarty->fetch(_PS_MODULE_DIR_.'tb_framework/views/templates/helper/icons.tpl');
+        }
+
         if ($component) {
             $this->context->smarty->assign(array(
                 'title' => $this->formatTypeLabel($type),
@@ -109,6 +123,17 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         }
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'tb_framework/views/templates/helper/components.tpl');
+    }
+
+    private function getAvailableTypes(
+        FrameworkCatalogBuilder $catalogBuilder,
+        array $catalogItems,
+        FrameworkIconCatalogBuilder $iconCatalogBuilder
+    ): array {
+        $availableTypes = $catalogBuilder->getAvailableTypes($catalogItems);
+        $availableTypes[] = $iconCatalogBuilder->getType();
+
+        return array_values(array_unique($availableTypes));
     }
 
     private function resolveRequestedType(array $availableTypes): string {
@@ -149,7 +174,8 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
         array $selectedDataInputModes,
         array $selectedTargetEntityTypeKeys,
         string $currentType,
-        ?FrameworkCatalogItemKindEnum $selectedCatalogKind
+        ?FrameworkCatalogItemKindEnum $selectedCatalogKind,
+        int $iconCount
     ): array {
         $sections = [
             FrameworkCatalogItemKindEnum::COMPONENT->value => [
@@ -160,6 +186,11 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             FrameworkCatalogItemKindEnum::CSS_TOKEN->value => [
                 'kind' => FrameworkCatalogItemKindEnum::CSS_TOKEN->value,
                 'label' => 'CSS Tokens',
+                'items' => [],
+            ],
+            FrameworkCatalogItemKindEnum::ICON->value => [
+                'kind' => FrameworkCatalogItemKindEnum::ICON->value,
+                'label' => 'Icons',
                 'items' => [],
             ],
         ];
@@ -201,6 +232,30 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
 
             $sections[$sectionKey]['items'][$type]['count']++;
         }
+
+        $sections[FrameworkCatalogItemKindEnum::ICON->value]['items'][] = [
+            'type' => 'icons',
+            'kind' => FrameworkCatalogItemKindEnum::ICON->value,
+            'label' => 'Icons',
+            'count' => $iconCount,
+            'active' => $currentType === 'icons'
+                && (
+                    $selectedCatalogKind === null
+                    || $selectedCatalogKind === FrameworkCatalogItemKindEnum::ICON
+                ),
+            'url' => $this->context->link->getModuleLink(
+                'tb_framework',
+                'framework',
+                $this->buildFrameworkRouteParams(
+                    'icons',
+                    false,
+                    $selectedChannels,
+                    $selectedDataInputModes,
+                    $selectedTargetEntityTypeKeys,
+                    FrameworkCatalogItemKindEnum::ICON
+                )
+            ),
+        ];
 
         foreach ($sections as &$section) {
             uasort($section['items'], function ($left, $right) {
