@@ -112,7 +112,7 @@ class GridProductShortcode implements \ShortcodeModule\ShortcodeInterface
 
     public function render(array $params, string $channel, array $context = []): string
     {
-        $imageType = trim((string)($params['image_type'] ?? ''));
+        $imageType = trim((string)($params['image_type'] ?? 'home_default'));
         $products = \CoreExtension\ProductEntityDataProvider::loadProductsFromReferences(
             FrameworkEntityCollectionLoader::loadReferences(
                 $params,
