@@ -44,7 +44,7 @@ class ButtonPrimaryShortcode implements \ShortcodeModule\ShortcodeInterface
             \ShortcodeModule\EditorContractHelper::entityTypeFromEnum(\CoreExtension\EntityTypeEnum::BLOG, 'Blog', '', true, 'Blog-ID'),
             \ShortcodeModule\EditorContractHelper::entityTypeFromEnum(\CoreExtension\EntityTypeEnum::COMMUNITY_EVENT, 'Event', '', true, 'Event-ID'),
             \ShortcodeModule\EditorContractHelper::entityTypeFromEnum(\CoreExtension\EntityTypeEnum::MANUFACTURER, 'Hersteller', '', true, 'Hersteller-ID'),
-            \ShortcodeModule\EditorContractHelper::entityTypeFromEnum(\CoreExtension\EntityTypeEnum::CUSTOM_PRODUCT_LIST, 'Custom Product List', '', true, 'List-ID'),
+            \ShortcodeModule\EditorContractHelper::entityTypeFromEnum(\CoreExtension\EntityTypeEnum::CUSTOMPRODUCTLIST, 'Custom Product List', '', true, 'List-ID'),
             \ShortcodeModule\EditorContractHelper::entityTypeCustom('external', 'Externer Link', 'external', true, 'https://...'),
         ]);
     }
@@ -79,10 +79,10 @@ class ButtonPrimaryShortcode implements \ShortcodeModule\ShortcodeInterface
                     \CoreExtension\EntityTypeEnum::BLOG,
                     \CoreExtension\EntityTypeEnum::COMMUNITY_EVENT,
                     \CoreExtension\EntityTypeEnum::MANUFACTURER,
-                    \CoreExtension\EntityTypeEnum::CUSTOM_PRODUCT_LIST,
+                    \CoreExtension\EntityTypeEnum::CUSTOMPRODUCTLIST,
                 ],
                 [],
-                ['product', 'category', 'cms', 'blog', 'event', 'manufacturer', 'customproductlist', 'title', 'style']
+                ['product', 'category', 'cms', 'blog', 'community_event', 'manufacturer', 'customproductlist', 'title', 'style']
             ),
         ];
     }

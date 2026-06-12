@@ -45,7 +45,7 @@ class ListDefaultShortcode implements \ShortcodeModule\ShortcodeInterface
         return [
             \ShortcodeModule\EditorContractHelper::field('items', 'Manuelle Items (optional)', \CoreExtension\FormFieldTypeEnum::TEXT, false, 'items', [
                 'role' => \ShortcodeModule\ShortcodeFieldRoleEnum::COLLECTION_ITEMS->value,
-                'placeholder' => 'product:82,event:10',
+                'placeholder' => 'product:82,community_event:10',
             ]),
             \ShortcodeModule\EditorContractHelper::field('include_inactive', 'Inaktive manuelle Produkte anzeigen', \CoreExtension\FormFieldTypeEnum::SELECT, false, 'include_inactive', [
                 'default' => '0',
@@ -169,7 +169,7 @@ class ListDefaultShortcode implements \ShortcodeModule\ShortcodeInterface
             \CoreExtension\EntityTypeEnum::CMS,
             \CoreExtension\EntityTypeEnum::BLOG,
             \CoreExtension\EntityTypeEnum::COMMUNITY_EVENT,
-            \CoreExtension\EntityTypeEnum::CUSTOM_PRODUCT_LIST,
+            \CoreExtension\EntityTypeEnum::CUSTOMPRODUCTLIST,
         ];
     }
 }

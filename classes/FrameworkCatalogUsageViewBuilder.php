@@ -313,8 +313,8 @@ final class FrameworkCatalogUsageViewBuilder
             return 'product:82,product:93';
         }
 
-        if (in_array('product', $targetEntityTypeKeys, true) && in_array('event', $targetEntityTypeKeys, true)) {
-            return 'product:82,event:10';
+        if (in_array('product', $targetEntityTypeKeys, true) && in_array('community_event', $targetEntityTypeKeys, true)) {
+            return 'product:82,community_event:10';
         }
 
         $target = (string)($targetEntityTypeKeys[0] ?? 'product');

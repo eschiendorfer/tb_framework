@@ -188,7 +188,7 @@ class CarouselDefaultShortcode implements \ShortcodeModule\ShortcodeInterface
             return true;
         }
 
-        return strtolower(trim((string)($row['entity_type_key'] ?? ''))) === \CoreExtension\EntityTypeEnum::PRODUCT->getLegacyKey();
+        return strtolower(trim((string)($row['entity_type_key'] ?? ''))) === \CoreExtension\EntityTypeEnum::PRODUCT->getEntityTypeKey();
     }
 
     private static function resolveUrl(array $row): string
@@ -218,7 +218,7 @@ class CarouselDefaultShortcode implements \ShortcodeModule\ShortcodeInterface
             \CoreExtension\EntityTypeEnum::CMS,
             \CoreExtension\EntityTypeEnum::BLOG,
             \CoreExtension\EntityTypeEnum::COMMUNITY_EVENT,
-            \CoreExtension\EntityTypeEnum::CUSTOM_PRODUCT_LIST,
+            \CoreExtension\EntityTypeEnum::CUSTOMPRODUCTLIST,
         ];
     }
 }

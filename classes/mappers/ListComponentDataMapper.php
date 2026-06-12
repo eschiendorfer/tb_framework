@@ -46,7 +46,7 @@ final class ListComponentDataMapper
             return true;
         }
 
-        return strtolower(trim((string)($row['entity_type_key'] ?? ''))) === \CoreExtension\EntityTypeEnum::PRODUCT->getLegacyKey();
+        return strtolower(trim((string)($row['entity_type_key'] ?? ''))) === \CoreExtension\EntityTypeEnum::PRODUCT->getEntityTypeKey();
     }
 
     private static function formatProductTitle(array $row): string

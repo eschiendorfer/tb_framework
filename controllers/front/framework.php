@@ -546,7 +546,7 @@ class tb_frameworkFrameworkModuleFrontController extends ModuleFrontController {
             'category' => 'Kategorie',
             'cms' => 'CMS',
             'customproductlist' => 'Custom Product List',
-            'event' => 'Event',
+            'community_event' => 'Event',
             'manufacturer' => 'Hersteller',
             'product' => 'Produkt',
             default => $this->formatTypeLabel($targetEntityTypeKey),
