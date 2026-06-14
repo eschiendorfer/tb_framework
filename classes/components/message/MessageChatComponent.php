@@ -1,7 +1,6 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
-require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class MessageChatComponent extends ComponentDefinition {
     protected const TYPE = 'message';
@@ -20,11 +19,11 @@ class MessageChatComponent extends ComponentDefinition {
 
     public function getDemoData(): array {
         // Todo: add functionality that transform date into '3 weeks ago'
-        $profile = ImagecloudAvatarComponent::getDemoProfiles(1)[0] ?? [];
+        $profile = $this->getTeamCustomerDemoProfileRows(1)[0] ?? [];
 
         return [
             'title' => 'Some Title',
-            'alias' => (string)($profile['name'] ?? 'Frank the tank'),
+            'alias' => (string)($profile['title'] ?? ''),
             'avatar' => (string)($profile['avatar'] ?? ''),
             'messages' => [
                 [

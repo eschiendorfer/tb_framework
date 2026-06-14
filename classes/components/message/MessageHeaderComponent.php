@@ -1,7 +1,6 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
-require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class MessageHeaderComponent extends ComponentDefinition
 {
@@ -68,14 +67,14 @@ class MessageHeaderComponent extends ComponentDefinition
 
     public function getDemoData(): array
     {
-        $profile = ImagecloudAvatarComponent::getDemoProfiles(1)[0] ?? [];
+        $profile = $this->getTeamCustomerDemoProfileRows(1)[0] ?? [];
 
         return [
             'avatar' => (string)($profile['avatar'] ?? ''),
-            'avatar_alt' => (string)($profile['name'] ?? 'Avatar'),
+            'avatar_alt' => (string)($profile['title'] ?? ''),
             'style' => 'default',
-            'title' => (string)($profile['name'] ?? 'Demo User'),
-            'title_url' => (string)($profile['url'] ?? '#'),
+            'title' => (string)($profile['title'] ?? ''),
+            'title_url' => (string)($profile['url'] ?? ''),
             'activity' => 'Opened a discussion',
             'subtitle' => '2 hours ago',
             'player_badge' => 'employee',

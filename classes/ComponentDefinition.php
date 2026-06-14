@@ -21,6 +21,54 @@ abstract class ComponentDefinition {
 
     abstract public function getDemoData(): array;
 
+    protected function getTeamCustomerDemoProfileRows(int $limit = 3): array
+    {
+        if (
+            $limit <= 0
+            || !class_exists('SpielezarHelper')
+            || !method_exists('SpielezarHelper', 'getTeamMembers')
+            || !class_exists(\CoreExtension\EntityDataRegistry::class)
+            || !class_exists(\CoreExtension\EntityReference::class)
+            || !enum_exists(\CoreExtension\EntityTypeEnum::class)
+            || !enum_exists(\CoreExtension\OutputChannelEnum::class)
+            || !enum_exists(\CoreExtension\EntityDataProfileEnum::class)
+        ) {
+            return [];
+        }
+
+        $references = [];
+        foreach (\SpielezarHelper::getTeamMembers() as $idCustomer) {
+            $references[] = new \CoreExtension\EntityReference(
+                \CoreExtension\EntityTypeEnum::KRONA_CUSTOMER_PROFILE,
+                (int)$idCustomer
+            );
+        }
+
+        if (empty($references)) {
+            return [];
+        }
+
+        try {
+            $rowsByKey = \CoreExtension\EntityDataRegistry::getDataRows(
+                $references,
+                \CoreExtension\OutputChannelEnum::WEB,
+                \CoreExtension\EntityDataProfileEnum::SUMMARY
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($references as $reference) {
+            $row = $rowsByKey[$reference->getKey()] ?? null;
+            if (is_array($row) && trim((string)($row['title'] ?? '')) !== '') {
+                $rows[] = $row;
+            }
+        }
+
+        return array_slice($rows, 0, $limit);
+    }
+
     public static function addTrackingToData(array &$data, array $conversionTypes, int $entityType, int $entityId): void
     {
         if ($entityType <= 0 || $entityId <= 0) {

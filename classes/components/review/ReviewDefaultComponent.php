@@ -1,7 +1,6 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
-require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class ReviewDefaultComponent extends ComponentDefinition {
     protected const TYPE = 'review';
@@ -13,17 +12,17 @@ class ReviewDefaultComponent extends ComponentDefinition {
     }
 
     public function getDemoData(): array {
-        $profiles = ImagecloudAvatarComponent::getDemoProfiles(3);
+        $profiles = $this->getTeamCustomerDemoProfileRows(3);
         $firstProfile = $profiles[0] ?? [];
         $secondProfile = $profiles[1] ?? [];
         $thirdProfile = $profiles[2] ?? [];
 
         $reviews_default = [
             [
-                'id_customer' => 0,
+                'id_customer' => (int)($firstProfile['id_entity'] ?? 0),
                 'id_review' => 0,
                 'customer' => [
-                    'name' => (string)($firstProfile['name'] ?? 'Genzo Wakabayashi'),
+                    'name' => (string)($firstProfile['title'] ?? ''),
                     'image' => ['src' => (string)($firstProfile['avatar'] ?? '')],
                     'link' => ['href' => (string)($firstProfile['url'] ?? '')],
                 ],
@@ -35,10 +34,10 @@ class ReviewDefaultComponent extends ComponentDefinition {
                 'verified_buyer' => true,
             ],
             [
-                'id_customer' => 0,
+                'id_customer' => (int)($secondProfile['id_entity'] ?? 0),
                 'id_review' => 0,
                 'customer' => [
-                    'name' => (string)($secondProfile['name'] ?? 'Martina Meyer'),
+                    'name' => (string)($secondProfile['title'] ?? ''),
                     'image' => ['src' => (string)($secondProfile['avatar'] ?? '')],
                     'link' => ['href' => (string)($secondProfile['url'] ?? '')],
                 ],
@@ -50,10 +49,10 @@ class ReviewDefaultComponent extends ComponentDefinition {
                 'verified_buyer' => false,
             ],
             [
-                'id_customer' => 0,
+                'id_customer' => (int)($thirdProfile['id_entity'] ?? 0),
                 'id_review' => 0,
                 'customer' => [
-                    'name' => (string)($thirdProfile['name'] ?? 'Sadio Perreira'),
+                    'name' => (string)($thirdProfile['title'] ?? ''),
                     'image' => ['src' => (string)($thirdProfile['avatar'] ?? '')],
                     'link' => ['href' => (string)($thirdProfile['url'] ?? '')],
                 ],

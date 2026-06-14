@@ -7,6 +7,8 @@ class FrameworkRegistry {
 
     private static function build(): array {
         $components = [];
+        $registeredClasses = [];
+        $registeredNames = [];
         $componentsPath = __DIR__ . '/components';
 
         if (!is_dir($componentsPath)) {
@@ -32,6 +34,10 @@ class FrameworkRegistry {
                     continue;
                 }
 
+                if (isset($registeredClasses[$className])) {
+                    continue;
+                }
+
                 if (!is_subclass_of($className, ComponentDefinition::class)) {
                     continue;
                 }
@@ -42,7 +48,14 @@ class FrameworkRegistry {
                     continue;
                 }
 
-                $components[] = new $className();
+                $component = new $className();
+                if ($component->getName() === '' || isset($registeredNames[$component->getName()])) {
+                    continue;
+                }
+
+                $registeredClasses[$className] = true;
+                $registeredNames[$component->getName()] = true;
+                $components[] = $component;
             }
         }
 

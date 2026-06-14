@@ -1,7 +1,6 @@
 <?php
 
 require_once(dirname(__DIR__, 2).'/ComponentDefinition.php');
-require_once(dirname(__DIR__).'/imagecloud/ImagecloudAvatarComponent.php');
 
 class MessageThreadComponent extends ComponentDefinition {
     protected const TYPE = 'message';
@@ -15,7 +14,7 @@ class MessageThreadComponent extends ComponentDefinition {
 
     public function getDemoData(): array {
         // Todo: add functionality that transform date into '3 weeks ago'
-        $profiles = ImagecloudAvatarComponent::getDemoProfiles(3);
+        $profiles = $this->getTeamCustomerDemoProfileRows(3);
         $firstProfile = $profiles[0] ?? [];
         $secondProfile = $profiles[1] ?? [];
         $thirdProfile = $profiles[2] ?? [];
@@ -23,9 +22,9 @@ class MessageThreadComponent extends ComponentDefinition {
         return [
             'messages' => [
                 [
-                    'id_customer' => (int)($firstProfile['id_customer'] ?? 0),
+                    'id_customer' => (int)($firstProfile['id_entity'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => (string)($firstProfile['name'] ?? 'Frank'),
+                    'alias'  => (string)($firstProfile['title'] ?? ''),
                     'date'   => '2022-10-18 21:12:32',
                     'avatar' => (string)($firstProfile['avatar'] ?? ''),
                     'message' => 'Hello guys, how are you doing?',
@@ -34,9 +33,9 @@ class MessageThreadComponent extends ComponentDefinition {
                     'html' => '',
                 ],
                 [
-                    'id_customer' => (int)($secondProfile['id_customer'] ?? 0),
+                    'id_customer' => (int)($secondProfile['id_entity'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => (string)($secondProfile['name'] ?? 'Melissa G.'),
+                    'alias'  => (string)($secondProfile['title'] ?? ''),
                     'date'   => '2022-10-19 05:06:51',
                     'avatar' => (string)($secondProfile['avatar'] ?? ''),
                     'message' => 'Doing great, thank you',
@@ -45,9 +44,9 @@ class MessageThreadComponent extends ComponentDefinition {
                     'html' => '',
                 ],
                 [
-                    'id_customer' => (int)($thirdProfile['id_customer'] ?? 0),
+                    'id_customer' => (int)($thirdProfile['id_entity'] ?? 0),
                     'id_message' => 0,
-                    'alias'  => (string)($thirdProfile['name'] ?? 'King Arthur'),
+                    'alias'  => (string)($thirdProfile['title'] ?? ''),
                     'date'   => '2022-10-19 09:14:01',
                     'avatar' => (string)($thirdProfile['avatar'] ?? ''),
                     'message' => 'It\'s monday. What a stupid question...',
