@@ -68,7 +68,7 @@ class MessageHeaderComponent extends ComponentDefinition
 
     public function getDemoData(): array
     {
-        $profile = ImagecloudAvatarComponent::getKronaAvatarProfiles(1)[0] ?? [];
+        $profile = ImagecloudAvatarComponent::getDemoProfiles(1)[0] ?? [];
 
         return [
             'avatar' => (string)($profile['avatar'] ?? ''),

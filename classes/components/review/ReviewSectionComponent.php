@@ -55,7 +55,7 @@ class ReviewSectionComponent extends ComponentDefinition {
     }
 
     private function getReviewDefaults(): array {
-        $profiles = ImagecloudAvatarComponent::getKronaAvatarProfiles(3);
+        $profiles = ImagecloudAvatarComponent::getDemoProfiles(3);
         $firstProfile = $profiles[0] ?? [];
         $secondProfile = $profiles[1] ?? [];
         $thirdProfile = $profiles[2] ?? [];

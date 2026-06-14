@@ -20,7 +20,7 @@ class MessageChatComponent extends ComponentDefinition {
 
     public function getDemoData(): array {
         // Todo: add functionality that transform date into '3 weeks ago'
-        $profile = ImagecloudAvatarComponent::getKronaAvatarProfiles(1)[0] ?? [];
+        $profile = ImagecloudAvatarComponent::getDemoProfiles(1)[0] ?? [];
 
         return [
             'title' => 'Some Title',

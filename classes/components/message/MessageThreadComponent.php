@@ -15,7 +15,7 @@ class MessageThreadComponent extends ComponentDefinition {
 
     public function getDemoData(): array {
         // Todo: add functionality that transform date into '3 weeks ago'
-        $profiles = ImagecloudAvatarComponent::getKronaAvatarProfiles(3);
+        $profiles = ImagecloudAvatarComponent::getDemoProfiles(3);
         $firstProfile = $profiles[0] ?? [];
         $secondProfile = $profiles[1] ?? [];
         $thirdProfile = $profiles[2] ?? [];

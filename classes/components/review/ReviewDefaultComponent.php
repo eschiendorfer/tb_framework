@@ -13,7 +13,7 @@ class ReviewDefaultComponent extends ComponentDefinition {
     }
 
     public function getDemoData(): array {
-        $profiles = ImagecloudAvatarComponent::getKronaAvatarProfiles(3);
+        $profiles = ImagecloudAvatarComponent::getDemoProfiles(3);
         $firstProfile = $profiles[0] ?? [];
         $secondProfile = $profiles[1] ?? [];
         $thirdProfile = $profiles[2] ?? [];
